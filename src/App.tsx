@@ -4,6 +4,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPreview } from './pages/DashboardPreview';
 import { ReferencesPage } from './features/references/ReferencesPage';
+import { UsersPage } from './features/users/UsersPage';
 import { OperationsListPage } from './features/operations/OperationsListPage';
 import { OperationDetailPage } from './features/operations/OperationDetailPage';
 import { AppLayout, getBreadcrumbs } from './components/layout/AppLayout';
@@ -27,6 +28,10 @@ const AuthenticatedApp: React.FC = () => {
 
   let page: React.ReactNode;
   if (section === 'references') page = <ReferencesPage activeKey={subSection} />;
+  else if (section === 'users')
+    page = <UsersPage initialTab="users" onTabChange={(tab) => navigate(tab)} />;
+  else if (section === 'roles')
+    page = <UsersPage initialTab="roles" onTabChange={(tab) => navigate(tab)} />;
   else if (section === 'gqi-minora')
     page = Number.isFinite(operationId) ? (
       <OperationDetailPage key={operationId} id={operationId} onBack={() => navigate('gqi-minora')} />

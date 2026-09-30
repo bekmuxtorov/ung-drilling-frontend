@@ -1,140 +1,188 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { User, LoginCredentials, AuthState } from '../types/auth';
+import { authApi } from '../api/accounts';
+import {
+  clearAuthTokens,
+  getAccessToken,
+  onUnauthorized,
+  setAuthTokens,
+  ApiError,
+} from '../api/client';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  hasPermission: (permission: string) => boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo Database of valid users matching UNG drilling roles
-const MOCK_USERS: Record<string, { pass: string; user: User }> = {
-  admin: {
-    pass: 'Admin@123',
-    user: {
-      id: 'usr-001',
-      name: 'Aliyev Jasur Shavkatovich',
-      username: 'admin',
-      role: 'ADMIN',
-      roleName: 'Tizim Administratori',
-      department: 'Axborot-kommunikatsiya texnologiyalari departamenti',
-      email: 'j.aliyev@ung.uz',
-      phone: '+998 (90) 123-45-67',
-    },
-  },
-  prorab: {
-    pass: 'Prorab@123',
-    user: {
-      id: 'usr-002',
-      name: 'Karimov Rustam Baxtiyorovich',
-      username: 'prorab',
-      role: 'PRORAB',
-      roleName: "Burg'ilash bosh prorabi",
-      department: "Muborak burg'ilash ishlari boshqarmasi",
-      email: 'r.karimov@ung.uz',
-      phone: '+998 (97) 234-56-78',
-    },
-  },
-  operator: {
-    pass: 'Operator@123',
-    user: {
-      id: 'usr-003',
-      name: 'Saidov Jamshid Akmalovich',
-      username: 'operator',
-      role: 'OPERATOR',
-      roleName: "Burg'ilash uskunasi katta operatori",
-      department: "Sho'rtan konlar majmuasi",
-      email: 'j.saidov@ung.uz',
-      phone: '+998 (99) 345-67-89',
-    },
-  },
+const USER_SESSION_KEY = 'ung_auth_user_data';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const mapBackendUserToUser = (u: any): User => {
+  const fullName =
+    [u.first_name, u.last_name].filter(Boolean).join(' ').trim() ||
+    u.employee?.name ||
+    u.employee_name ||
+    u.username;
+
+  const roleName =
+    u.role?.name ||
+    u.role_name ||
+    (u.is_superuser ? 'Super Administrator' : u.is_staff ? 'Tizim Administratori' : 'Foydalanuvchi');
+
+  const department =
+    u.employee?.position_name ||
+    u.department ||
+    "O'zbekneftgaz AJ Burg'ilash departamenti";
+
+  return {
+    id: u.id,
+    name: fullName,
+    username: u.username,
+    email: u.email || '',
+    first_name: u.first_name,
+    last_name: u.last_name,
+    role: u.role?.name || (u.is_superuser ? 'ADMIN' : 'USER'),
+    roleName,
+    department,
+    is_active: u.is_active ?? true,
+    is_staff: u.is_staff ?? false,
+    is_superuser: u.is_superuser ?? false,
+    role_detail: u.role || u.role_detail || null,
+    employee_detail: u.employee || u.employee_detail || null,
+    permissions: u.permissions || [],
+    created_at: u.created_at,
+    updated_at: u.updated_at,
+    last_login: u.last_login,
+  };
 };
 
-const STORAGE_KEY = 'ung_auth_session';
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    token: null,
-    isAuthenticated: false,
-    isLoading: true,
+  const [authState, setAuthState] = useState<AuthState>(() => {
+    // Brauzer xotirasidan tezkor yuklash
+    const token = getAccessToken();
+    const storedUser = localStorage.getItem(USER_SESSION_KEY) || sessionStorage.getItem(USER_SESSION_KEY);
+    let user: User | null = null;
+    if (storedUser) {
+      try {
+        user = JSON.parse(storedUser);
+      } catch {
+        // Ignore JSON error
+      }
+    }
+    return {
+      user,
+      token,
+      isAuthenticated: !!token && !!user,
+      isLoading: true,
+    };
   });
 
-  // Restore session
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.token && parsed?.user) {
-          setAuthState({
-            user: parsed.user,
-            token: parsed.token,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-          return;
-        }
-      }
-    } catch {
-      // Ignore parse errors
-    }
-    setAuthState((prev) => ({ ...prev, isLoading: false }));
-  }, []);
-
-  const login = async (credentials: LoginCredentials): Promise<{ success: boolean; error?: string }> => {
-    setAuthState((prev) => ({ ...prev, isLoading: true }));
-
-    // Simulate enterprise backend network roundtrip latency (800ms)
-    await new Promise((r) => setTimeout(r, 850));
-
-    const cleanUsername = credentials.username.trim().toLowerCase();
-    const matchedAccount = MOCK_USERS[cleanUsername];
-
-    // Check credentials or allow demo passwords
-    if (matchedAccount && matchedAccount.pass === credentials.password) {
-      const fakeToken = `ung_jwt_${cleanUsername}_${Date.now()}`;
-      const sessionData = {
-        user: matchedAccount.user,
-        token: fakeToken,
-      };
-
-      if (credentials.rememberMe) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
-        sessionStorage.removeItem(STORAGE_KEY);
-      } else {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
-        localStorage.removeItem(STORAGE_KEY);
-      }
-
-      setAuthState({
-        user: matchedAccount.user,
-        token: fakeToken,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-
-      return { success: true };
-    }
-
-    setAuthState((prev) => ({ ...prev, isLoading: false }));
-    return { success: false, error: 'INVALID_CREDENTIALS' };
-  };
-
-  const logout = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    sessionStorage.removeItem(STORAGE_KEY);
+  const logout = useCallback(() => {
+    clearAuthTokens();
+    localStorage.removeItem(USER_SESSION_KEY);
+    sessionStorage.removeItem(USER_SESSION_KEY);
     setAuthState({
       user: null,
       token: null,
       isAuthenticated: false,
       isLoading: false,
     });
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const userItem = await authApi.me();
+      const mappedUser = mapBackendUserToUser(userItem);
+      const isRemember = localStorage.getItem(USER_SESSION_KEY) !== null;
+      const targetStorage = isRemember ? localStorage : sessionStorage;
+      targetStorage.setItem(USER_SESSION_KEY, JSON.stringify(mappedUser));
+
+      setAuthState((prev) => ({
+        ...prev,
+        user: mappedUser,
+        isAuthenticated: true,
+        isLoading: false,
+      }));
+    } catch (err) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        logout();
+      }
+    }
+  }, [logout]);
+
+  // Dastlabki yuklanishda sessiyani tekshirish va yangilash
+  useEffect(() => {
+    const token = getAccessToken();
+    if (!token) {
+      setAuthState((prev) => ({ ...prev, isLoading: false, isAuthenticated: false }));
+      return;
+    }
+
+    refreshUser().finally(() => {
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
+    });
+  }, [refreshUser]);
+
+  // Token eskirib qayta tiklanmaganda logout qilish
+  useEffect(() => {
+    const unsubscribe = onUnauthorized(() => {
+      logout();
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, [logout]);
+
+  const login = async (credentials: LoginCredentials): Promise<{ success: boolean; error?: string }> => {
+    setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      const res = await authApi.login(credentials);
+      const { access, refresh, user: rawUser } = res;
+
+      // Tokenlarni saqlash
+      setAuthTokens({
+        access,
+        refresh,
+        rememberMe: credentials.rememberMe ?? true,
+      });
+
+      const mappedUser = mapBackendUserToUser(rawUser);
+      const targetStorage = credentials.rememberMe ? localStorage : sessionStorage;
+      targetStorage.setItem(USER_SESSION_KEY, JSON.stringify(mappedUser));
+
+      setAuthState({
+        user: mappedUser,
+        token: access,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+
+      return { success: true };
+    } catch (err) {
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          return { success: false, error: "Kiritilgan login yoki parol noto'g'ri." };
+        }
+        return { success: false, error: err.message };
+      }
+      return { success: false, error: "Serverga ulanishda xatolik yuz berdi." };
+    }
+  };
+
+  const hasPermission = (permission: string): boolean => {
+    if (!authState.user) return false;
+    if (authState.user.is_superuser) return true;
+    return authState.user.permissions?.includes(permission) ?? false;
   };
 
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout }}>
+    <AuthContext.Provider value={{ ...authState, login, logout, hasPermission, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -17,6 +17,7 @@ import {
   PanelLeft,
   Search,
   Settings,
+  ShieldCheck,
   TriangleAlert,
   UserRound,
   type LucideIcon,
@@ -58,6 +59,7 @@ const MENU: MenuEntry[] = [
     children: [
       ...REFERENCES.map((r) => ({ path: `references/${r.key}`, label: r.title, icon: r.icon })),
       { path: 'users', label: 'Foydalanuvchilar', icon: UserRound },
+      { path: 'roles', label: 'Rollar va ruxsatlar', icon: ShieldCheck },
     ],
   },
   {

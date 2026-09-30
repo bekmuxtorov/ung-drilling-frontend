@@ -66,7 +66,7 @@ export const LoginPage: React.FC = () => {
     try {
       const res = await login({ username, password, rememberMe: true });
       if (!res.success) {
-        setGeneralError(t.errors.invalidCredentials);
+        setGeneralError(res.error || t.errors.invalidCredentials);
       }
     } catch {
       setGeneralError(t.errors.networkError);

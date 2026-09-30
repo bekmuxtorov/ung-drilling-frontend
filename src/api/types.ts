@@ -41,7 +41,7 @@ export interface ListParams {
   page_size?: number;
   search?: string;
   ordering?: string;
-  [filter: string]: string | number | undefined;
+  [filter: string]: string | number | boolean | null | undefined;
 }
 
 /* ---------- VBM (Minora montaji) operatsiyalari ---------- */
