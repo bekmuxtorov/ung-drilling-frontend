@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Layers, Plus } from 'lucide-react';
 import type { DepthsLayersLength } from '../../api/types';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
@@ -66,6 +66,8 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
       await depthsLayersLengthApi.remove(deleting.id);
       notify('success', 'O‘chirildi');
       setDeleting(null);
+      setModalOpen(false);
+      setEditing(null);
       onChanged();
     } catch {
       notify('error', 'O‘chirib bo‘lmadi');
@@ -85,7 +87,7 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
         </div>
         <button type="button" className="btn btn--primary" onClick={handleOpenAdd}>
           <Plus size={14} />
-          Qatlam kesimi qo‘shish
+          Qo‘shish
         </button>
       </div>
 
@@ -146,14 +148,18 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
                 <th>Qatlam nomi</th>
                 <th>Qatlam qalinligi / Oralig'i (m)</th>
                 <th>Umumiy chuqurlikdagi ulushi</th>
-                <th style={{ width: '100px', textAlign: 'right' }}>Amallar</th>
               </tr>
             </thead>
             <tbody>
               {layers.map((l, index) => {
                 const pct = totalLength > 0 ? ((l.length || 0) / totalLength) * 100 : 0;
                 return (
-                  <tr key={l.id}>
+                  <tr
+                    key={l.id}
+                    className="clickable-row"
+                    onClick={() => handleOpenEdit(l)}
+                    title="Batafsil ko‘rish va tahrirlash uchun bosing"
+                  >
                     <td className="table__num">{index + 1}</td>
                     <td>
                       <div className="flex-row items-center gap-2">
@@ -169,26 +175,6 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
                     </td>
                     <td>
                       <span className="badge badge--neutral">{formatNumber(pct, 1)}%</span>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className="action-buttons">
-                        <button
-                          type="button"
-                          className="icon-btn"
-                          title="Tahrirlash"
-                          onClick={() => handleOpenEdit(l)}
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          className="icon-btn icon-btn--danger"
-                          title="O‘chirish"
-                          onClick={() => setDeleting(l)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 );
@@ -207,12 +193,20 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
           setEditing(null);
         }}
         onSubmit={handleSubmit}
+        onDelete={(item) => {
+          setDeleting(item);
+        }}
       />
 
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="Qatlam kesimini o‘chirmoqchimisiz?"
+        title="Qatlam kesimini o‘chirish"
+        warning={
+          deleting
+            ? `${deleting.layer?.name || 'Ushbu qatlam'} kesimini (${deleting.length ? deleting.length + ' m' : ''}) rostdan ham o‘chirmoqchimisiz?`
+            : undefined
+        }
         onConfirm={handleDelete}
         onClose={() => setDeleting(null)}
       />

@@ -6,8 +6,12 @@
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
+}
+
+.bpa-passport-card + .doc-tabs-card {
+  margin-top: -4px;
 }
 
 
@@ -288,20 +292,40 @@
 }
 
 /* ---------- Tabs Component ---------- */
+.doc-tabs-sentinel {
+  display: block;
+  height: 1px;
+  margin-bottom: -1px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
 .doc-tabs-card {
   background: #ffffff;
   border: 1px solid var(--gray-200);
   border-radius: 8px;
-  overflow: hidden;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  position: relative;
 }
 
 .doc-tabs-bar {
+  position: sticky;
+  top: 48px;
+  z-index: 20;
   display: flex;
   background: var(--gray-50);
   border-bottom: 1px solid var(--gray-200);
   padding: 0 12px;
   overflow-x: auto;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  transition: box-shadow 0.15s ease, border-radius 0.15s ease;
+}
+
+.doc-tabs-bar.is-stuck {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  box-shadow: 0 4px 12px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
 }
 
 .doc-tab-btn {
@@ -502,6 +526,9 @@
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px dashed var(--gray-200);
+  max-height: 140px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .strata-legend__item {
@@ -814,13 +841,13 @@
 
 /* ---------- BPA Passport Form Modal ---------- */
 .modal--lg {
-  max-width: 680px;
+  max-width: 720px;
 }
 
 .bpa-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .bpa-form-group {
@@ -854,8 +881,13 @@
   gap: 14px 16px;
 }
 
+.bpa-form-row--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 @media (max-width: 640px) {
-  .bpa-form-row {
+  .bpa-form-row,
+  .bpa-form-row--3 {
     grid-template-columns: 1fr;
   }
 }

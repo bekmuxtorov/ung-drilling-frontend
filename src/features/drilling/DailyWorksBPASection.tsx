@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import type { DailyWorkDescriptionBPA } from '../../api/types';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
@@ -91,16 +91,20 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
             <thead>
               <tr>
                 <th className="table__num">#</th>
-                <th style={{ width: '110px' }}>Sana</th>
+                <th style={{ width: '120px' }}>Sana</th>
                 <th>Bajarilgan ish tavsifi</th>
                 <th>Eritma parametrlari</th>
                 <th>Burg'ilash rejimi</th>
-                <th style={{ width: '100px', textAlign: 'right' }}>Amallar</th>
               </tr>
             </thead>
             <tbody>
               {works.map((w, index) => (
-                <tr key={w.id}>
+                <tr
+                  key={w.id}
+                  className="clickable-row"
+                  onClick={() => handleOpenEdit(w)}
+                  title="Batafsil ko‘rish va tahrirlash uchun bosing"
+                >
                   <td className="table__num">{index + 1}</td>
                   <td>
                     <strong>{formatDate(w.report_date)}</strong>
@@ -110,77 +114,66 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
                   </td>
                   <td>
                     <div className="params-compact">
-                      {w.density != null && (
+                      {Number(w.density) > 0 && (
                         <span className="param-tag">
                           Zichlik: <b>{formatNumber(w.density, 2)} g/sm³</b>
                         </span>
                       )}
-                      {w.viscosity != null && (
+                      {Number(w.viscosity) > 0 && (
                         <span className="param-tag">
                           Qovushqoqlik: <b>{formatNumber(w.viscosity)} s</b>
                         </span>
                       )}
-                      {w.fluid_loss != null && (
+                      {Number(w.fluid_loss) > 0 && (
                         <span className="param-tag">
                           Suv: <b>{formatNumber(w.fluid_loss)} sm³</b>
                         </span>
                       )}
-                      {w.mud_cake != null && (
+                      {Number(w.mud_cake) > 0 && (
                         <span className="param-tag">
                           Loy: <b>{formatNumber(w.mud_cake)} mm</b>
                         </span>
                       )}
-                      {w.ph_level != null && (
+                      {Number(w.ph_level) > 0 && (
                         <span className="param-tag">
                           pH: <b>{formatNumber(w.ph_level)}</b>
                         </span>
                       )}
-                      {w.density == null && w.viscosity == null && w.fluid_loss == null && '—'}
+                      {!Number(w.density) &&
+                        !Number(w.viscosity) &&
+                        !Number(w.fluid_loss) &&
+                        !Number(w.mud_cake) &&
+                        !Number(w.ph_level) &&
+                        '—'}
                     </div>
                   </td>
                   <td>
                     <div className="params-compact">
-                      {w.weight_on_bit != null && (
+                      {Number(w.weight_on_bit) > 0 && (
                         <span className="param-tag param-tag--mech">
                           Yuklama: <b>{formatNumber(w.weight_on_bit)} t</b>
                         </span>
                       )}
-                      {w.rpm != null && (
+                      {Number(w.rpm) > 0 && (
                         <span className="param-tag param-tag--mech">
                           RPM: <b>{formatNumber(w.rpm, 0)}</b>
                         </span>
                       )}
-                      {w.pump_pressure != null && (
+                      {Number(w.pump_pressure) > 0 && (
                         <span className="param-tag param-tag--mech">
                           Bosim: <b>{formatNumber(w.pump_pressure)} MPa</b>
                         </span>
                       )}
-                      {w.flow_rate != null && (
+                      {Number(w.flow_rate) > 0 && (
                         <span className="param-tag param-tag--mech">
                           Sarf: <b>{formatNumber(w.flow_rate)} l/s</b>
                         </span>
                       )}
-                      {w.weight_on_bit == null && w.rpm == null && w.pump_pressure == null && '—'}
-                    </div>
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div className="action-buttons">
-                      <button
-                        type="button"
-                        className="icon-btn"
-                        title="Tahrirlash"
-                        onClick={() => handleOpenEdit(w)}
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        className="icon-btn icon-btn--danger"
-                        title="O‘chirish"
-                        onClick={() => setDeleting(w)}
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {!Number(w.weight_on_bit) &&
+                        !Number(w.rpm) &&
+                        !Number(w.pump_pressure) &&
+                        !Number(w.flow_rate) &&
+                        '—'}
                     </div>
                   </td>
                 </tr>
@@ -199,6 +192,10 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
           setEditing(null);
         }}
         onSubmit={handleSubmit}
+        onDelete={(item) => {
+          setModalOpen(false);
+          setDeleting(item);
+        }}
       />
 
       <ConfirmDialog

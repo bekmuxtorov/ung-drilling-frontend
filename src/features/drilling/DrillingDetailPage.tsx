@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AlertCircle,
   ArrowDownToLine,
@@ -46,6 +46,24 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [activeProp, setActiveProp] = useState<string | null>(null);
+
+  // Sentinel va scroll paytida tablar qatori yopishib qotib turishini kuzatish
+  const tabsSentinelRef = useRef<HTMLSpanElement>(null);
+  const [tabsStuck, setTabsStuck] = useState(false);
+
+  useEffect(() => {
+    const el = tabsSentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Sentinel topbar ostiga (48px) kirib ketganda tab qatori qotib turadi
+        setTabsStuck(!entry.isIntersecting);
+      },
+      { rootMargin: '-48px 0px 0px 0px', threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const load = useCallback(
     (signal?: AbortSignal) => {
@@ -291,7 +309,10 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
 
       {/* Document Sub-Sections (Tabs) */}
       <div className="doc-tabs-card">
-        <div className="doc-tabs-bar" role="tablist">
+        {/* Scroll paytida tablar qatori topbar ostida qotib turishi uchun sentinel */}
+        <span ref={tabsSentinelRef} className="doc-tabs-sentinel" aria-hidden />
+
+        <div className={`doc-tabs-bar ${tabsStuck ? 'is-stuck' : ''}`} role="tablist">
           <button
             type="button"
             role="tab"
