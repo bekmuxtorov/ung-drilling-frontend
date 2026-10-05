@@ -45,7 +45,6 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [activeProp, setActiveProp] = useState<string | null>(null);
 
   // Sentinel va scroll paytida tablar qatori yopishib qotib turishini kuzatish
   const tabsSentinelRef = useRef<HTMLSpanElement>(null);
@@ -191,117 +190,117 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
         </div>
       </div>
 
-      {/* Passport Summary Banner Card */}
-      <div className="bpa-passport-card">
-        <div className="passport-grid">
-          {/* Col 1: Attributes */}
-          <div className="passport-col passport-col--details">
-            <h3 className="passport-section-title">Pasport rekvizitlari</h3>
-            <div className="passport-details-list">
-              <div
-                className={`passport-prop ${activeProp === 'enterprise' ? 'is-active' : ''}`}
-                onMouseEnter={() => setActiveProp('enterprise')}
-                onMouseLeave={() => setActiveProp(null)}
-              >
-                <span className="passport-prop__label">
-                  <Building2 size={13} />
-                  Tashkilot:
-                </span>
-                <span className="passport-prop__val">{bpa.enterprise?.name || '—'}</span>
-              </div>
-              <div
-                className={`passport-prop ${activeProp === 'area' ? 'is-active' : ''}`}
-                onMouseEnter={() => setActiveProp('area')}
-                onMouseLeave={() => setActiveProp(null)}
-              >
-                <span className="passport-prop__label">
-                  <MapPin size={13} />
-                  Maydon / Kon:
-                </span>
-                <span className="passport-prop__val">
-                  {bpa.area?.name || '—'}
-                  {bpa.area?.region ? ` (${bpa.area.region.name})` : ''}
-                </span>
-              </div>
-              <div
-                className={`passport-prop ${activeProp === 'employee' ? 'is-active' : ''}`}
-                onMouseEnter={() => setActiveProp('employee')}
-                onMouseLeave={() => setActiveProp(null)}
-              >
-                <span className="passport-prop__label">
-                  <User size={13} />
-                  Mas'ul muhandis:
-                </span>
-                <span className="passport-prop__val">{bpa.employee?.name || '—'}</span>
-              </div>
-              <div
-                className={`passport-prop ${activeProp === 'machine' ? 'is-active' : ''}`}
-                onMouseEnter={() => setActiveProp('machine')}
-                onMouseLeave={() => setActiveProp(null)}
-              >
-                <span className="passport-prop__label">
-                  <Cog size={13} />
-                  Burg'ilash dastgohi:
-                </span>
-                <span className="passport-prop__val">{bpa.machine_type?.name || '—'}</span>
-              </div>
-              <div
-                className={`passport-prop ${activeProp === 'start_date' ? 'is-active' : ''}`}
-                onMouseEnter={() => setActiveProp('start_date')}
-                onMouseLeave={() => setActiveProp(null)}
-              >
-                <span className="passport-prop__label">
-                  <Calendar size={13} />
-                  Boshlangan sana:
-                </span>
-                <span className="passport-prop__val">{formatDate(bpa.drilling_start_date)}</span>
-              </div>
+      {/* Passport Summary Banner Card — Kompakt Gorizontal Uslub */}
+      <div className="bpa-passport-card bpa-passport-card--compact">
+        {/* 1-qavat: Pasport rekvizitlari gorizontal paneli */}
+        <div className="passport-meta-strip">
+          <div className="passport-chip" title={bpa.enterprise?.name || ''}>
+            <div className="passport-chip__icon passport-chip__icon--blue">
+              <Building2 size={14} />
+            </div>
+            <div className="passport-chip__content">
+              <span className="passport-chip__label">Tashkilot</span>
+              <span className="passport-chip__val">{bpa.enterprise?.name || '—'}</span>
             </div>
           </div>
 
-          {/* Col 2: Depth Progress Cards */}
-          <div className="passport-col passport-col--depths">
-            <h3 className="passport-section-title">Chuqurlik ko‘rsatkichlari</h3>
-            <div className="depth-kpi-grid">
-              <div className="depth-kpi depth-kpi--plan">
-                <span className="depth-kpi__icon">
-                  <ArrowDownToLine size={16} />
-                </span>
-                <span className="depth-kpi__label">Chuqurlik(Plan)</span>
-                <span className="depth-kpi__val">{depthPlan ? `${formatNumber(depthPlan, 0)} m` : '—'}</span>
-              </div>
-
-              <div className="depth-kpi depth-kpi--current">
-                <span className="depth-kpi__icon">
-                  <Gauge size={16} />
-                </span>
-                <span className="depth-kpi__label">Chuqurlik(Fakt)</span>
-                <span className="depth-kpi__val">{formatNumber(currentDepth, 1)} m</span>
-              </div>
-
-              <div className="depth-kpi depth-kpi--remain">
-                <span className="depth-kpi__icon">
-                  <Layers size={16} />
-                </span>
-                <span className="depth-kpi__label">Qolgan masofa</span>
-                <span className="depth-kpi__val">
-                  {depthPlan > 0 ? `${formatNumber(remainingDepth, 1)} m` : '—'}
-                </span>
-              </div>
+          <div
+            className="passport-chip"
+            title={`${bpa.area?.name || ''}${bpa.area?.region ? ` (${bpa.area.region.name})` : ''}`}
+          >
+            <div className="passport-chip__icon passport-chip__icon--emerald">
+              <MapPin size={14} />
             </div>
+            <div className="passport-chip__content">
+              <span className="passport-chip__label">Maydon / Kon</span>
+              <span className="passport-chip__val">
+                {bpa.area?.name || '—'}
+                {bpa.area?.region ? ` (${bpa.area.region.name})` : ''}
+              </span>
+            </div>
+          </div>
 
-            {/* Progress bar */}
-            <div className="depth-progress-box">
-              <div className="depth-progress-box__head">
-                <span>O'tish progressi:</span>
-                <strong>{formatNumber(progress, 1)}%</strong>
-              </div>
-              <div className="progress-bar-track">
-                <div
-                  className="progress-bar-fill"
-                  style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-                />
-              </div>
+          <div className="passport-chip" title={bpa.employee?.name || ''}>
+            <div className="passport-chip__icon passport-chip__icon--purple">
+              <User size={14} />
+            </div>
+            <div className="passport-chip__content">
+              <span className="passport-chip__label">Mas'ul muhandis</span>
+              <span className="passport-chip__val">{bpa.employee?.name || '—'}</span>
+            </div>
+          </div>
+
+          <div className="passport-chip" title={bpa.machine_type?.name || ''}>
+            <div className="passport-chip__icon passport-chip__icon--amber">
+              <Cog size={14} />
+            </div>
+            <div className="passport-chip__content">
+              <span className="passport-chip__label">Dastgoh</span>
+              <span className="passport-chip__val">{bpa.machine_type?.name || '—'}</span>
+            </div>
+          </div>
+
+          <div className="passport-chip" title={formatDate(bpa.drilling_start_date)}>
+            <div className="passport-chip__icon passport-chip__icon--cyan">
+              <Calendar size={14} />
+            </div>
+            <div className="passport-chip__content">
+              <span className="passport-chip__label">Boshlangan sana</span>
+              <span className="passport-chip__val">{formatDate(bpa.drilling_start_date)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="passport-divider" />
+
+        {/* 2-qavat: Chuqurlik telemetriyasi va Progress integratsiyasi */}
+        <div className="passport-telemetry-row">
+          <div className="telemetry-kpi telemetry-kpi--plan">
+            <div className="telemetry-kpi__icon">
+              <ArrowDownToLine size={16} />
+            </div>
+            <div className="telemetry-kpi__body">
+              <span className="telemetry-kpi__label">Chuqurlik (Plan)</span>
+              <span className="telemetry-kpi__val">
+                <strong>{depthPlan ? formatNumber(depthPlan, 0) : '—'}</strong> <small>m</small>
+              </span>
+            </div>
+          </div>
+
+          <div className="telemetry-kpi telemetry-kpi--fact">
+            <div className="telemetry-kpi__icon">
+              <Gauge size={16} />
+            </div>
+            <div className="telemetry-kpi__body">
+              <span className="telemetry-kpi__label">Chuqurlik (Fakt)</span>
+              <span className="telemetry-kpi__val">
+                <strong>{formatNumber(currentDepth, 1)}</strong> <small>m</small>
+              </span>
+            </div>
+          </div>
+
+          <div className="telemetry-kpi telemetry-kpi--remain">
+            <div className="telemetry-kpi__icon">
+              <Layers size={16} />
+            </div>
+            <div className="telemetry-kpi__body">
+              <span className="telemetry-kpi__label">Qolgan masofa</span>
+              <span className="telemetry-kpi__val">
+                <strong>{depthPlan > 0 ? formatNumber(remainingDepth, 1) : '—'}</strong> <small>m</small>
+              </span>
+            </div>
+          </div>
+
+          <div className="telemetry-kpi telemetry-kpi--progress">
+            <div className="telemetry-progress__header">
+              <span className="telemetry-kpi__label">O'tish progressi</span>
+              <span className="telemetry-progress__pct">{formatNumber(progress, 1)}%</span>
+            </div>
+            <div className="telemetry-progress__track">
+              <div
+                className="telemetry-progress__bar"
+                style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+              />
             </div>
           </div>
         </div>

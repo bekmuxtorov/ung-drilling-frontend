@@ -8,7 +8,7 @@ import {
   ClipboardList,
   FileBadge,
   FileChartColumn,
-  Info,
+  History,
   LayoutGrid,
   LogOut,
   Map,
@@ -68,7 +68,7 @@ const MENU: MenuEntry[] = [
     icon: FileChartColumn,
     children: [{ path: 'reports/fq-burgulash', label: "FQ (Burg'ulash)", icon: Map }],
   },
-  { path: 'audit-log', label: 'Audit log', icon: Info },
+  { path: 'audit-log', label: 'Audit log', icon: History },
 ];
 
 const isGroup = (entry: MenuEntry): entry is MenuGroup => typeof entry === 'object' && 'children' in entry;

@@ -6,7 +6,7 @@ interface ModalProps {
   onClose: () => void;
   title: React.ReactNode;
   footer?: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   /** Sarlavha ostida chiziq (R-5 O'chirish uslubi) */
   divided?: boolean;
   /** Holatni saqlagan holda vaqtincha yashirish */

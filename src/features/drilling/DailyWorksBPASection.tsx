@@ -6,6 +6,7 @@ import { useToast } from '../../components/ui/Toast';
 import { dailyWorksBpaApi } from './api';
 import { DailyWorkBPAModal } from './DailyWorkBPAModal';
 import { formatDate, formatNumber } from './utils';
+import { ExportDropdown } from '../../components/ui/ExportDropdown';
 
 interface DailyWorksBPASectionProps {
   drillingBpaId: number;
@@ -71,10 +72,34 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
             Sutkalik bajarilgan ishlar, burg'ilash eritmasi (promivka) va gidravlik / mexanik rejimlar jurnali
           </p>
         </div>
-        <button type="button" className="btn btn--primary" onClick={handleOpenAdd}>
-          <Plus size={14} />
-          Kunlik hisobot qo‘shish
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ExportDropdown
+            data={{
+              title: `Kunlik burg'ilash hisobotlari va eritma parametrlari`,
+              subtitle: `Sutkalik bajarilgan ishlar, eritma (promivka) va burg'ilash rejimlari jurnali`,
+              filename: `kunlik_hisobotlar_${drillingBpaId}`,
+              headers: ['#', 'Sana', 'Bajarilgan ish tavsifi', 'Zichlik', 'Qovushqoqlik', 'Suv berish', 'Loy qobig‘i', 'pH', 'Yuklama', 'RPM', 'Bosim', 'Sarf'],
+              rows: works.map((w, idx) => [
+                idx + 1,
+                formatDate(w.report_date),
+                w.description || '—',
+                Number(w.density) > 0 ? `${formatNumber(w.density, 2)} g/sm³` : '—',
+                Number(w.viscosity) > 0 ? `${formatNumber(w.viscosity)} s` : '—',
+                Number(w.fluid_loss) > 0 ? `${formatNumber(w.fluid_loss)} sm³` : '—',
+                Number(w.mud_cake) > 0 ? `${formatNumber(w.mud_cake)} mm` : '—',
+                Number(w.ph_level) > 0 ? String(w.ph_level) : '—',
+                Number(w.weight_on_bit) > 0 ? `${formatNumber(w.weight_on_bit)} t` : '—',
+                Number(w.rpm) > 0 ? String(w.rpm) : '—',
+                Number(w.pump_pressure) > 0 ? `${formatNumber(w.pump_pressure)} MPa` : '—',
+                Number(w.flow_rate) > 0 ? `${formatNumber(w.flow_rate)} l/s` : '—',
+              ]),
+            }}
+          />
+          <button type="button" className="btn btn--primary" onClick={handleOpenAdd}>
+            <Plus size={14} />
+            Kunlik hisobot qo‘shish
+          </button>
+        </div>
       </div>
 
       {works.length === 0 ? (

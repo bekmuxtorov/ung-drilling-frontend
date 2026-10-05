@@ -16,6 +16,7 @@ import './styles/operations.css';
 import './styles/drilling.css';
 import { DrillingListPage } from './features/drilling/DrillingListPage';
 import { DrillingDetailPage } from './features/drilling/DrillingDetailPage';
+import { AuditLogPage } from './features/audit/AuditLogPage';
 
 const AuthenticatedApp: React.FC = () => {
   const { segments, navigate } = useHashRoute();
@@ -55,6 +56,7 @@ const AuthenticatedApp: React.FC = () => {
       <DrillingListPage onOpen={(id) => navigate(`gqi-burgulash/${id}`)} />
     );
   else if (section === 'dashboard') page = <div className="page-padded"><DashboardPreview /></div>;
+  else if (section === 'audit-log') page = <AuditLogPage />;
   else
     page = (
       <div className="placeholder">

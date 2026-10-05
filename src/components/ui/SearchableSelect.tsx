@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Search, X, Check, Loader2 } from 'lucide-react';
+import { ChevronDown, Search, X, Check, Loader2, Plus } from 'lucide-react';
 
 export interface SelectOption {
   value: string;
@@ -15,6 +15,8 @@ export interface SearchableSelectProps {
   error?: boolean;
   loading?: boolean;
   id?: string;
+  onCreate?: (searchQuery: string) => void;
+  createLabel?: string;
 }
 
 export const SearchableSelect: React.FC<SearchableSelectProps> = ({
@@ -26,6 +28,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   error = false,
   loading = false,
   id,
+  onCreate,
+  createLabel,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,7 +54,9 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   };
 
-  const handleToggle = () => {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (disabled) return;
     if (!isOpen) {
       calculatePlacement();
@@ -83,21 +89,25 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
-        triggerRef.current?.focus();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  const handleSelect = (val: string) => {
+  const handleSelect = (val: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     onChange(val);
     setIsOpen(false);
-    triggerRef.current?.focus();
+    setSearchQuery('');
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     onChange('');
   };
 
@@ -112,6 +122,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
         type="button"
         className={`searchable-select__trigger ${isOpen ? 'is-open' : ''} ${error ? 'searchable-select__trigger--error' : ''}`}
         onClick={handleToggle}
+        onMouseDown={(e) => e.stopPropagation()}
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -145,6 +156,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
         <div
           className={`searchable-select__dropdown searchable-select__dropdown--${placement}`}
           role="listbox"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           {/* Search Input Bar */}
           <div className="searchable-select__search-wrap">
@@ -161,6 +174,9 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   e.preventDefault();
                   if (filteredOptions.length > 0) {
                     handleSelect(filteredOptions[0].value);
+                  } else if (onCreate && searchQuery.trim()) {
+                    onCreate(searchQuery);
+                    setIsOpen(false);
                   }
                 }
               }}
@@ -169,7 +185,10 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
               <button
                 type="button"
                 className="searchable-select__search-clear"
-                onClick={() => setSearchQuery('')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearchQuery('');
+                }}
                 title="Tozalash"
               >
                 <X size={12} />
@@ -186,7 +205,28 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
               </div>
             ) : filteredOptions.length === 0 ? (
               <div className="searchable-select__empty">
-                {searchQuery ? `"${searchQuery}" bo‘yicha topilmadi` : 'Ma’lumot mavjud emas'}
+                <span className="searchable-select__empty-text">
+                  {searchQuery ? `"${searchQuery}" bo‘yicha topilmadi` : 'Ma’lumot mavjud emas'}
+                </span>
+                {onCreate && (
+                  <button
+                    type="button"
+                    className="searchable-select__add-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onCreate(searchQuery);
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Plus size={13} />
+                    <span>
+                      {searchQuery.trim()
+                        ? `"${searchQuery.trim()}" ni qo‘shish`
+                        : (createLabel || 'Yangi qo‘shish')}
+                    </span>
+                  </button>
+                )}
               </div>
             ) : (
               filteredOptions.map((opt) => {
@@ -195,7 +235,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   <div
                     key={opt.value}
                     className={`searchable-select__item ${isSelected ? 'is-selected' : ''}`}
-                    onClick={() => handleSelect(opt.value)}
+                    onClick={(e) => handleSelect(opt.value, e)}
                     role="option"
                     aria-selected={isSelected}
                   >
@@ -206,6 +246,25 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
               })
             )}
           </div>
+
+          {/* Optional Footer Add button if options exist */}
+          {onCreate && filteredOptions.length > 0 && (
+            <div className="searchable-select__footer">
+              <button
+                type="button"
+                className="searchable-select__footer-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  onCreate(searchQuery);
+                  setIsOpen(false);
+                }}
+              >
+                <Plus size={13} />
+                <span>{createLabel || 'Yangi qo‘shish'}</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

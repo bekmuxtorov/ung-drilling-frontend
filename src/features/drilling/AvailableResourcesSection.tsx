@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import type { AvailableResourcesBPA } from '../../api/types';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { availableResourcesBpaApi } from './api';
 import { AvailableResourceBPAModal } from './AvailableResourceBPAModal';
-import { formatNumber } from './utils';
+import { formatDateTime, formatNumber } from './utils';
+import { ExportDropdown } from '../../components/ui/ExportDropdown';
 
 interface AvailableResourcesSectionProps {
   drillingBpaId: number;
@@ -71,10 +72,29 @@ export const AvailableResourcesSection: React.FC<AvailableResourcesSectionProps>
             Burg'ilash operatsiyasida foydalaniladigan materiallar, xomashyo, yoqilg'i va quvurlar hisobi
           </p>
         </div>
-        <button type="button" className="btn btn--primary" onClick={handleOpenAdd}>
-          <Plus size={14} />
-          Resurs biriktirish
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ExportDropdown
+            data={{
+              title: `Mavjud va sarflangan resurslar hisoboti`,
+              subtitle: `Burg'ilash operatsiyasida foydalaniladigan materiallar va xomashyo`,
+              filename: `resurslar_${drillingBpaId}`,
+              headers: ['#', 'Resurs nomi', 'Miqdori', 'O‘lchov birligi', 'Izoh / Holat', 'Yaratilgan sana', 'Yangilangan'],
+              rows: resources.map((r, idx) => [
+                idx + 1,
+                r.resources?.name || '—',
+                r.value != null ? formatNumber(r.value, 2) : '—',
+                r.unit?.name || '—',
+                r.description || '—',
+                formatDateTime(r.created_at),
+                formatDateTime(r.updated_at),
+              ]),
+            }}
+          />
+          <button type="button" className="btn btn--primary" onClick={handleOpenAdd}>
+            <Plus size={14} />
+            Resurs biriktirish
+          </button>
+        </div>
       </div>
 
       {resources.length === 0 ? (
@@ -95,12 +115,18 @@ export const AvailableResourcesSection: React.FC<AvailableResourcesSectionProps>
                 <th>Miqdori</th>
                 <th>O‘lchov birligi</th>
                 <th>Izoh / Holat</th>
-                <th style={{ width: '100px', textAlign: 'right' }}>Amallar</th>
+                <th style={{ width: '160px' }}>Yaratilgan sana</th>
+                <th style={{ width: '160px' }}>Yangilangan</th>
               </tr>
             </thead>
             <tbody>
               {resources.map((r, index) => (
-                <tr key={r.id}>
+                <tr
+                  key={r.id}
+                  className="clickable-row"
+                  onClick={() => handleOpenEdit(r)}
+                  title="Tahrirlash uchun bosing"
+                >
                   <td className="table__num">{index + 1}</td>
                   <td>
                     <strong>{r.resources?.name || '—'}</strong>
@@ -109,30 +135,16 @@ export const AvailableResourcesSection: React.FC<AvailableResourcesSectionProps>
                     <span className="res-amount">{r.value != null ? formatNumber(r.value, 2) : '—'}</span>
                   </td>
                   <td>
-                    <span className="badge badge--unit">{r.unit?.name || '—'}</span>
+                    <span className="res-unit">{r.unit?.name || '—'}</span>
                   </td>
                   <td>
                     <span className="res-desc">{r.description || '—'}</span>
                   </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div className="action-buttons">
-                      <button
-                        type="button"
-                        className="icon-btn"
-                        title="Tahrirlash"
-                        onClick={() => handleOpenEdit(r)}
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        className="icon-btn icon-btn--danger"
-                        title="O‘chirish"
-                        onClick={() => setDeleting(r)}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
+                  <td className="table__date">
+                    {formatDateTime(r.created_at)}
+                  </td>
+                  <td className="table__date">
+                    {formatDateTime(r.updated_at)}
                   </td>
                 </tr>
               ))}
@@ -150,6 +162,10 @@ export const AvailableResourcesSection: React.FC<AvailableResourcesSectionProps>
           setEditing(null);
         }}
         onSubmit={handleSubmit}
+        onDelete={(item) => {
+          setModalOpen(false);
+          setDeleting(item);
+        }}
       />
 
       <ConfirmDialog

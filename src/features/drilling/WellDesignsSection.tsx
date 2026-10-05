@@ -6,6 +6,7 @@ import { useToast } from '../../components/ui/Toast';
 import { wellDesignApi } from './api';
 import { WellDesignModal } from './WellDesignModal';
 import { formatDateTime, formatNumber } from './utils';
+import { ExportDropdown } from '../../components/ui/ExportDropdown';
 
 interface WellDesignsSectionProps {
   drillingBpaId: number;
@@ -139,6 +140,21 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
             Reja (Plan) va amaldagi (Fakt) quduq kesimi bo‘yicha tushirilgan quvurlar taqqoslamasi
           </p>
         </div>
+        <ExportDropdown
+          data={{
+            title: `Quduq konstruksiyasi — Umumiy taqqoslama`,
+            subtitle: `Reja (Plan) va amaldagi (Fakt) quvurlar taqqoslamasi`,
+            filename: `quduq_konstruksiyasi_${drillingBpaId}`,
+            headers: ['#', 'Konstruksiya turi', 'Quvur diametri (mm)', 'Tushirish chuqurligi / Uzunligi (m)', 'Boshlanish sanasi'],
+            rows: designs.map((d, index) => [
+              index + 1,
+              d.type === 'fact' ? 'Fakt (Amaldagi)' : 'Reja (Plan)',
+              d.pipe_diameter ? `${formatNumber(d.pipe_diameter)} mm` : '—',
+              d.length ? `${formatNumber(d.length)} m` : '—',
+              formatDateTime(d.start_date) || '—',
+            ]),
+          }}
+        />
       </div>
 
       {/* 2-Column Split: Plan (Left) and Fact (Right) */}
@@ -156,14 +172,31 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
               </div>
               <span className="well-design-card__count">{planDesigns.length} ta</span>
             </div>
-            <button
-              type="button"
-              className="btn btn--sm btn--primary"
-              onClick={() => handleOpenAdd('plan')}
-            >
-              <Plus size={13} />
-              Qo‘shish
-            </button>
+            <div className="well-design-card__actions">
+              <ExportDropdown
+                size="sm"
+                data={{
+                  title: `Quduq konstruksiyasi — Reja (Plan)`,
+                  subtitle: `Loyiha bo‘yicha rejalashtirilgan quvurlar`,
+                  filename: `quduq_konstruksiyasi_reja_${drillingBpaId}`,
+                  headers: ['#', 'Quvur diametri (mm)', 'Tushirish chuqurligi / Uzunligi (m)', 'Boshlanish sanasi'],
+                  rows: planDesigns.map((d, index) => [
+                    index + 1,
+                    d.pipe_diameter ? `${formatNumber(d.pipe_diameter)} mm` : '—',
+                    d.length ? `${formatNumber(d.length)} m` : '—',
+                    formatDateTime(d.start_date) || '—',
+                  ]),
+                }}
+              />
+              <button
+                type="button"
+                className="btn btn--sm btn--primary"
+                onClick={() => handleOpenAdd('plan')}
+              >
+                <Plus size={13} />
+                Qo‘shish
+              </button>
+            </div>
           </div>
           <div className="well-design-card__body">{renderTable(planDesigns, 'plan')}</div>
         </div>
@@ -181,14 +214,31 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
               </div>
               <span className="well-design-card__count">{factDesigns.length} ta</span>
             </div>
-            <button
-              type="button"
-              className="btn btn--sm btn--success"
-              onClick={() => handleOpenAdd('fact')}
-            >
-              <Plus size={13} />
-              Qo‘shish
-            </button>
+            <div className="well-design-card__actions">
+              <ExportDropdown
+                size="sm"
+                data={{
+                  title: `Quduq konstruksiyasi — Fakt (Amaldagi)`,
+                  subtitle: `Quduqqa amalda tushirilgan quvurlar`,
+                  filename: `quduq_konstruksiyasi_fakt_${drillingBpaId}`,
+                  headers: ['#', 'Quvur diametri (mm)', 'Tushirish chuqurligi / Uzunligi (m)', 'Boshlanish sanasi'],
+                  rows: factDesigns.map((d, index) => [
+                    index + 1,
+                    d.pipe_diameter ? `${formatNumber(d.pipe_diameter)} mm` : '—',
+                    d.length ? `${formatNumber(d.length)} m` : '—',
+                    formatDateTime(d.start_date) || '—',
+                  ]),
+                }}
+              />
+              <button
+                type="button"
+                className="btn btn--sm btn--success"
+                onClick={() => handleOpenAdd('fact')}
+              >
+                <Plus size={13} />
+                Qo‘shish
+              </button>
+            </div>
           </div>
           <div className="well-design-card__body">{renderTable(factDesigns, 'fact')}</div>
         </div>
