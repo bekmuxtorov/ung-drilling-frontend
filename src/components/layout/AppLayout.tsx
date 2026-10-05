@@ -46,8 +46,8 @@ type MenuEntry = MenuLink | MenuGroup | 'divider';
 const MENU: MenuEntry[] = [
   { path: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
   { path: 'gqi-minora', label: 'ГРР (ВМЭ)(Minora montaji)', icon: Activity },
-  { path: 'gqi-sinov', label: 'ГРР (Испытание)', icon: ClipboardList },
   { path: 'gqi-burgulash', label: 'ГРР (бурение)', icon: TriangleAlert },
+  { path: 'gqi-sinov', label: 'ГРР (Испытание)', icon: ClipboardList },
   'divider',
   { path: 'sb-burgulash', label: 'ЭБ (Бурение)', icon: BriefcaseBusiness },
   { path: 'sb-minora', label: 'ЭБ (ВМЭ)', icon: FileBadge },

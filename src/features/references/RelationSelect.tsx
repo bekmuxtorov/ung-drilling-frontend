@@ -1,7 +1,7 @@
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
 import type { ReferenceKey } from './config';
 import { useOptions } from './useOptions';
+import { SearchableSelect } from '../../components/ui/SearchableSelect';
 
 interface RelationSelectProps {
   reference: ReferenceKey;
@@ -13,26 +13,28 @@ interface RelationSelectProps {
   error?: boolean;
 }
 
-/** Ma'lumotnomadan qiymat tanlash (barcha yozuvlar keshlangan holda yuklanadi) */
-export const RelationSelect: React.FC<RelationSelectProps> = ({ reference, placeholder, value, onChange, id, disabled, error }) => {
+/** Ma'lumotnomadan qiymat qidirish va tanlash (barcha yozuvlar keshlangan holda yuklanadi) */
+export const RelationSelect: React.FC<RelationSelectProps> = ({
+  reference,
+  placeholder,
+  value,
+  onChange,
+  id,
+  disabled,
+  error,
+}) => {
   const { options, loading } = useOptions(reference);
+
   return (
-    <div className="select-wrap">
-      <select
-        id={id}
-        className={`input ${error ? 'input--error' : ''} ${value ? '' : 'input--placeholder'}`}
-        value={value}
-        disabled={disabled || loading}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="">{loading ? 'Yuklanmoqda…' : placeholder}</option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown size={14} className="select-wrap__chevron" />
-    </div>
+    <SearchableSelect
+      id={id}
+      options={options}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      loading={loading}
+      disabled={disabled}
+      error={error}
+    />
   );
 };

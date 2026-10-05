@@ -1,0 +1,879 @@
+/* ==========================================================================
+   GRR (Burg'ulash) — Drilling BPA Styles
+   ========================================================================== */
+
+.drilling-detail-page {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+
+/* ---------- Table items ---------- */
+.doc-num-tag {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #175cd3;
+  background: #eff8ff;
+  border: 1px solid #b2ddff;
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.well-num-text {
+  color: var(--gray-900);
+  font-size: 13px;
+}
+
+.table-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-progress__bar {
+  flex: 1;
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.table-progress__fill {
+  height: 100%;
+  background: #027a48;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.table-progress__pct {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--gray-700);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* ---------- Document Header ---------- */
+.doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.doc-header__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.doc-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--gray-600);
+  border-right: 1px solid var(--gray-200);
+  padding-right: 16px;
+  height: 34px;
+}
+
+.doc-back-btn:hover {
+  color: var(--gray-900);
+}
+
+.doc-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.doc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doc-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #05264a;
+  color: #67e8f9;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+
+.doc-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.doc-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.doc-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+.doc-header__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- Passport Card ---------- */
+.bpa-passport-card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.passport-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+}
+
+.passport-section-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-400);
+  margin: 0 0 12px;
+}
+
+.passport-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.passport-prop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-bottom: 1px dashed var(--gray-100);
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+  cursor: default;
+}
+
+.passport-prop:last-child {
+  border-bottom: none;
+}
+
+.passport-prop:hover,
+.passport-prop.is-active {
+  background: #f1f5f9;
+  border-bottom-color: transparent;
+}
+
+.passport-prop:hover .passport-prop__label,
+.passport-prop.is-active .passport-prop__label {
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.passport-prop:hover .passport-prop__val,
+.passport-prop.is-active .passport-prop__val {
+  color: var(--brand-700, #175cd3);
+  font-weight: 600;
+}
+
+.passport-prop__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.passport-prop__val {
+  color: var(--gray-900);
+  font-weight: 600;
+  text-align: right;
+}
+
+.depth-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.depth-kpi {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.depth-kpi--plan .depth-kpi__icon { color: #175cd3; }
+.depth-kpi--current .depth-kpi__icon { color: #027a48; }
+.depth-kpi--remain .depth-kpi__icon { color: #b54708; }
+
+.depth-kpi__label {
+  font-size: 11px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.depth-kpi__val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.depth-progress-box {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.depth-progress-box__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+}
+
+.progress-bar-track {
+  height: 8px;
+  background: var(--gray-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #027a48, #12b76a);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+/* ---------- Tabs Component ---------- */
+.doc-tabs-card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.doc-tabs-bar {
+  display: flex;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0 12px;
+  overflow-x: auto;
+}
+
+.doc-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-600);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.doc-tab-btn:hover {
+  color: var(--gray-900);
+}
+
+.doc-tab-btn.is-active {
+  color: #175cd3;
+  border-bottom-color: #175cd3;
+  font-weight: 600;
+  background: #ffffff;
+}
+
+.doc-tab-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--gray-200);
+  color: var(--gray-700);
+}
+
+.doc-tab-btn.is-active .doc-tab-badge {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.doc-tabs-body {
+  padding: 20px;
+}
+
+/* ---------- Tab Sections ---------- */
+.tab-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tab-section__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tab-section__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.tab-section__sub {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin: 2px 0 0;
+}
+
+/* Badges & tags */
+.delta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.delta-badge--pos {
+  color: #027a48;
+  background: #ecfdf3;
+}
+
+.delta-badge--neg {
+  color: #b42318;
+  background: #fef3f2;
+}
+
+.badge--period {
+  font-weight: 600;
+  font-size: 11.5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.badge--period-day {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.badge--period-month {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+.badge--period-year {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge--unit {
+  background: #f8f9fc;
+  color: #344054;
+  border: 1px solid var(--gray-200);
+  font-size: 11.5px;
+}
+
+.res-amount {
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.res-desc {
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+/* ---------- Strata Bar Chart ---------- */
+.strata-summary-card {
+  background: #f8fafc;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 4px;
+}
+
+.strata-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.strata-summary-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.strata-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--gray-200);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.strata-bar__segment {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 4px;
+  transition: opacity 0.2s;
+}
+
+.strata-bar__segment:hover {
+  opacity: 0.9;
+}
+
+.strata-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--gray-200);
+}
+
+.strata-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.strata-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.strata-legend__name {
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.strata-legend__val {
+  color: var(--gray-500);
+}
+
+/* ---------- Daily Works ---------- */
+.daily-work-desc {
+  max-width: 320px;
+  font-size: 12.5px;
+  color: var(--gray-800);
+  line-height: 1.4;
+}
+
+.params-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.param-tag {
+  display: inline-block;
+  font-size: 11px;
+  background: #f0f9ff;
+  color: #026aa2;
+  border: 1px solid #b9e6fe;
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.param-tag--mech {
+  background: #fef6ee;
+  color: #b93815;
+  border-color: #fecdca;
+}
+
+.section-title-sub {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-top: 8px;
+  letter-spacing: 0.04em;
+}
+
+.form-row--3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.action-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- Well Designs Two-Column Split (Plan vs Fact) ---------- */
+.well-designs-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .well-designs-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.well-design-card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+}
+
+.well-design-card--plan {
+  border-top: 3px solid #2563eb;
+}
+
+.well-design-card--fact {
+  border-top: 3px solid #16a34a;
+}
+
+.well-design-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  gap: 12px;
+}
+
+.well-design-card__title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.well-design-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.well-design-card--plan .well-design-card__icon {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.well-design-card--fact .well-design-card__icon {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.well-design-card__titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.well-design-card__title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.well-design-card__subtitle {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin: 0;
+}
+
+.well-design-card__count {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.well-design-card--plan .well-design-card__count {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.well-design-card--fact .well-design-card__count {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.well-design-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+}
+
+.well-design-empty {
+  padding: 36px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  color: var(--gray-500);
+  font-size: 13px;
+  flex: 1;
+}
+
+.well-design-empty__text {
+  margin: 0;
+}
+
+/* Clickable table rows */
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.clickable-row:hover {
+  background-color: #f0f7ff !important;
+}
+
+.clickable-row:hover td {
+  color: var(--gray-900);
+}
+
+/* Modal Form layout */
+.well-design-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Modal segmented control */
+.design-type-segmented {
+  display: flex;
+  background: var(--gray-100);
+  padding: 3px;
+  border-radius: 6px;
+  gap: 4px;
+}
+
+.design-type-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-600);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.design-type-btn.is-active {
+  background: #ffffff;
+  color: var(--gray-900);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.design-type-btn.is-active.is-plan {
+  color: #2563eb;
+}
+
+.design-type-btn.is-active.is-fact {
+  color: #16a34a;
+}
+
+.input-with-unit {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-unit .input {
+  padding-right: 42px;
+  width: 100%;
+}
+
+.input-unit {
+  position: absolute;
+  right: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-400);
+  pointer-events: none;
+}
+
+/* Button variants */
+.btn--sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn--success {
+  background: #16a34a;
+  color: #ffffff;
+  border: 1px solid #16a34a;
+}
+
+.btn--success:hover:not(:disabled) {
+  background: #15803d;
+  border-color: #15803d;
+}
+
+/* ---------- BPA Passport Form Modal ---------- */
+.modal--lg {
+  max-width: 680px;
+}
+
+.bpa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bpa-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.bpa-form-group__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-800);
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.bpa-form-group__title svg {
+  color: var(--brand-600, #175cd3);
+}
+
+.bpa-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+}
+
+@media (max-width: 640px) {
+  .bpa-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .passport-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .form-row--3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .depth-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

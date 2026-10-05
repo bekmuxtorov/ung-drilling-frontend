@@ -1,5 +1,19 @@
 import type { ReactNode } from 'react';
-import { Building2, BriefcaseBusiness, Car, HardHat, MapPin, MapPinned, Truck, UserCog, type LucideIcon } from 'lucide-react';
+import {
+  Boxes,
+  BriefcaseBusiness,
+  Building2,
+  Car,
+  Cog,
+  HardHat,
+  Layers,
+  MapPin,
+  MapPinned,
+  Scale,
+  Truck,
+  UserCog,
+  type LucideIcon,
+} from 'lucide-react';
 import type { Area, BaseEntity, Employee, Foreman } from '../../api/types';
 
 export type ReferenceKey =
@@ -8,6 +22,10 @@ export type ReferenceKey =
   | 'areas'
   | 'drilling-rig-types'
   | 'transport-types'
+  | 'machine-types'
+  | 'depths-layers'
+  | 'resources'
+  | 'units'
   | 'foremen'
   | 'positions'
   | 'employees';
@@ -134,6 +152,42 @@ export const REFERENCES: ReferenceConfig[] = [
     singular: 'Transport turi',
     icon: Truck,
     fields: [nameField('Nomi', 'Transport turi nomini kiriting')],
+    columns: [nameColumn()],
+  },
+  {
+    key: 'machine-types',
+    endpoint: 'machine-types',
+    title: 'Uskuna turlari',
+    singular: 'Uskuna turi',
+    icon: Cog,
+    fields: [nameField('Nomi', 'Uskuna turi nomini kiriting')],
+    columns: [nameColumn()],
+  },
+  {
+    key: 'depths-layers',
+    endpoint: 'depths-layers',
+    title: 'Chuqurlik qatlamlari',
+    singular: 'Chuqurlik qatlami',
+    icon: Layers,
+    fields: [nameField('Nomi', 'Chuqurlik qatlami nomini kiriting')],
+    columns: [nameColumn()],
+  },
+  {
+    key: 'resources',
+    endpoint: 'resources',
+    title: 'Resurslar',
+    singular: 'Resurs',
+    icon: Boxes,
+    fields: [nameField('Nomi', 'Resurs nomini kiriting')],
+    columns: [nameColumn()],
+  },
+  {
+    key: 'units',
+    endpoint: 'units',
+    title: "O'lchov birliklari",
+    singular: "O'lchov birligi",
+    icon: Scale,
+    fields: [nameField('Nomi', "O'lchov birligi nomini kiriting")],
     columns: [nameColumn()],
   },
   {

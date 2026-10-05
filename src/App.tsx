@@ -13,6 +13,9 @@ import { useHashRoute } from './hooks/useHashRoute';
 import { Construction, Loader2 } from 'lucide-react';
 import './styles/app.css';
 import './styles/operations.css';
+import './styles/drilling.css';
+import { DrillingListPage } from './features/drilling/DrillingListPage';
+import { DrillingDetailPage } from './features/drilling/DrillingDetailPage';
 
 const AuthenticatedApp: React.FC = () => {
   const { segments, navigate } = useHashRoute();
@@ -22,10 +25,17 @@ const AuthenticatedApp: React.FC = () => {
       ? `references/${subSection ?? 'enterprises'}`
       : section === 'gqi-minora'
         ? 'gqi-minora'
-        : segments.join('/') || 'dashboard';
+        : section === 'gqi-burgulash'
+          ? 'gqi-burgulash'
+          : segments.join('/') || 'dashboard';
   const operationId = section === 'gqi-minora' && subSection ? Number(subSection) : NaN;
-  const extraCrumbs = Number.isFinite(operationId) ? [`Operatsiya #${operationId}`] : [];
-``
+  const drillingId = section === 'gqi-burgulash' && subSection ? Number(subSection) : NaN;
+  const extraCrumbs = Number.isFinite(operationId)
+    ? [`Operatsiya #${operationId}`]
+    : Number.isFinite(drillingId)
+      ? [`BPA Pasporti #${drillingId}`]
+      : [];
+
   let page: React.ReactNode;
   if (section === 'references') page = <ReferencesPage activeKey={subSection} />;
   else if (section === 'users')
@@ -37,6 +47,12 @@ const AuthenticatedApp: React.FC = () => {
       <OperationDetailPage key={operationId} id={operationId} onBack={() => navigate('gqi-minora')} />
     ) : (
       <OperationsListPage onOpen={(id) => navigate(`gqi-minora/${id}`)} />
+    );
+  else if (section === 'gqi-burgulash')
+    page = Number.isFinite(drillingId) ? (
+      <DrillingDetailPage key={drillingId} id={drillingId} onBack={() => navigate('gqi-burgulash')} />
+    ) : (
+      <DrillingListPage onOpen={(id) => navigate(`gqi-burgulash/${id}`)} />
     );
   else if (section === 'dashboard') page = <div className="page-padded"><DashboardPreview /></div>;
   else
