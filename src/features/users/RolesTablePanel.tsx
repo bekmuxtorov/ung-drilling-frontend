@@ -1,18 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Pencil,
-  Plus,
-  RefreshCw,
-  Search,
-  Shield,
-  ShieldCheck,
-  Trash2,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, Plus, Search } from 'lucide-react';
 import { ApiError } from '../../api/client';
-import { rolesApi } from '../../api/accounts';
+import { permissionsApi, rolesApi } from '../../api/accounts';
 import type { Paginated } from '../../api/types';
 import type { RoleItem } from '../../types/auth';
 import { useToast } from '../../components/ui/Toast';
@@ -30,32 +19,35 @@ export const RolesTablePanel: React.FC = () => {
   const [search, setSearch] = useState('');
   const [reloadToken, setReloadToken] = useState(0);
 
-  const [data, setData] = useState<Paginated<RoleItem>>({ count: 0, next: null, previous: null, results: [] });
+  const [data, setData] = useState<Paginated<RoleItem> | null>(null);
+  const [permTotal, setPermTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const [formOpen, setFormOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<RoleItem | null>(null);
-
-  const [deletingRole, setDeletingRole] = useState<RoleItem | null>(null);
+  const [editing, setEditing] = useState<RoleItem | null>(null);
+  const [deleting, setDeleting] = useState<RoleItem | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const debouncedSearch = useDebouncedValue(search.trim());
   const queryParams = useMemo(() => ({ search: debouncedSearch || undefined }), [debouncedSearch]);
 
+  // Ruxsatlarning umumiy soni — rol qamrovini ko'rsatish uchun
+  useEffect(() => {
+    permissionsApi
+      .list()
+      .then((perms) => setPermTotal(perms?.length ?? 0))
+      .catch(() => undefined);
+  }, []);
+
   useEffect(() => {
     setPage(1);
   }, [queryParams]);
-
-  const reload = useCallback(() => {
-    setReloadToken((t) => t + 1);
-  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     setError('');
-
     rolesApi
       .list({ page, page_size: PAGE_SIZE, ...queryParams }, controller.signal)
       .then(setData)
@@ -67,240 +59,173 @@ export const RolesTablePanel: React.FC = () => {
         }
         setError(err instanceof ApiError ? err.message : "Rollarni yuklab bo'lmadi");
       })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-
+      .finally(() => !controller.signal.aborted && setLoading(false));
     return () => controller.abort();
   }, [page, queryParams, reloadToken]);
 
+  const reload = useCallback(() => setReloadToken((t) => t + 1), []);
+
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditing(null);
+  };
+
   const handleDelete = async () => {
-    if (!deletingRole) return;
+    if (!deleting) return;
     setDeleteLoading(true);
     try {
-      await rolesApi.remove(deletingRole.id);
-      notify('success', "Rol o'chirildi", deletingRole.name);
-      setDeletingRole(null);
+      await rolesApi.remove(deleting.id);
+      notify('success', "Rol o'chirildi", deleting.name);
+      setDeleting(null);
+      closeForm();
       reload();
     } catch (err) {
-      notify('error', "O'chirishda xatolik", err instanceof ApiError ? err.message : "Rolni o'chirib bo'lmadi");
+      notify('error', "O'chirib bo'lmadi", err instanceof ApiError ? err.message : undefined);
     } finally {
       setDeleteLoading(false);
     }
   };
 
-  const totalPages = Math.ceil(data.count / PAGE_SIZE) || 1;
-  const startItem = data.count ? (page - 1) * PAGE_SIZE + 1 : 0;
-  const endItem = Math.min(page * PAGE_SIZE, data.count);
+  const rows = data?.results ?? [];
+  const total = data?.count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const offset = (page - 1) * PAGE_SIZE;
+  const colSpan = 5;
 
   return (
-    <div className="panel">
-      {/* Header */}
-      <div className="panel__header">
-        <div>
-          <h2 className="panel__title">Rollar va Ruxsatlar</h2>
-          <p className="panel__desc">
-            Foydalanuvchilarga biriktiriladigan tizim rollari hamda ularga berilgan ruxsatlar boshqaruvi
-          </p>
-        </div>
-
-        <div className="panel__actions">
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={reload}
-            title="Yangilash"
-            disabled={loading}
-          >
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          </button>
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={() => {
-              setEditingRole(null);
-              setFormOpen(true);
-            }}
-          >
-            <Plus size={16} />
-            <span>Yangi rol</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Toolbar */}
+    <div className="ref-panel">
       <div className="toolbar">
         <div className="search-input">
-          <Search size={16} className="search-input__icon" />
-          <input
-            type="text"
-            className="input"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rol nomi bo'yicha qidirish..."
-          />
+          <Search size={14} className="search-input__icon" />
+          <input className="input" placeholder="Qidirish..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-
-        <div style={{ marginLeft: 'auto', fontSize: '13px', color: 'var(--gray-500)' }}>
-          Jami: <strong>{data.count}</strong> ta rol
-        </div>
+        <div className="toolbar__spacer" />
+        <button
+          type="button"
+          className="btn btn--primary"
+          onClick={() => {
+            setEditing(null);
+            setFormOpen(true);
+          }}
+        >
+          <Plus size={14} />
+          Qo'shish
+        </button>
       </div>
 
-      {/* Table */}
-      <div className="table-wrap">
-        {loading && (
-          <div className="table-loading">
-            <Loader2 size={24} className="animate-spin" />
-            <span>Yuklanmoqda...</span>
-          </div>
-        )}
-
-        {error && !loading && <div className="alert">{error}</div>}
-
-        {!loading && !error && data.results.length === 0 && (
-          <div className="empty-state">
-            <ShieldCheck size={36} color="var(--gray-400)" />
-            <div style={{ fontWeight: 600, color: 'var(--gray-700)', marginTop: '8px' }}>
-              Rollar topilmadi
-            </div>
-            <div style={{ fontSize: '12.5px', color: 'var(--gray-500)' }}>
-              Yangi tizim rolini yaratish uchun "Yangi rol" tugmasini bosing
-            </div>
-          </div>
-        )}
-
-        {data.results.length > 0 && (
-          <table className="data-table">
-            <thead>
+      <div className={`table-wrap ${loading && data ? 'is-loading' : ''}`}>
+        <table className="table">
+          <thead>
+            <tr>
+              <th className="table__num">#</th>
+              <th>Nomi</th>
+              <th className="role-perms-col">Ruxsatlar</th>
+              <th className="table__date">Yaratilgan sana</th>
+              <th className="table__date">Yangilangan sana</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && !data && (
               <tr>
-                <th style={{ width: '60px' }}>ID</th>
-                <th>Rol nomi</th>
-                <th>Biriktirilgan ruxsatlar</th>
-                <th>Yaratilgan sana</th>
-                <th style={{ width: '100px', textAlign: 'right' }}>Amallar</th>
+                <td colSpan={colSpan} className="table__state">
+                  <Loader2 size={18} className="animate-spin" />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {data.results.map((r) => {
-                const permsCount = r.permissions?.length || 0;
-
+            )}
+            {!loading && error && (
+              <tr>
+                <td colSpan={colSpan} className="table__state">
+                  {error}{' '}
+                  <button type="button" className="link-btn" onClick={reload}>
+                    Qayta urinish
+                  </button>
+                </td>
+              </tr>
+            )}
+            {!loading && !error && rows.length === 0 && (
+              <tr>
+                <td colSpan={colSpan} className="table__state">
+                  {debouncedSearch ? 'Hech narsa topilmadi' : "Ma'lumot mavjud emas"}
+                </td>
+              </tr>
+            )}
+            {!error &&
+              rows.map((r, index) => {
+                const count = r.permissions?.length ?? 0;
+                const share = permTotal ? Math.min(100, (count / permTotal) * 100) : 0;
+                const open = () => {
+                  setEditing(r);
+                  setFormOpen(true);
+                };
                 return (
-                  <tr key={r.id}>
-                    <td style={{ color: 'var(--gray-500)', fontSize: '12px' }}>#{r.id}</td>
+                  <tr key={r.id} className="is-clickable" tabIndex={0} onClick={open} onKeyDown={(e) => e.key === 'Enter' && open()}>
+                    <td className="table__num">{offset + index + 1}</td>
+                    <td>{r.name}</td>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div
-                          style={{
-                            width: '28px',
-                            height: '28px',
-                            borderRadius: '6px',
-                            background: 'rgba(21, 112, 205, 0.08)',
-                            color: 'var(--brand-600)',
-                            display: 'grid',
-                            placeItems: 'center',
-                          }}
-                        >
-                          <Shield size={15} />
-                        </div>
-                        <span style={{ fontWeight: 600, color: 'var(--gray-900)' }}>{r.name}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="badge badge--purple">
-                        {permsCount} ta ruxsat berilgan
+                      <span className="role-perms">
+                        <span className="role-perms__value">
+                          {count}
+                          {permTotal > 0 && <small> / {permTotal}</small>}
+                        </span>
+                        {permTotal > 0 && (
+                          <span className="role-perms__track" aria-hidden>
+                            <span style={{ width: `${share}%` }} />
+                          </span>
+                        )}
                       </span>
                     </td>
-                    <td style={{ fontSize: '12.5px', color: 'var(--gray-600)' }}>
-                      {r.created_at ? formatDateTime(r.created_at) : '—'}
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
-                        <button
-                          type="button"
-                          className="icon-btn"
-                          onClick={() => {
-                            setEditingRole(r);
-                            setFormOpen(true);
-                          }}
-                          title="Tahrirlash"
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          type="button"
-                          className="icon-btn icon-btn--danger"
-                          onClick={() => setDeletingRole(r)}
-                          title="O'chirish"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
+                    <td className="table__date">{r.created_at ? formatDateTime(r.created_at) : '—'}</td>
+                    <td className="table__date">{r.updated_at ? formatDateTime(r.updated_at) : '—'}</td>
                   </tr>
                 );
               })}
-            </tbody>
-          </table>
-        )}
+          </tbody>
+        </table>
       </div>
 
-      {/* Pagination Footer */}
-      {data.count > 0 && (
-        <div className="pager">
-          <div className="pager__summary">
-            {startItem}-{endItem} / {data.count} ta yozuv
-          </div>
-          <div className="pager__controls">
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              aria-label="Oldingi sahifa"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <span style={{ fontSize: '13px', color: 'var(--gray-700)', padding: '0 8px' }}>
-              {page} / {totalPages}
-            </span>
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              aria-label="Keyingi sahifa"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
+      {totalPages > 1 && (
+        <div className="pagination">
+          <span className="pagination__info">
+            {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} / {total}
+          </span>
+          <button type="button" className="icon-btn" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)} aria-label="Oldingi">
+            <ChevronLeft size={16} />
+          </button>
+          <span className="pagination__page">
+            {page} / {totalPages}
+          </span>
+          <button
+            type="button"
+            className="icon-btn"
+            disabled={page >= totalPages || loading}
+            onClick={() => setPage((p) => p + 1)}
+            aria-label="Keyingi"
+          >
+            <ChevronRight size={16} />
+          </button>
         </div>
       )}
 
-      {/* Modallar */}
       <RoleFormModal
         isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setEditingRole(null);
-        }}
-        initialRole={editingRole}
+        hidden={!!deleting}
+        initialRole={editing}
+        onClose={closeForm}
         onSaved={(saved) => {
-          notify('success', editingRole ? "O'zgarishlar saqlandi" : 'Rol yaratildi', saved.name);
+          notify('success', editing ? "O'zgarishlar saqlandi" : "Rol qo'shildi", saved.name);
+          closeForm();
           reload();
         }}
+        onDelete={setDeleting}
       />
 
       <ConfirmDialog
-        open={!!deletingRole}
-        title="Rolni o'chirish"
-        warning={
-          deletingRole
-            ? `Haqiqatan ham "${deletingRole.name}" rolini tizimdan o'chirmoqchimisiz? Ushbu roldagi foydalanuvchilar rolsiz qolishi mumkin.`
-            : undefined
-        }
+        open={!!deleting}
         loading={deleteLoading}
+        title="Rolni o'chirmoqchimisiz?"
+        warning="Ushbu roldagi foydalanuvchilar rolsiz qoladi."
         onConfirm={handleDelete}
-        onClose={() => setDeletingRole(null)}
+        onClose={() => setDeleting(null)}
       />
     </div>
   );

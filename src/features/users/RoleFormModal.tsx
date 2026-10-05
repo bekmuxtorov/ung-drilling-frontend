@@ -1,35 +1,34 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Loader2, Search, Shield, ShieldCheck } from 'lucide-react';
+import { Check, Loader2, Search, Trash2, X } from 'lucide-react';
 import { ApiError } from '../../api/client';
 import { permissionsApi, rolesApi } from '../../api/accounts';
+import { Modal } from '../../components/ui/Modal';
+import { formatDateTimeShort } from '../references/format';
 import type { PermissionItem, RoleItem, RolePayload } from '../../types/auth';
 
 interface RoleFormModalProps {
   isOpen: boolean;
+  hidden?: boolean;
+  initialRole?: RoleItem | null;
   onClose: () => void;
   onSaved: (role: RoleItem) => void;
-  initialRole?: RoleItem | null;
+  onDelete?: (role: RoleItem) => void;
 }
 
 const APP_LABEL_NAMES: Record<string, string> = {
-  directory: "Ma'lumotnomalar (Tashkilotlar, Hududlar, Xodimlar va b.)",
-  operations: "Operatsiyalar (VBM, Bosqichlar, Kunlik hisobotlar)",
-  accounts: "Foydalanuvchilar va Rollar",
-  auth: "Tizim autentifikatsiyasi",
-  contenttypes: "Tizim obyektlari",
-  sessions: "Sessiyalar",
+  directory: "Ma'lumotnomalar",
+  operations: 'Operatsiyalar',
+  accounts: 'Foydalanuvchilar va rollar',
+  auth: 'Autentifikatsiya',
+  contenttypes: 'Tizim obyektlari',
+  sessions: 'Sessiyalar',
 };
 
-export const RoleFormModal: React.FC<RoleFormModalProps> = ({
-  isOpen,
-  onClose,
-  onSaved,
-  initialRole,
-}) => {
+export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, initialRole, onClose, onSaved, onDelete }) => {
   const isEdit = !!initialRole;
 
   const [name, setName] = useState('');
-  const [selectedPerms, setSelectedPerms] = useState<Set<number>>(new Set());
+  const [selected, setSelected] = useState<Set<number>>(new Set());
   const [allPermissions, setAllPermissions] = useState<PermissionItem[]>([]);
   const [loadingPerms, setLoadingPerms] = useState(false);
   const [permSearch, setPermSearch] = useState('');
@@ -38,285 +37,220 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // Formani to'ldirish
   useEffect(() => {
-    if (initialRole) {
-      setName(initialRole.name || '');
-      setSelectedPerms(new Set(initialRole.permissions || []));
-    } else {
-      setName('');
-      setSelectedPerms(new Set());
-    }
+    if (!isOpen) return;
+    setName(initialRole?.name ?? '');
+    setSelected(new Set(initialRole?.permissions ?? []));
     setPermSearch('');
     setError('');
     setFieldErrors({});
+    setSaving(false);
   }, [initialRole, isOpen]);
 
-  // Ruxsatlarni yuklash
   useEffect(() => {
     if (!isOpen) return;
     setLoadingPerms(true);
     permissionsApi
       .list()
       .then((perms) => setAllPermissions(perms || []))
-      .catch(() => {})
+      .catch(() => undefined)
       .finally(() => setLoadingPerms(false));
   }, [isOpen]);
 
-  // Ruxsatlarni guruhlash
-  const filteredPermissions = useMemo(() => {
+  const filtered = useMemo(() => {
     const q = permSearch.trim().toLowerCase();
     if (!q) return allPermissions;
-    return allPermissions.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.codename.toLowerCase().includes(q) ||
-        p.app_label.toLowerCase().includes(q) ||
-        p.model.toLowerCase().includes(q)
+    return allPermissions.filter((p) =>
+      [p.name, p.codename, p.app_label, p.model].some((v) => v.toLowerCase().includes(q)),
     );
   }, [allPermissions, permSearch]);
 
-  const groupedPermissions = useMemo(() => {
+  const grouped = useMemo(() => {
     const map = new Map<string, PermissionItem[]>();
-    for (const p of filteredPermissions) {
-      const key = p.app_label;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(p);
-    }
-    return Array.from(map.entries());
-  }, [filteredPermissions]);
+    filtered.forEach((p) => map.set(p.app_label, [...(map.get(p.app_label) ?? []), p]));
+    return [...map.entries()];
+  }, [filtered]);
 
-  if (!isOpen) return null;
-
-  const togglePerm = (id: number) => {
-    setSelectedPerms((prev) => {
+  const toggle = (id: number) =>
+    setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
-  };
 
-  const toggleGroup = (groupPerms: PermissionItem[]) => {
-    const allSelected = groupPerms.every((p) => selectedPerms.has(p.id));
-    setSelectedPerms((prev) => {
+  const toggleGroup = (perms: PermissionItem[]) => {
+    const all = perms.every((p) => selected.has(p.id));
+    setSelected((prev) => {
       const next = new Set(prev);
-      if (allSelected) {
-        groupPerms.forEach((p) => next.delete(p.id));
-      } else {
-        groupPerms.forEach((p) => next.add(p.id));
-      }
+      perms.forEach((p) => (all ? next.delete(p.id) : next.add(p.id)));
       return next;
     });
   };
 
-  const selectAll = () => {
-    const next = new Set(selectedPerms);
-    filteredPermissions.forEach((p) => next.add(p.id));
-    setSelectedPerms(next);
-  };
-
-  const clearAll = () => {
-    setSelectedPerms(new Set());
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     setError('');
-    setFieldErrors({});
-
     if (!name.trim()) {
-      setFieldErrors({ name: "Rol nomini kiritish shart" });
+      setFieldErrors({ name: 'Majburiy maydon' });
       return;
     }
-
+    setFieldErrors({});
     setSaving(true);
     try {
-      const payload: RolePayload = {
-        name: name.trim(),
-        permissions: Array.from(selectedPerms),
-      };
-
-      if (isEdit && initialRole) {
-        const updated = await rolesApi.update(initialRole.id, payload);
-        onSaved(updated);
-        onClose();
-      } else {
-        const created = await rolesApi.create(payload);
-        onSaved(created);
-        onClose();
-      }
+      const payload: RolePayload = { name: name.trim(), permissions: [...selected] };
+      const saved = isEdit && initialRole ? await rolesApi.update(initialRole.id, payload) : await rolesApi.create(payload);
+      onSaved(saved);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
-        if (err.fieldErrors) setFieldErrors(err.fieldErrors);
-      } else {
-        setError("Rolni saqlashda xatolik yuz berdi");
-      }
-    } finally {
+        setFieldErrors(err.fieldErrors ?? {});
+      } else setError('Saqlashda xatolik yuz berdi');
       setSaving(false);
     }
   };
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <div className="modal" style={{ maxWidth: '680px', width: '94%' }}>
-        <div className="modal__header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ShieldCheck size={18} color="var(--brand-600)" />
-            <h3 className="modal__title">
-              {isEdit ? `Rolni tahrirlash: ${initialRole?.name}` : 'Yangi tizim rolini yaratish'}
-            </h3>
-          </div>
-          <button type="button" className="icon-btn" onClick={onClose} disabled={saving}>
-            ✕
+    <Modal
+      open={isOpen}
+      hidden={hidden}
+      size="lg"
+      onClose={saving ? () => undefined : onClose}
+      title={isEdit ? initialRole?.name : "Rol qo'shish"}
+      footer={
+        <>
+          {isEdit && initialRole && onDelete && (
+            <>
+              <button type="button" className="btn btn--danger" onClick={() => onDelete(initialRole)} disabled={saving}>
+                <Trash2 size={14} />
+                O'chirish
+              </button>
+              <span className="modal__footer-spacer" />
+            </>
+          )}
+          <button type="button" className="btn btn--outline" onClick={onClose} disabled={saving}>
+            <X size={14} />
+            Bekor qilish
           </button>
+          <button type="submit" form="role-form" className="btn btn--primary" disabled={saving}>
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+            Saqlash
+          </button>
+        </>
+      }
+    >
+      <form id="role-form" className="form" onSubmit={handleSubmit} noValidate>
+        {error && <div className="alert">{error}</div>}
+
+        <div className="field">
+          <label className="field__label" htmlFor="role-name">
+            Nomi<span className="field__required">*</span>
+          </label>
+          <input
+            id="role-name"
+            className={`input ${fieldErrors.name ? 'input--error' : ''}`}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Masalan: Dispetcher"
+            disabled={saving}
+            autoFocus={!isEdit}
+          />
+          {fieldErrors.name && <p className="field__hint field__hint--error">{fieldErrors.name}</p>}
         </div>
 
-        <form onSubmit={handleSubmit} className="form" style={{ padding: '16px 20px' }}>
-          {error && <div className="alert">{error}</div>}
+        <div className="perm">
+          <div className="perm__head">
+            <span className="form-subtitle">
+              Ruxsatlar
+              <span className="count-pill">
+                {selected.size} / {allPermissions.length}
+              </span>
+            </span>
+            <div className="perm__actions">
+              <button
+                type="button"
+                className="link-btn"
+                onClick={() => setSelected((prev) => new Set([...prev, ...filtered.map((p) => p.id)]))}
+              >
+                Hammasini tanlash
+              </button>
+              <button type="button" className="link-btn link-btn--muted" onClick={() => setSelected(new Set())}>
+                Tozalash
+              </button>
+            </div>
+          </div>
 
-          {/* Rol nomi */}
-          <div className="field">
-            <label className="field__label">
-              Rol nomi <span className="field__required">*</span>
-            </label>
+          <div className="search-input perm__search">
+            <Search size={14} className="search-input__icon" />
             <input
-              type="text"
-              className={`input ${fieldErrors.name ? 'input--error' : ''}`}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="masalan: Burg'ilash muhandisi yoki Dispetcher"
-              disabled={saving}
-              autoFocus
+              className="input"
+              value={permSearch}
+              onChange={(e) => setPermSearch(e.target.value)}
+              placeholder="Ruxsatni qidirish (add, change, enterprise...)"
             />
-            {fieldErrors.name && <span className="field__hint field__hint--error">{fieldErrors.name}</span>}
           </div>
 
-          {/* Ruxsatlar (Permissions matrix) */}
-          <div className="field" style={{ marginTop: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <label className="field__label">
-                Tizim ruxsatlari ({selectedPerms.size} ta tanlandi)
-              </label>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button
-                  type="button"
-                  className="link-btn"
-                  style={{ fontSize: '12px' }}
-                  onClick={selectAll}
-                >
-                  Hammasini tanlash
-                </button>
-                <span style={{ color: 'var(--gray-300)' }}>•</span>
-                <button
-                  type="button"
-                  className="link-btn"
-                  style={{ fontSize: '12px', color: 'var(--gray-600)' }}
-                  onClick={clearAll}
-                >
-                  Tozalash
-                </button>
+          <div className="perm__list">
+            {loadingPerms && (
+              <div className="perm__state">
+                <Loader2 size={16} className="animate-spin" />
               </div>
-            </div>
-
-            {/* Qidiruv */}
-            <div className="search-input" style={{ width: '100%', marginBottom: '8px' }}>
-              <Search size={15} className="search-input__icon" />
-              <input
-                type="text"
-                className="input"
-                value={permSearch}
-                onChange={(e) => setPermSearch(e.target.value)}
-                placeholder="Ruxsat nomini qidirish (masalan: add, change, enterprise)..."
-              />
-            </div>
-
-            {/* Permissions list */}
-            <div className="perm-container">
-              {loadingPerms && (
-                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--gray-500)', fontSize: '13px' }}>
-                  <Loader2 size={20} className="animate-spin" style={{ margin: '0 auto 6px' }} />
-                  Ruxsatlar yuklanmoqda...
-                </div>
-              )}
-
-              {!loadingPerms && groupedPermissions.length === 0 && (
-                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--gray-500)', fontSize: '13px' }}>
-                  Mos ruxsatlar topilmadi
-                </div>
-              )}
-
-              {!loadingPerms &&
-                groupedPermissions.map(([appLabel, perms]) => {
-                  const title = APP_LABEL_NAMES[appLabel] || appLabel.toUpperCase();
-                  const groupSelectedCount = perms.filter((p) => selectedPerms.has(p.id)).length;
-                  const allGroupSelected = groupSelectedCount === perms.length;
-
-                  return (
-                    <div key={appLabel} className="perm-group">
-                      <div className="perm-group__header">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Shield size={14} color="var(--brand-600)" />
-                          <span>{title}</span>
-                          <span style={{ fontSize: '11px', color: 'var(--gray-500)' }}>
-                            ({groupSelectedCount}/{perms.length})
+            )}
+            {!loadingPerms && grouped.length === 0 && <div className="perm__state">Mos ruxsatlar topilmadi</div>}
+            {!loadingPerms &&
+              grouped.map(([app, perms]) => {
+                const count = perms.filter((p) => selected.has(p.id)).length;
+                const all = count === perms.length;
+                return (
+                  <section key={app} className="perm-group">
+                    <header className="perm-group__head">
+                      <label className="perm-group__title">
+                        <input
+                          type="checkbox"
+                          className="checkbox"
+                          checked={all}
+                          ref={(el) => {
+                            if (el) el.indeterminate = count > 0 && !all;
+                          }}
+                          onChange={() => toggleGroup(perms)}
+                        />
+                        {APP_LABEL_NAMES[app] ?? app}
+                      </label>
+                      <span className="perm-group__count">
+                        {count} / {perms.length}
+                      </span>
+                    </header>
+                    <div className="perm-group__items">
+                      {perms.map((p) => (
+                        <label key={p.id} className={`perm-item ${selected.has(p.id) ? 'is-checked' : ''}`}>
+                          <input type="checkbox" className="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} />
+                          <span className="perm-item__text">
+                            <span className="perm-item__name">{p.name}</span>
+                            <code className="perm-item__code">{p.codename}</code>
                           </span>
-                        </div>
-                        <button
-                          type="button"
-                          className="perm-group__toggle-btn"
-                          onClick={() => toggleGroup(perms)}
-                        >
-                          {allGroupSelected ? 'Bekor qilish' : 'Barchasini tanlash'}
-                        </button>
-                      </div>
-
-                      <div className="perm-group__items">
-                        {perms.map((p) => {
-                          const isChecked = selectedPerms.has(p.id);
-                          return (
-                            <label
-                              key={p.id}
-                              className={`perm-item ${isChecked ? 'is-checked' : ''}`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() => togglePerm(p.id)}
-                              />
-                              <div className="perm-item__text">
-                                <span className="perm-item__name">{p.name}</span>
-                                <span className="perm-item__code">{p.codename}</span>
-                              </div>
-                            </label>
-                          );
-                        })}
-                      </div>
+                        </label>
+                      ))}
                     </div>
-                  );
-                })}
+                  </section>
+                );
+              })}
+          </div>
+        </div>
+
+        {isEdit && initialRole && (
+          <div className="form-grid form-grid--2">
+            <div className="field">
+              <label className="field__label">Yaratilgan vaqt</label>
+              <input className="input" value={initialRole.created_at ? formatDateTimeShort(initialRole.created_at) : '—'} disabled readOnly />
+            </div>
+            <div className="field">
+              <label className="field__label">Yangilangan vaqt</label>
+              <input className="input" value={initialRole.updated_at ? formatDateTimeShort(initialRole.updated_at) : '—'} disabled readOnly />
             </div>
           </div>
-
-          <div className="modal__footer" style={{ marginTop: '16px', padding: 0 }}>
-            <button type="button" className="btn btn--secondary" onClick={onClose} disabled={saving}>
-              Bekor qilish
-            </button>
-            <button type="submit" className="btn btn--primary" disabled={saving}>
-              {saving ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  <span>Saqlanmoqda...</span>
-                </>
-              ) : (
-                <span>{isEdit ? "O'zgarishlarni saqlash" : 'Rolni yaratish'}</span>
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        )}
+      </form>
+    </Modal>
   );
 };

@@ -1,22 +1,18 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Check, Eye, EyeOff, Loader2, X } from 'lucide-react';
 import { ApiError } from '../../api/client';
 import { usersApi } from '../../api/accounts';
+import { Modal } from '../../components/ui/Modal';
 import type { UserItem } from '../../types/auth';
 
 interface UserPasswordModalProps {
   isOpen: boolean;
-  onClose: () => void;
   user: UserItem | null;
+  onClose: () => void;
   onSuccess: () => void;
 }
 
-export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({
-  isOpen,
-  onClose,
-  user,
-  onSuccess,
-}) => {
+export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, user, onClose, onSuccess }) => {
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -24,124 +20,108 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  if (!isOpen || !user) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+    setNewPassword('');
+    setNewPasswordConfirm('');
+    setShowPassword(false);
+    setError('');
+    setFieldErrors({});
+    setSaving(false);
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user || saving) return;
     setError('');
-    setFieldErrors({});
 
     const errs: Record<string, string> = {};
-    if (!newPassword) errs.new_password = "Yangi parol kiritilishi shart";
-    else if (newPassword.length < 6) errs.new_password = "Parol kamida 6 ta belgidan iborat bo'lishi kerak";
-
-    if (newPassword !== newPasswordConfirm) {
-      errs.new_password_confirm = "Yangi parollar bir-biriga mos kelmadi";
-    }
-
-    if (Object.keys(errs).length > 0) {
-      setFieldErrors(errs);
-      return;
-    }
+    if (!newPassword) errs.new_password = 'Majburiy maydon';
+    else if (newPassword.length < 6) errs.new_password = 'Kamida 6 ta belgi';
+    if (newPassword !== newPasswordConfirm) errs.new_password_confirm = 'Parollar mos kelmadi';
+    setFieldErrors(errs);
+    if (Object.keys(errs).length) return;
 
     setSaving(true);
     try {
-      await usersApi.setPassword(user.id, {
-        new_password: newPassword,
-        new_password_confirm: newPasswordConfirm,
-      });
+      await usersApi.setPassword(user.id, { new_password: newPassword, new_password_confirm: newPasswordConfirm });
       onSuccess();
       onClose();
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
-        if (err.fieldErrors) setFieldErrors(err.fieldErrors);
-      } else {
-        setError("Parolni o'rnatishda xatolik yuz berdi");
-      }
-    } finally {
+        setFieldErrors(err.fieldErrors ?? {});
+      } else setError("Parolni o'rnatishda xatolik yuz berdi");
       setSaving(false);
     }
   };
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <div className="modal" style={{ maxWidth: '440px', width: '90%' }}>
-        <div className="modal__header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <KeyRound size={18} color="var(--brand-600)" />
-            <h3 className="modal__title">Yangi parol o'rnatish: @{user.username}</h3>
-          </div>
-          <button type="button" className="icon-btn" onClick={onClose} disabled={saving}>
-            ✕
+    <Modal
+      open={isOpen && !!user}
+      size="sm"
+      onClose={saving ? () => undefined : onClose}
+      title={`Yangi parol · @${user?.username ?? ''}`}
+      footer={
+        <>
+          <button type="button" className="btn btn--outline" onClick={onClose} disabled={saving}>
+            <X size={14} />
+            Bekor qilish
           </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="form" style={{ padding: '16px 20px' }}>
-          {error && <div className="alert">{error}</div>}
-
-          <div className="field">
-            <label className="field__label">
-              Yangi parol <span className="field__required">*</span>
-            </label>
-            <div className="password-input-wrapper">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                className={`input ${fieldErrors.new_password ? 'input--error' : ''}`}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Kamida 6 belgi"
-                disabled={saving}
-                autoFocus
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            {fieldErrors.new_password && (
-              <span className="field__hint field__hint--error">{fieldErrors.new_password}</span>
-            )}
-          </div>
-
-          <div className="field">
-            <label className="field__label">
-              Yangi parolni tasdiqlash <span className="field__required">*</span>
-            </label>
+          <button type="submit" form="password-form" className="btn btn--primary" disabled={saving}>
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+            Saqlash
+          </button>
+        </>
+      }
+    >
+      <form id="password-form" className="form" onSubmit={handleSubmit} noValidate>
+        {error && <div className="alert">{error}</div>}
+        <div className="field">
+          <label className="field__label" htmlFor="pw-new">
+            Yangi parol<span className="field__required">*</span>
+          </label>
+          <div className="password-input">
             <input
+              id="pw-new"
               type={showPassword ? 'text' : 'password'}
-              className={`input ${fieldErrors.new_password_confirm ? 'input--error' : ''}`}
-              value={newPasswordConfirm}
-              onChange={(e) => setNewPasswordConfirm(e.target.value)}
-              placeholder="Parolni qayta kiriting"
+              className={`input ${fieldErrors.new_password ? 'input--error' : ''}`}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Kamida 6 ta belgi"
+              autoComplete="new-password"
               disabled={saving}
+              autoFocus
             />
-            {fieldErrors.new_password_confirm && (
-              <span className="field__hint field__hint--error">{fieldErrors.new_password_confirm}</span>
-            )}
-          </div>
-
-          <div className="modal__footer" style={{ marginTop: '16px', padding: 0 }}>
-            <button type="button" className="btn btn--secondary" onClick={onClose} disabled={saving}>
-              Bekor qilish
-            </button>
-            <button type="submit" className="btn btn--primary" disabled={saving}>
-              {saving ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  <span>Saqlanmoqda...</span>
-                </>
-              ) : (
-                <span>Parolni o'rnatish</span>
-              )}
+            <button
+              type="button"
+              className="password-input__toggle"
+              onClick={() => setShowPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showPassword ? 'Parolni yashirish' : "Parolni ko'rsatish"}
+            >
+              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+          {fieldErrors.new_password && <p className="field__hint field__hint--error">{fieldErrors.new_password}</p>}
+        </div>
+        <div className="field">
+          <label className="field__label" htmlFor="pw-confirm">
+            Parolni tasdiqlash<span className="field__required">*</span>
+          </label>
+          <input
+            id="pw-confirm"
+            type={showPassword ? 'text' : 'password'}
+            className={`input ${fieldErrors.new_password_confirm ? 'input--error' : ''}`}
+            value={newPasswordConfirm}
+            onChange={(e) => setNewPasswordConfirm(e.target.value)}
+            placeholder="Parolni qayta kiriting"
+            autoComplete="new-password"
+            disabled={saving}
+          />
+          {fieldErrors.new_password_confirm && <p className="field__hint field__hint--error">{fieldErrors.new_password_confirm}</p>}
+        </div>
+      </form>
+    </Modal>
   );
 };

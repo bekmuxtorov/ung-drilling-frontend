@@ -45,12 +45,12 @@ type MenuEntry = MenuLink | MenuGroup | 'divider';
 
 const MENU: MenuEntry[] = [
   { path: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
-  { path: 'gqi-minora', label: 'GQI (Minora montaji)', icon: Activity },
-  { path: 'gqi-sinov', label: 'GQI (Sinov)', icon: ClipboardList },
-  { path: 'gqi-burgulash', label: "GQI (Burg'ulash)", icon: TriangleAlert },
+  { path: 'gqi-minora', label: 'ГРР (ВМЭ)(Minora montaji)', icon: Activity },
+  { path: 'gqi-sinov', label: 'ГРР (Испытание)', icon: ClipboardList },
+  { path: 'gqi-burgulash', label: 'ГРР (бурение)', icon: TriangleAlert },
   'divider',
-  { path: 'sb-burgulash', label: "SB (Burg'ulash)", icon: BriefcaseBusiness },
-  { path: 'sb-minora', label: 'SB (Minora montaji)', icon: FileBadge },
+  { path: 'sb-burgulash', label: 'ЭБ (Бурение)', icon: BriefcaseBusiness },
+  { path: 'sb-minora', label: 'ЭБ (ВМЭ)', icon: FileBadge },
   'divider',
   {
     key: 'references',

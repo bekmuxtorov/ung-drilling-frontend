@@ -25,13 +25,13 @@ const AuthenticatedApp: React.FC = () => {
         : segments.join('/') || 'dashboard';
   const operationId = section === 'gqi-minora' && subSection ? Number(subSection) : NaN;
   const extraCrumbs = Number.isFinite(operationId) ? [`Operatsiya #${operationId}`] : [];
-
+``
   let page: React.ReactNode;
   if (section === 'references') page = <ReferencesPage activeKey={subSection} />;
   else if (section === 'users')
-    page = <UsersPage initialTab="users" onTabChange={(tab) => navigate(tab)} />;
+    page = <UsersPage initialTab="users" />;
   else if (section === 'roles')
-    page = <UsersPage initialTab="roles" onTabChange={(tab) => navigate(tab)} />;
+    page = <UsersPage initialTab="roles" />;
   else if (section === 'gqi-minora')
     page = Number.isFinite(operationId) ? (
       <OperationDetailPage key={operationId} id={operationId} onBack={() => navigate('gqi-minora')} />
