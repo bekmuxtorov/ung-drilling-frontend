@@ -16,6 +16,7 @@ import { ForgotPasswordModal } from '../components/auth/ForgotPasswordModal';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import '../styles/login.css';
+import { tr } from '../i18n';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -87,7 +88,7 @@ export const LoginPage: React.FC = () => {
       {/* --------------------------------------------------------------------
           LEFT BANNER (~41.5% Width, Deep Blue with Vector Rings & Glow)
           -------------------------------------------------------------------- */}
-      <section className="login-banner" aria-label="O'zbekneftgaz AJ axborot paneli">
+      <section className="login-banner" aria-label={tr("O'zbekneftgaz AJ axborot paneli")}>
         {/* Vector Background Elements */}
         <div className="banner-glow-top" />
         <div className="banner-glow-bottom" />
@@ -213,8 +214,8 @@ export const LoginPage: React.FC = () => {
                   type="button"
                   className="input-eye-btn"
                   onClick={() => setShowPassword(!showPassword)}
-                  title={showPassword ? 'Parolni yashirish' : "Parolni ko'rsatish"}
-                  aria-label={showPassword ? 'Parolni yashirish' : "Parolni ko'rsatish"}
+                  title={showPassword ? tr('Parolni yashirish') : tr("Parolni ko'rsatish")}
+                  aria-label={showPassword ? tr('Parolni yashirish') : tr("Parolni ko'rsatish")}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -258,14 +259,13 @@ export const LoginPage: React.FC = () => {
 
             {/* Helper Text below button */}
             <div className="helper-contact">
-              <span>Hisobingiz yo'qmi? </span>
+              <span>{tr("Hisobingiz yo'qmi?")}{' '}</span>
               <button
                 type="button"
                 className="helper-contact-btn"
                 onClick={() => setIsForgotModalOpen(true)}
               >
-                Tizim administratoriga murojaat qiling.
-              </button>
+                {tr('Tizim administratoriga murojaat qiling.')}</button>
             </div>
           </form>
 

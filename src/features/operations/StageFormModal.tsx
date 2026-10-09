@@ -4,6 +4,7 @@ import { Modal } from '../../components/ui/Modal';
 import { ApiError } from '../../api/client';
 import type { OperationStage, OperationStageChoice, StageType } from '../../api/types';
 import { formatDateTimeShort } from '../references/format';
+import { tr } from '../../i18n';
 
 interface StageFormModalProps {
   open: boolean;
@@ -89,14 +90,14 @@ export const StageFormModal: React.FC<StageFormModalProps> = ({
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!values.stage_type) e.stage_type = 'Bosqich turini tanlang';
+    if (!values.stage_type) e.stage_type = tr('Bosqich turini tanlang');
     ['plan_days', 'fact_days'].forEach((k) => {
-      if (values[k] && !/^\d+$/.test(values[k])) e[k] = 'Musbat butun son kiriting';
+      if (values[k] && !/^\d+$/.test(values[k])) e[k] = tr('Musbat butun son kiriting');
     });
     if (values.plan_start_date && values.plan_end_date && values.plan_end_date < values.plan_start_date)
-      e.plan_end_date = 'Boshlanish sanasidan oldin bo‘lishi mumkin emas';
+      e.plan_end_date = tr('Boshlanish sanasidan oldin bo‘lishi mumkin emas');
     if (values.fact_start_date && values.fact_end_date && values.fact_end_date < values.fact_start_date)
-      e.fact_end_date = 'Boshlanish sanasidan oldin bo‘lishi mumkin emas';
+      e.fact_end_date = tr('Boshlanish sanasidan oldin bo‘lishi mumkin emas');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -119,7 +120,7 @@ export const StageFormModal: React.FC<StageFormModalProps> = ({
       if (err instanceof ApiError) {
         setErrors(err.fieldErrors);
         setFormError(err.message);
-      } else setFormError("Noma'lum xatolik yuz berdi");
+      } else setFormError(tr("Noma'lum xatolik yuz berdi"));
       setSubmitting(false);
     }
   };
@@ -150,26 +151,23 @@ export const StageFormModal: React.FC<StageFormModalProps> = ({
       open={open}
       hidden={hidden}
       onClose={submitting ? () => undefined : onClose}
-      title={isEdit ? `${typeLabel} bosqichi` : "Bosqich qo'shish"}
+      title={isEdit ? `${typeLabel} bosqichi` : tr("Bosqich qo'shish")}
       footer={
         <>
           {isEdit && onDelete && stage && (
             <>
               <button type="button" className="btn btn--danger" onClick={() => onDelete(stage)} disabled={submitting}>
                 <Trash2 size={14} />
-                O'chirish
-              </button>
+                {tr("O'chirish")}</button>
               <span className="modal__footer-spacer" />
             </>
           )}
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="stage-form" className="btn btn--primary" disabled={submitting}>
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-            Saqlash
-          </button>
+            {tr('Saqlash')}</button>
         </>
       }
     >
@@ -177,7 +175,7 @@ export const StageFormModal: React.FC<StageFormModalProps> = ({
         {formError && <div className="alert">{formError}</div>}
         <div className="field">
           <label className="field__label" htmlFor="st-stage_type">
-            Bosqich turi<span className="field__required">*</span>
+            {tr('Bosqich turi')}<span className="field__required">*</span>
           </label>
           <div className="select-wrap">
             <select
@@ -187,7 +185,7 @@ export const StageFormModal: React.FC<StageFormModalProps> = ({
               disabled={submitting}
               onChange={(e) => set('stage_type', e.target.value)}
             >
-              <option value="">Bosqich turini tanlang</option>
+              <option value="">{tr('Bosqich turini tanlang')}</option>
               {choices.map((c) => (
                 <option
                   key={c.value}
@@ -204,31 +202,30 @@ export const StageFormModal: React.FC<StageFormModalProps> = ({
           {errorOf('stage_type')}
         </div>
 
-        <div className="form-subtitle">Reja</div>
+        <div className="form-subtitle">{tr('Reja')}</div>
         <div className="form-grid form-grid--3">
-          {input('plan_start_date', 'Boshlanish sanasi', { type: 'date', max: values.plan_end_date || undefined })}
-          {input('plan_end_date', 'Tugash sanasi', { type: 'date', min: values.plan_start_date || undefined })}
-          {input('plan_days', 'Kunlar soni', { inputMode: 'numeric', placeholder: '0' })}
+          {input('plan_start_date', tr('Boshlanish sanasi'), { type: 'date', max: values.plan_end_date || undefined })}
+          {input('plan_end_date', tr('Tugash sanasi'), { type: 'date', min: values.plan_start_date || undefined })}
+          {input('plan_days', tr('Kunlar soni'), { inputMode: 'numeric', placeholder: '0' })}
         </div>
 
-        <div className="form-subtitle">Amalda (fakt)</div>
+        <div className="form-subtitle">{tr('Amalda (fakt)')}</div>
         <div className="form-grid form-grid--3">
-          {input('fact_start_date', 'Boshlanish sanasi', { type: 'date', max: values.fact_end_date || undefined })}
-          {input('fact_end_date', 'Tugash sanasi', { type: 'date', min: values.fact_start_date || undefined })}
-          {input('fact_days', 'Kunlar soni', { inputMode: 'numeric', placeholder: '0' })}
+          {input('fact_start_date', tr('Boshlanish sanasi'), { type: 'date', max: values.fact_end_date || undefined })}
+          {input('fact_end_date', tr('Tugash sanasi'), { type: 'date', min: values.fact_start_date || undefined })}
+          {input('fact_days', tr('Kunlar soni'), { inputMode: 'numeric', placeholder: '0' })}
         </div>
 
         <div className="field">
           <label className="field__label" htmlFor="st-description">
-            Izoh / Tavsif
-          </label>
+            {tr('Izoh / Tavsif')}</label>
           <textarea
             id="st-description"
             className="input input--textarea"
             rows={3}
             value={values.description}
             disabled={submitting}
-            placeholder="Bosqich bo'yicha izoh"
+            placeholder={tr("Bosqich bo'yicha izoh")}
             onChange={(e) => set('description', e.target.value)}
           />
         </div>
@@ -236,11 +233,11 @@ export const StageFormModal: React.FC<StageFormModalProps> = ({
         {isEdit && stage && (
           <div className="form-grid form-grid--2">
             <div className="field">
-              <label className="field__label">Yaratilgan vaqt</label>
+              <label className="field__label">{tr('Yaratilgan vaqt')}</label>
               <input className="input" value={formatDateTimeShort(stage.created_at)} disabled readOnly />
             </div>
             <div className="field">
-              <label className="field__label">Yangilangan vaqt</label>
+              <label className="field__label">{tr('Yangilangan vaqt')}</label>
               <input className="input" value={formatDateTimeShort(stage.updated_at)} disabled readOnly />
             </div>
           </div>

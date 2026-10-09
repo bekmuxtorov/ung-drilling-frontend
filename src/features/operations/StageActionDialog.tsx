@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Check, CircleCheck, Loader2, Play, X } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { todayIso, formatDate } from './utils';
+import { tr } from '../../i18n';
 
 export type StageActionKind = 'start' | 'finish';
 
@@ -44,13 +45,12 @@ export const StageActionDialog: React.FC<StageActionDialogProps> = ({ action, lo
       onClose={loading ? () => undefined : onClose}
       size="sm"
       divided
-      title={action ? `${action.label} bosqichini ${isFinish ? 'yakunlaysizmi' : 'boshlaysizmi'}?` : ''}
+      title={action ? (isFinish ? tr('«{0}» bosqichini yakunlaysizmi?', action.label) : tr('«{0}» bosqichini boshlaysizmi?', action.label)) : ''}
       footer={
         <>
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={loading}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button
             type="button"
             className={`btn ${isFinish ? 'btn--success' : 'btn--primary'}`}
@@ -58,7 +58,7 @@ export const StageActionDialog: React.FC<StageActionDialogProps> = ({ action, lo
             onClick={() => onConfirm(date, !!action?.nextLabel && startNext)}
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : isFinish ? <Check size={14} /> : <Play size={14} />}
-            {isFinish ? 'Yakunlash' : 'Boshlash'}
+            {isFinish ? tr('Yakunlash') : tr('Boshlash')}
           </button>
         </>
       }
@@ -66,7 +66,7 @@ export const StageActionDialog: React.FC<StageActionDialogProps> = ({ action, lo
       {action && (
         <div className="form">
           <label className="field">
-            <span className="field__label">{isFinish ? 'Amaldagi tugash sanasi' : 'Amaldagi boshlanish sanasi'}</span>
+            <span className="field__label">{isFinish ? tr('Amaldagi tugash sanasi') : tr('Amaldagi boshlanish sanasi')}</span>
             <input
               type="date"
               className={`input ${invalid ? 'input--error' : ''}`}
@@ -76,7 +76,7 @@ export const StageActionDialog: React.FC<StageActionDialogProps> = ({ action, lo
               onChange={(e) => setDate(e.target.value)}
             />
             {action.minDate && (
-              <span className="field__hint">Boshlangan sana: {formatDate(action.minDate)}</span>
+              <span className="field__hint">{tr('Boshlangan sana:')}{' '}{formatDate(action.minDate)}</span>
             )}
           </label>
           {action.nextLabel && (
@@ -84,8 +84,7 @@ export const StageActionDialog: React.FC<StageActionDialogProps> = ({ action, lo
               <input type="checkbox" className="checkbox" checked={startNext} onChange={(e) => setStartNext(e.target.checked)} />
               <span>
                 <CircleCheck size={14} />
-                «{action.nextLabel}» bosqichini ham shu sanadan boshlash
-              </span>
+                {tr('«{0}» bosqichini ham shu sanadan boshlash', action.nextLabel)}</span>
             </label>
           )}
           {action.warning && <p className="confirm__warning">{action.warning}</p>}

@@ -3,6 +3,7 @@ import {
   Activity,
   Bell,
   BriefcaseBusiness,
+  CalendarPlus,
   ChevronDown,
   ChevronRight,
   ClipboardList,
@@ -27,6 +28,7 @@ import { LanguageSwitcher } from '../common/LanguageSwitcher';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { REFERENCES } from '../../features/references/config';
+import { tr } from '../../i18n';
 
 interface MenuLink {
   path: string;
@@ -44,31 +46,34 @@ interface MenuGroup {
 type MenuEntry = MenuLink | MenuGroup | 'divider';
 
 const MENU: MenuEntry[] = [
-  { path: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
-  { path: 'gqi-minora', label: 'ГРР (ВМЭ)(Minora montaji)', icon: Activity },
-  { path: 'gqi-burgulash', label: 'ГРР (бурение)', icon: TriangleAlert },
-  { path: 'gqi-sinov', label: 'ГРР (Испытание)', icon: ClipboardList },
+  { path: 'dashboard', label: tr('Dashboard'), icon: LayoutGrid },
+  { path: 'daily-report', label: tr('Kunlik hisobot kiritish'), icon: CalendarPlus },
   'divider',
-  { path: 'sb-burgulash', label: 'ЭБ (Бурение)', icon: BriefcaseBusiness },
-  { path: 'sb-minora', label: 'ЭБ (ВМЭ)', icon: FileBadge },
+  { path: 'gqi-minora', label: tr('ГРР (ВМЭ)'), icon: Activity },
+  { path: 'sb-minora', label: tr('ЭБ (ВМЭ)'), icon: FileBadge },
+  'divider',
+  { path: 'gqi-burgulash', label: tr('ГРР (бурение)'), icon: TriangleAlert },
+  { path: 'sb-burgulash', label: tr('ЭБ (Бурение)'), icon: BriefcaseBusiness },
+  'divider',
+  { path: 'gqi-sinov', label: tr('ГРР (Испытание)'), icon: ClipboardList },
   'divider',
   {
     key: 'references',
-    label: "Ma'lumotnomalar",
+    label: tr("Ma'lumotnomalar"),
     icon: Package,
     children: [
       ...REFERENCES.map((r) => ({ path: `references/${r.key}`, label: r.title, icon: r.icon })),
-      { path: 'users', label: 'Foydalanuvchilar', icon: UserRound },
-      { path: 'roles', label: 'Rollar va ruxsatlar', icon: ShieldCheck },
+      { path: 'users', label: tr('Foydalanuvchilar'), icon: UserRound },
+      { path: 'roles', label: tr('Rollar va ruxsatlar'), icon: ShieldCheck },
     ],
   },
   {
     key: 'reports',
-    label: 'Hisobotlar',
+    label: tr('Hisobotlar'),
     icon: FileChartColumn,
-    children: [{ path: 'reports/fq-burgulash', label: "FQ (Burg'ulash)", icon: Map }],
+    children: [{ path: 'reports/fq-burgulash', label: tr("FQ (Burg'ulash)"), icon: Map }],
   },
-  { path: 'audit-log', label: 'Audit log', icon: History },
+  { path: 'audit-log', label: tr('Audit log'), icon: History },
 ];
 
 const isGroup = (entry: MenuEntry): entry is MenuGroup => typeof entry === 'object' && 'children' in entry;
@@ -231,11 +236,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ path, onNavigate, extraCru
           <button
             type="button"
             className={`menu-item ${path === 'settings' ? 'is-active' : ''}`}
-            title={tip('Sozlamalar')}
+            title={tip(tr('Sozlamalar'))}
             onClick={() => go('settings')}
           >
             <Settings size={15} />
-            <span className="menu-item__label">Sozlamalar</span>
+            <span className="menu-item__label">{tr('Sozlamalar')}</span>
           </button>
           <div className="sidebar__user" ref={userRef}>
             <button type="button" className="user-card" title={tip(user?.name ?? '')} onClick={() => setUserMenu((v) => !v)}>
@@ -265,13 +270,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ path, onNavigate, extraCru
             type="button"
             className="topbar__icon topbar__toggle"
             onClick={() => (isMobile ? setMobileOpen(true) : toggleCollapsed())}
-            aria-label="Menyu"
+            aria-label={tr('Menyu')}
           >
             <PanelLeft size={16} className="hide-mobile" />
             <Menu size={18} className="show-mobile" />
           </button>
           <span className="topbar__sep" />
-          <nav className="topbar__crumbs" aria-label="Breadcrumb">
+          <nav className="topbar__crumbs" aria-label={tr('Breadcrumb')}>
             {breadcrumbs.map((c, i) => (
               <React.Fragment key={c}>
                 {i > 0 && <ChevronRight size={12} />}
@@ -295,10 +300,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ path, onNavigate, extraCru
           <div className="topbar__right">
             <label className="global-search">
               <Search size={13} />
-              <input ref={searchRef} placeholder="Quduq hududi va raqami bilan qidirish..." />
-              <kbd>Ctrl K</kbd>
+              <input ref={searchRef} placeholder={tr('Quduq hududi va raqami bilan qidirish...')} />
+              <kbd>{tr('Ctrl K')}</kbd>
             </label>
-            <button type="button" className="topbar__icon" aria-label="Bildirishnomalar">
+            <button type="button" className="topbar__icon" aria-label={tr('Bildirishnomalar')}>
               <Bell size={16} />
             </button>
             <LanguageSwitcher currentLang={language} onLanguageChange={setLanguage} variant="light" />

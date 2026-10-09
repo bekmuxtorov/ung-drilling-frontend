@@ -5,6 +5,7 @@ import { ApiError } from '../../api/client';
 import type { DailyWorkDescription } from '../../api/types';
 import { RelationSelect } from '../references/RelationSelect';
 import { formatDateTimeShort } from '../references/format';
+import { tr } from '../../i18n';
 
 export interface TransportRow {
   /** Mavjud yozuv ID si (yangi qatorlarda yo'q) */
@@ -79,10 +80,10 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!values.description.trim()) e.description = 'Majburiy maydon';
+    if (!values.description.trim()) e.description = tr('Majburiy maydon');
     values.transports.forEach((r) => {
-      if (!r.transport_type) e[`${r.key}.transport_type`] = 'Turini tanlang';
-      if (!/^\d+$/.test(r.count)) e[`${r.key}.count`] = 'Butun son';
+      if (!r.transport_type) e[`${r.key}.transport_type`] = tr('Turini tanlang');
+      if (!/^\d+$/.test(r.count)) e[`${r.key}.count`] = tr('Butun son');
     });
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -99,7 +100,7 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
       if (err instanceof ApiError) {
         setFormError(err.message);
         if (err.fieldErrors.description) setErrors((prev) => ({ ...prev, description: err.fieldErrors.description }));
-      } else setFormError("Noma'lum xatolik yuz berdi");
+      } else setFormError(tr("Noma'lum xatolik yuz berdi"));
       setSubmitting(false);
     }
   };
@@ -112,26 +113,23 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
       hidden={hidden}
       size="lg"
       onClose={submitting ? () => undefined : onClose}
-      title={isEdit ? `Kunlik hisobot · ${formatDateTimeShort(record?.created_at)}` : 'Yangi kunlik hisobot'}
+      title={isEdit ? tr('Kunlik hisobot · {0}', formatDateTimeShort(record?.created_at)) : tr('Yangi kunlik hisobot')}
       footer={
         <>
           {isEdit && onDelete && record && (
             <>
               <button type="button" className="btn btn--danger" onClick={() => onDelete(record)} disabled={submitting}>
                 <Trash2 size={14} />
-                O'chirish
-              </button>
+                {tr("O'chirish")}</button>
               <span className="modal__footer-spacer" />
             </>
           )}
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="daily-work-form" className="btn btn--primary" disabled={submitting}>
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-            Saqlash
-          </button>
+            {tr('Saqlash')}</button>
         </>
       }
     >
@@ -140,7 +138,7 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
 
         <div className="field">
           <label className="field__label" htmlFor="dw-description">
-            Kunlik ish tavsifi<span className="field__required">*</span>
+            {tr('Kunlik ish tavsifi')}<span className="field__required">*</span>
           </label>
           <textarea
             id="dw-description"
@@ -149,7 +147,7 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
             autoFocus={!isEdit}
             value={values.description}
             disabled={submitting}
-            placeholder="Bugun bajarilgan ishlar, holat va muammolar..."
+            placeholder={tr('Bugun bajarilgan ishlar, holat va muammolar...')}
             onChange={(e) => {
               setValues((prev) => ({ ...prev, description: e.target.value }));
               setErrors((prev) => ({ ...prev, description: '' }));
@@ -161,8 +159,7 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
         <div className="transport-editor">
           <div className="transport-editor__head">
             <span className="form-subtitle">
-              Jalb qilingan transport vositalari
-              {totalVehicles > 0 && <span className="count-pill">{totalVehicles} ta</span>}
+              {tr('Jalb qilingan transport vositalari')}{totalVehicles > 0 && <span className="count-pill">{totalVehicles} {tr('ta')}</span>}
             </span>
             <button
               type="button"
@@ -171,18 +168,17 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
               onClick={() => setValues((prev) => ({ ...prev, transports: [...prev.transports, newRow()] }))}
             >
               <Plus size={14} />
-              Transport qo'shish
-            </button>
+              {tr("Transport qo'shish")}</button>
           </div>
 
           {values.transports.length === 0 ? (
-            <p className="transport-editor__empty">Transport vositalari biriktirilmagan</p>
+            <p className="transport-editor__empty">{tr('Transport vositalari biriktirilmagan')}</p>
           ) : (
             <div className="transport-editor__rows">
               <div className="transport-row transport-row--head">
-                <span>Transport turi</span>
-                <span>Soni</span>
-                <span>Izoh</span>
+                <span>{tr('Transport turi')}</span>
+                <span>{tr('Soni')}</span>
+                <span>{tr('Izoh')}</span>
                 <span />
               </div>
               {values.transports.map((row) => (
@@ -190,7 +186,7 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
                   <div>
                     <RelationSelect
                       reference="transport-types"
-                      placeholder="Turini tanlang"
+                      placeholder={tr('Turini tanlang')}
                       value={row.transport_type}
                       disabled={submitting}
                       error={!!errors[`${row.key}.transport_type`]}
@@ -210,7 +206,7 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
                     <input
                       className="input"
                       value={row.description}
-                      placeholder="Ixtiyoriy"
+                      placeholder={tr('Ixtiyoriy')}
                       disabled={submitting}
                       onChange={(e) => updateRow(row.key, { description: e.target.value })}
                     />
@@ -218,7 +214,7 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
                   <button
                     type="button"
                     className="icon-btn icon-btn--danger"
-                    title="Olib tashlash"
+                    title={tr('Olib tashlash')}
                     disabled={submitting}
                     onClick={() =>
                       setValues((prev) => ({ ...prev, transports: prev.transports.filter((r) => r.key !== row.key) }))
@@ -235,11 +231,11 @@ export const DailyWorkFormModal: React.FC<DailyWorkFormModalProps> = ({ open, hi
         {isEdit && record && (
           <div className="form-grid form-grid--2">
             <div className="field">
-              <label className="field__label">Yaratilgan vaqt</label>
+              <label className="field__label">{tr('Yaratilgan vaqt')}</label>
               <input className="input" value={formatDateTimeShort(record.created_at)} disabled readOnly />
             </div>
             <div className="field">
-              <label className="field__label">Yangilangan vaqt</label>
+              <label className="field__label">{tr('Yangilangan vaqt')}</label>
               <input className="input" value={formatDateTimeShort(record.updated_at)} disabled readOnly />
             </div>
           </div>

@@ -4,6 +4,7 @@ import { Modal } from '../../components/ui/Modal';
 import { ApiError } from '../../api/client';
 import type { DrillingBPA } from '../../api/types';
 import { RelationSelect } from '../references/RelationSelect';
+import { tr } from '../../i18n';
 
 interface DrillingBPAFormModalProps {
   open: boolean;
@@ -81,10 +82,10 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
-    if (!values.well_number.trim()) errs.well_number = 'Quduq raqami kiritilishi shart';
-    if (!values.enterprise) errs.enterprise = 'Tashkilotni tanlang';
+    if (!values.well_number.trim()) errs.well_number = tr('Quduq raqami kiritilishi shart');
+    if (!values.enterprise) errs.enterprise = tr('Tashkilotni tanlang');
     if (values.depth_plan && (!/^\d+$/.test(values.depth_plan.trim()) || Number(values.depth_plan) <= 0)) {
-      errs.depth_plan = "Musbat butun son kiriting (masalan: 3800)";
+      errs.depth_plan = tr('Musbat butun son kiriting (masalan: 3800)');
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -117,7 +118,7 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
           setErrors(err.fieldErrors);
         }
       } else {
-        setServerError("Ma'lumotlarni saqlashda xatolik yuz berdi");
+        setServerError(tr("Ma'lumotlarni saqlashda xatolik yuz berdi"));
       }
     } finally {
       setSubmitting(false);
@@ -129,29 +130,26 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
       open={open}
       onClose={onClose}
       size="lg"
-      title={isEdit ? `BPA pasportini tahrirlash (#${bpa.id})` : "Yangi burg'ilash (BPA) pasporti"}
+      title={isEdit ? tr('BPA pasportini tahrirlash (#{0})', bpa.id) : tr("Yangi burg'ilash (BPA) pasporti")}
       footer={
         <>
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="bpa-form" className="btn btn--primary" disabled={submitting}>
             {submitting ? (
               <>
                 <Loader2 size={14} className="animate-spin" />
-                Saqlanmoqda…
+                {tr('Saqlanmoqda…')}
               </>
             ) : isEdit ? (
               <>
                 <Save size={14} />
-                O‘zgarishlarni saqlash
-              </>
+                {tr('O‘zgarishlarni saqlash')}</>
             ) : (
               <>
                 <Plus size={14} />
-                Pasport yaratish
-              </>
+                {tr('Pasport yaratish')}</>
             )}
           </button>
         </>
@@ -164,16 +162,16 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
         <div className="bpa-form-group">
           <div className="bpa-form-group__title">
             <FileText size={15} />
-            <span>Asosiy ma'lumotlar va hudud</span>
+            <span>{tr("Asosiy ma'lumotlar va hudud")}</span>
           </div>
 
           <div className="bpa-form-row">
             <label className="field">
-              <span className="field__label">BPA Hujjat raqami</span>
+              <span className="field__label">{tr('BPA Hujjat raqami')}</span>
               <input
                 type="text"
                 className={`input ${errors.number ? 'input--error' : ''}`}
-                placeholder="Masalan: BPA-2026/01"
+                placeholder={tr('Masalan: BPA-2026/01')}
                 value={values.number}
                 onChange={(e) => setField('number', e.target.value)}
               />
@@ -182,12 +180,12 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
 
             <label className="field">
               <span className="field__label">
-                Quduq raqami <span className="field__required">*</span>
+                {tr('Quduq raqami')}{' '}<span className="field__required">*</span>
               </span>
               <input
                 type="text"
                 className={`input ${errors.well_number ? 'input--error' : ''}`}
-                placeholder="Masalan: 324-sonli"
+                placeholder={tr('Masalan: 324-sonli')}
                 value={values.well_number}
                 onChange={(e) => setField('well_number', e.target.value)}
               />
@@ -198,11 +196,11 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
           <div className="bpa-form-row">
             <label className="field">
               <span className="field__label">
-                Tashkilot (Korxona) <span className="field__required">*</span>
+                {tr('Tashkilot (Korxona)')}{' '}<span className="field__required">*</span>
               </span>
               <RelationSelect
                 reference="enterprises"
-                placeholder="Korxonani tanlang"
+                placeholder={tr('Korxonani tanlang')}
                 value={values.enterprise}
                 error={!!errors.enterprise}
                 onChange={(v) => setField('enterprise', v)}
@@ -211,10 +209,10 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
             </label>
 
             <label className="field">
-              <span className="field__label">Kon / Maydon</span>
+              <span className="field__label">{tr('Kon / Maydon')}</span>
               <RelationSelect
                 reference="areas"
-                placeholder="Maydonni tanlang"
+                placeholder={tr('Maydonni tanlang')}
                 value={values.area}
                 error={!!errors.area}
                 onChange={(v) => setField('area', v)}
@@ -228,15 +226,15 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
         <div className="bpa-form-group">
           <div className="bpa-form-group__title">
             <Wrench size={15} />
-            <span>Texnik parametrlar va mas'ullar</span>
+            <span>{tr("Texnik parametrlar va mas'ullar")}</span>
           </div>
 
           <div className="bpa-form-row">
             <label className="field">
-              <span className="field__label">Dastgoh (Mashina turi)</span>
+              <span className="field__label">{tr('Dastgoh (Mashina turi)')}</span>
               <RelationSelect
                 reference="machine-types"
-                placeholder="Mashina turini tanlang"
+                placeholder={tr('Mashina turini tanlang')}
                 value={values.machine_type}
                 error={!!errors.machine_type}
                 onChange={(v) => setField('machine_type', v)}
@@ -245,10 +243,10 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
             </label>
 
             <label className="field">
-              <span className="field__label">Mas'ul xodim (Muhandis / Prorab)</span>
+              <span className="field__label">{tr("Mas'ul xodim (Muhandis / Prorab)")}</span>
               <RelationSelect
                 reference="employees"
-                placeholder="Xodimni tanlang"
+                placeholder={tr('Xodimni tanlang')}
                 value={values.employee}
                 error={!!errors.employee}
                 onChange={(v) => setField('employee', v)}
@@ -259,7 +257,7 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
 
           <div className="bpa-form-row">
             <label className="field">
-              <span className="field__label">Burg'ilash boshlangan sana</span>
+              <span className="field__label">{tr("Burg'ilash boshlangan sana")}</span>
               <input
                 type="datetime-local"
                 className={`input ${errors.drilling_start_date ? 'input--error' : ''}`}
@@ -272,13 +270,13 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
             </label>
 
             <label className="field">
-              <span className="field__label">Chuqurlik(Plan) (m)</span>
+              <span className="field__label">{tr('Chuqurlik(Plan) (m)')}</span>
               <div className="input-with-unit">
                 <input
                   type="number"
                   min="1"
                   className={`input ${errors.depth_plan ? 'input--error' : ''}`}
-                  placeholder="Masalan: 3800"
+                  placeholder={tr('Masalan: 3800')}
                   value={values.depth_plan}
                   onKeyDown={(e) => {
                     if (e.key === '-' || e.key === 'e') {
@@ -292,7 +290,7 @@ export const DrillingBPAFormModal: React.FC<DrillingBPAFormModalProps> = ({
                     }
                   }}
                 />
-                <span className="input-unit">m</span>
+                <span className="input-unit">{tr('m')}</span>
               </div>
               {errors.depth_plan && <span className="field__hint field__hint--error">{errors.depth_plan}</span>}
             </label>

@@ -6,6 +6,7 @@ import { useToast } from '../../components/ui/Toast';
 import { wellDesignInLengthApi } from './api';
 import { WellDesignInLengthModal } from './WellDesignInLengthModal';
 import { formatDateTime, formatNumber } from './utils';
+import { tr } from '../../i18n';
 
 interface WellDesignsInLengthSectionProps {
   drillingBpaId: number;
@@ -14,9 +15,9 @@ interface WellDesignsInLengthSectionProps {
 }
 
 const PERIOD_LABELS: Record<string, string> = {
-  day: 'Kunlik',
-  month: 'Oylik',
-  year: 'Yillik',
+  day: tr('Kunlik'),
+  month: tr('Oylik'),
+  year: tr('Yillik'),
 };
 
 const PERIOD_CLASSES: Record<string, string> = {
@@ -49,10 +50,10 @@ export const WellDesignsInLengthSection: React.FC<WellDesignsInLengthSectionProp
   const handleSubmit = async (payload: Record<string, unknown>) => {
     if (editing) {
       await wellDesignInLengthApi.update(editing.id, payload);
-      notify('success', 'Dinamika yangilandi');
+      notify('success', tr('Dinamika yangilandi'));
     } else {
       await wellDesignInLengthApi.create(payload);
-      notify('success', 'Dinamika qo‘shildi');
+      notify('success', tr('Dinamika qo‘shildi'));
     }
     setModalOpen(false);
     setEditing(null);
@@ -64,13 +65,13 @@ export const WellDesignsInLengthSection: React.FC<WellDesignsInLengthSectionProp
     setDeleteLoading(true);
     try {
       await wellDesignInLengthApi.remove(deleting.id);
-      notify('success', 'O‘chirildi');
+      notify('success', tr('O‘chirildi'));
       setDeleting(null);
       setModalOpen(false);
       setEditing(null);
       onChanged();
     } catch {
-      notify('error', 'O‘chirib bo‘lmadi');
+      notify('error', tr('O‘chirib bo‘lmadi'));
     } finally {
       setDeleteLoading(false);
     }
@@ -80,24 +81,21 @@ export const WellDesignsInLengthSection: React.FC<WellDesignsInLengthSectionProp
     <div className="tab-section">
       <div className="tab-section__toolbar">
         <div>
-          <h4 className="tab-section__title">Quduq o‘tish dinamikasi (Well Design in Length)</h4>
+          <h4 className="tab-section__title">{tr('Quduq o‘tish dinamikasi (Well Design in Length)')}</h4>
           <p className="tab-section__sub">
-            Davrlar kesimida (kunlik, oylik, yillik) burg'ilash reja va amaldagi fakt ko'rsatkichlari taqqoslanishi
-          </p>
+            {tr("Davrlar kesimida (kunlik, oylik, yillik) burg'ilash reja va amaldagi fakt ko'rsatkichlari taqqoslanishi")}</p>
         </div>
         <button type="button" className="btn btn--primary" onClick={handleOpenAdd}>
           <Plus size={14} />
-          Qo‘shish
-        </button>
+          {tr('Qo‘shish')}</button>
       </div>
 
       {items.length === 0 ? (
         <div className="empty-state">
-          <p className="empty-state__text">O‘tish dinamikasi bo‘yicha ma’lumot kiritilmagan</p>
+          <p className="empty-state__text">{tr('O‘tish dinamikasi bo‘yicha ma’lumot kiritilmagan')}</p>
           <button type="button" className="btn btn--outline" onClick={handleOpenAdd}>
             <Plus size={14} />
-            Birinchi yozuvni qo‘shish
-          </button>
+            {tr('Birinchi yozuvni qo‘shish')}</button>
         </div>
       ) : (
         <div className="table-wrap">
@@ -105,12 +103,12 @@ export const WellDesignsInLengthSection: React.FC<WellDesignsInLengthSectionProp
             <thead>
               <tr>
                 <th className="table__num">#</th>
-                <th>Davr</th>
-                <th>Reja o‘tish (m)</th>
-                <th>Fakt o‘tish (m)</th>
-                <th>Farq (Delta m)</th>
-                <th>Bajarilish (%)</th>
-                <th>Boshlanish sanasi</th>
+                <th>{tr('Davr')}</th>
+                <th>{tr('Reja o‘tish (m)')}</th>
+                <th>{tr('Fakt o‘tish (m)')}</th>
+                <th>{tr('Farq (Delta m)')}</th>
+                <th>{tr('Bajarilish (%)')}</th>
+                <th>{tr('Boshlanish sanasi')}</th>
               </tr>
             </thead>
             <tbody>
@@ -133,7 +131,7 @@ export const WellDesignsInLengthSection: React.FC<WellDesignsInLengthSectionProp
                     key={it.id}
                     className="clickable-row"
                     onClick={() => handleOpenEdit(it)}
-                    title="Batafsil ko‘rish va tahrirlash uchun bosing"
+                    title={tr('Batafsil ko‘rish va tahrirlash uchun bosing')}
                   >
                     <td className="table__num">{index + 1}</td>
                     <td>
@@ -192,10 +190,10 @@ export const WellDesignsInLengthSection: React.FC<WellDesignsInLengthSectionProp
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="O‘tish dinamikasini o‘chirish"
+        title={tr('O‘tish dinamikasini o‘chirish')}
         warning={
           deleting
-            ? `${PERIOD_LABELS[deleting.type] || deleting.type} dinamikasi yozuvini rostdan ham o‘chirmoqchimisiz?`
+            ? tr('{0} dinamikasi yozuvini rostdan ham o‘chirmoqchimisiz?', PERIOD_LABELS[deleting.type] || deleting.type)
             : undefined
         }
         onConfirm={handleDelete}

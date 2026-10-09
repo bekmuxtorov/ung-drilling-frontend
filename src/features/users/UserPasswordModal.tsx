@@ -4,6 +4,7 @@ import { ApiError } from '../../api/client';
 import { usersApi } from '../../api/accounts';
 import { Modal } from '../../components/ui/Modal';
 import type { UserItem } from '../../types/auth';
+import { tr } from '../../i18n';
 
 interface UserPasswordModalProps {
   isOpen: boolean;
@@ -36,9 +37,9 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, us
     setError('');
 
     const errs: Record<string, string> = {};
-    if (!newPassword) errs.new_password = 'Majburiy maydon';
-    else if (newPassword.length < 6) errs.new_password = 'Kamida 6 ta belgi';
-    if (newPassword !== newPasswordConfirm) errs.new_password_confirm = 'Parollar mos kelmadi';
+    if (!newPassword) errs.new_password = tr('Majburiy maydon');
+    else if (newPassword.length < 6) errs.new_password = tr('Kamida 6 ta belgi');
+    if (newPassword !== newPasswordConfirm) errs.new_password_confirm = tr('Parollar mos kelmadi');
     setFieldErrors(errs);
     if (Object.keys(errs).length) return;
 
@@ -51,7 +52,7 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, us
       if (err instanceof ApiError) {
         setError(err.message);
         setFieldErrors(err.fieldErrors ?? {});
-      } else setError("Parolni o'rnatishda xatolik yuz berdi");
+      } else setError(tr("Parolni o'rnatishda xatolik yuz berdi"));
       setSaving(false);
     }
   };
@@ -61,17 +62,15 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, us
       open={isOpen && !!user}
       size="sm"
       onClose={saving ? () => undefined : onClose}
-      title={`Yangi parol · @${user?.username ?? ''}`}
+      title={tr('Yangi parol · @{0}', user?.username ?? '')}
       footer={
         <>
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={saving}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="password-form" className="btn btn--primary" disabled={saving}>
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-            Saqlash
-          </button>
+            {tr('Saqlash')}</button>
         </>
       }
     >
@@ -79,7 +78,7 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, us
         {error && <div className="alert">{error}</div>}
         <div className="field">
           <label className="field__label" htmlFor="pw-new">
-            Yangi parol<span className="field__required">*</span>
+            {tr('Yangi parol')}<span className="field__required">*</span>
           </label>
           <div className="password-input">
             <input
@@ -88,7 +87,7 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, us
               className={`input ${fieldErrors.new_password ? 'input--error' : ''}`}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Kamida 6 ta belgi"
+              placeholder={tr('Kamida 6 ta belgi')}
               autoComplete="new-password"
               disabled={saving}
               autoFocus
@@ -98,7 +97,7 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, us
               className="password-input__toggle"
               onClick={() => setShowPassword((v) => !v)}
               tabIndex={-1}
-              aria-label={showPassword ? 'Parolni yashirish' : "Parolni ko'rsatish"}
+              aria-label={showPassword ? tr('Parolni yashirish') : tr("Parolni ko'rsatish")}
             >
               {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
@@ -107,7 +106,7 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, us
         </div>
         <div className="field">
           <label className="field__label" htmlFor="pw-confirm">
-            Parolni tasdiqlash<span className="field__required">*</span>
+            {tr('Parolni tasdiqlash')}<span className="field__required">*</span>
           </label>
           <input
             id="pw-confirm"
@@ -115,7 +114,7 @@ export const UserPasswordModal: React.FC<UserPasswordModalProps> = ({ isOpen, us
             className={`input ${fieldErrors.new_password_confirm ? 'input--error' : ''}`}
             value={newPasswordConfirm}
             onChange={(e) => setNewPasswordConfirm(e.target.value)}
-            placeholder="Parolni qayta kiriting"
+            placeholder={tr('Parolni qayta kiriting')}
             autoComplete="new-password"
             disabled={saving}
           />

@@ -18,6 +18,7 @@ import { Modal } from '../../components/ui/Modal';
 import { useToast } from '../../components/ui/Toast';
 import type { AuditLog } from '../../types/audit';
 import { formatDateTime } from '../references/format';
+import { tr } from '../../i18n';
 
 interface AuditLogDetailModalProps {
   logId: number | null;
@@ -55,7 +56,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
       .then((data) => setLog(data))
       .catch(() => {
         if (!controller.signal.aborted) {
-          notify('error', 'Audit log tafsilotlarini yuklab bo‘lmadi');
+          notify('error', tr('Audit log tafsilotlarini yuklab bo‘lmadi'));
         }
       })
       .finally(() => {
@@ -69,7 +70,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
     if (!log) return;
     navigator.clipboard.writeText(JSON.stringify(log, null, 2));
     setCopied(true);
-    notify('success', 'Nusxalandi', 'Audit log JSON xotiraga olindi');
+    notify('success', tr('Nusxalandi'), tr('Audit log JSON xotiraga olindi'));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -79,21 +80,21 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
         return (
           <span className="audit-badge audit-badge--create">
             <PlusCircle size={13} />
-            {display || 'Yaratish'}
+            {display || tr('Yaratish')}
           </span>
         );
       case 'update':
         return (
           <span className="audit-badge audit-badge--update">
             <RefreshCw size={13} />
-            {display || 'Tahrirlash'}
+            {display || tr('Tahrirlash')}
           </span>
         );
       case 'delete':
         return (
           <span className="audit-badge audit-badge--delete">
             <Trash2 size={13} />
-            {display || 'O‘chirish'}
+            {display || tr('O‘chirish')}
           </span>
         );
       default:
@@ -103,7 +104,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
 
   const formatValue = (v: unknown): string => {
     if (v === null || v === undefined) return '—';
-    if (typeof v === 'boolean') return v ? 'Ha (True)' : 'Yo‘q (False)';
+    if (typeof v === 'boolean') return v ? tr('Ha (True)') : tr('Yo‘q (False)');
     if (typeof v === 'object') return JSON.stringify(v, null, 2);
     return String(v);
   };
@@ -163,7 +164,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
       onClose={onClose}
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span>Audit log #{logId} tafsilotlari</span>
+          <span>{tr('Audit log #{0} tafsilotlari', logId)}</span>
           {log && renderActionBadge(log.action, log.action_display)}
         </div>
       }
@@ -172,22 +173,21 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <button type="button" className="btn btn--outline" onClick={handleCopyJSON} disabled={!log}>
             {copied ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
-            {copied ? 'Nusxalandi' : 'JSON nusxalash'}
+            {copied ? tr('Nusxalandi') : tr('JSON nusxalash')}
           </button>
           <button type="button" className="btn btn--primary" onClick={onClose}>
-            Yopish
-          </button>
+            {tr('Yopish')}</button>
         </div>
       }
     >
       {loading && !log ? (
         <div style={{ padding: '60px 0', textAlign: 'center' }}>
           <Loader2 size={32} className="animate-spin" color="var(--brand-600)" style={{ margin: '0 auto 12px' }} />
-          <p style={{ color: 'var(--gray-500)', fontSize: '13px' }}>Audit tafsilotlari yuklanmoqda...</p>
+          <p style={{ color: 'var(--gray-500)', fontSize: '13px' }}>{tr('Audit tafsilotlari yuklanmoqda...')}</p>
         </div>
       ) : !log ? (
         <div className="empty-state">
-          <p className="empty-state__text">Audit log topilmadi</p>
+          <p className="empty-state__text">{tr('Audit log topilmadi')}</p>
         </div>
       ) : (
         <div className="audit-detail">
@@ -205,7 +205,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
                 </h4>
                 <div className="audit-detail-hero__time">
                   <Clock size={13} />
-                  <span>Qayd vaqti: {formatDateTime(log.created_at)}</span>
+                  <span>{tr('Qayd vaqti:')}{' '}{formatDateTime(log.created_at)}</span>
                 </div>
               </div>
             </div>
@@ -223,19 +223,18 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
             <div className="audit-meta-card">
               <div className="audit-meta-card__head">
                 <User size={14} color="var(--brand-600)" />
-                Foydalanuvchi
-              </div>
+                {tr('Foydalanuvchi')}</div>
               <div className="audit-meta-card__body">
                 <div className="audit-meta-card__row">
-                  <span className="audit-meta-card__label">F.I.SH:</span>
+                  <span className="audit-meta-card__label">{tr('F.I.SH:')}</span>
                   <span className="audit-meta-card__val">{log.user_full_name || '—'}</span>
                 </div>
                 <div className="audit-meta-card__row">
-                  <span className="audit-meta-card__label">Login:</span>
+                  <span className="audit-meta-card__label">{tr('Login:')}</span>
                   <span className="audit-meta-card__val">@{log.username}</span>
                 </div>
                 <div className="audit-meta-card__row">
-                  <span className="audit-meta-card__label">User ID:</span>
+                  <span className="audit-meta-card__label">{tr('User ID:')}</span>
                   <span className="audit-meta-card__val">{log.user ?? '—'}</span>
                 </div>
               </div>
@@ -245,19 +244,18 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
             <div className="audit-meta-card">
               <div className="audit-meta-card__head">
                 <Layers size={14} color="#0891b2" />
-                Obyekt / Model
-              </div>
+                {tr('Obyekt / Model')}</div>
               <div className="audit-meta-card__body">
                 <div className="audit-meta-card__row">
-                  <span className="audit-meta-card__label">Ilova (App):</span>
+                  <span className="audit-meta-card__label">{tr('Ilova (App):')}</span>
                   <span className="audit-meta-card__val">{log.app_label}</span>
                 </div>
                 <div className="audit-meta-card__row">
-                  <span className="audit-meta-card__label">Model:</span>
+                  <span className="audit-meta-card__label">{tr('Model:')}</span>
                   <span className="audit-meta-card__val">{log.model_name}</span>
                 </div>
                 <div className="audit-meta-card__row">
-                  <span className="audit-meta-card__label">Obyekt ID:</span>
+                  <span className="audit-meta-card__label">{tr('Obyekt ID:')}</span>
                   <span className="audit-meta-card__val">{log.object_id}</span>
                 </div>
               </div>
@@ -267,23 +265,22 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
             <div className="audit-meta-card">
               <div className="audit-meta-card__head">
                 <Globe size={14} color="#7c3aed" />
-                Tarmoq / Qurilma
-              </div>
+                {tr('Tarmoq / Qurilma')}</div>
               <div className="audit-meta-card__body">
                 <div className="audit-meta-card__row">
-                  <span className="audit-meta-card__label">IP manzil:</span>
+                  <span className="audit-meta-card__label">{tr('IP manzil:')}</span>
                   <span className="audit-meta-card__val" style={{ fontFamily: 'monospace' }}>
                     {log.ip_address || '—'}
                   </span>
                 </div>
                 <div className="audit-meta-card__row">
-                  <span className="audit-meta-card__label">MAC / ID:</span>
+                  <span className="audit-meta-card__label">{tr('MAC / ID:')}</span>
                   <span className="audit-meta-card__val" style={{ fontFamily: 'monospace' }}>
                     {log.mac_address || '—'}
                   </span>
                 </div>
                 <div className="audit-meta-card__row" title={log.user_agent}>
-                  <span className="audit-meta-card__label">Brauzer:</span>
+                  <span className="audit-meta-card__label">{tr('Brauzer:')}</span>
                   <span
                     className="audit-meta-card__val"
                     style={{
@@ -308,8 +305,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
               onClick={() => setActiveTab('diff')}
             >
               <Diff size={14} />
-              O‘zgarishlar (Diff)
-              <span className="audit-action-tab__badge">{diffRows.length}</span>
+              {tr('O‘zgarishlar (Diff)')}<span className="audit-action-tab__badge">{diffRows.length}</span>
             </button>
             <button
               type="button"
@@ -317,8 +313,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
               onClick={() => setActiveTab('new')}
             >
               <PlusCircle size={14} />
-              Yangi qiymatlar
-              <span className="audit-action-tab__badge">
+              {tr('Yangi qiymatlar')}<span className="audit-action-tab__badge">
                 {Object.keys(log.new_values || {}).length}
               </span>
             </button>
@@ -328,8 +323,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
               onClick={() => setActiveTab('old')}
             >
               <Clock size={14} />
-              Eski qiymatlar
-              <span className="audit-action-tab__badge">
+              {tr('Eski qiymatlar')}<span className="audit-action-tab__badge">
                 {Object.keys(log.old_values || {}).length}
               </span>
             </button>
@@ -339,8 +333,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
               onClick={() => setActiveTab('raw')}
             >
               <FileCode size={14} />
-              To‘liq JSON
-            </button>
+              {tr('To‘liq JSON')}</button>
           </div>
 
           {/* Tab 1: Diff Table */}
@@ -348,16 +341,16 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
             <div>
               {diffRows.length === 0 ? (
                 <div className="empty-state" style={{ padding: '30px' }}>
-                  <p className="empty-state__text">Maydonlar bo‘yicha alohida diff ma’lumoti qayd etilmagan</p>
+                  <p className="empty-state__text">{tr('Maydonlar bo‘yicha alohida diff ma’lumoti qayd etilmagan')}</p>
                 </div>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
                   <table className="audit-diff-table">
                     <thead>
                       <tr>
-                        <th style={{ width: '25%' }}>Maydon nomi</th>
-                        <th style={{ width: '37.5%' }}>Eski qiymat</th>
-                        <th style={{ width: '37.5%' }}>Yangi qiymat</th>
+                        <th style={{ width: '25%' }}>{tr('Maydon nomi')}</th>
+                        <th style={{ width: '37.5%' }}>{tr('Eski qiymat')}</th>
+                        <th style={{ width: '37.5%' }}>{tr('Yangi qiymat')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -399,8 +392,8 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
                   <table className="audit-diff-table">
                     <thead>
                       <tr>
-                        <th style={{ width: '30%' }}>Maydon</th>
-                        <th>Qiymat</th>
+                        <th style={{ width: '30%' }}>{tr('Maydon')}</th>
+                        <th>{tr('Qiymat')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -419,7 +412,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
                 </div>
               ) : (
                 <div className="empty-state" style={{ padding: '30px' }}>
-                  <p className="empty-state__text">Yangi qiymatlar mavjud emas</p>
+                  <p className="empty-state__text">{tr('Yangi qiymatlar mavjud emas')}</p>
                 </div>
               )}
             </div>
@@ -433,8 +426,8 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
                   <table className="audit-diff-table">
                     <thead>
                       <tr>
-                        <th style={{ width: '30%' }}>Maydon</th>
-                        <th>Qiymat</th>
+                        <th style={{ width: '30%' }}>{tr('Maydon')}</th>
+                        <th>{tr('Qiymat')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -453,7 +446,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
                 </div>
               ) : (
                 <div className="empty-state" style={{ padding: '30px' }}>
-                  <p className="empty-state__text">Eski qiymatlar mavjud emas</p>
+                  <p className="empty-state__text">{tr('Eski qiymatlar mavjud emas')}</p>
                 </div>
               )}
             </div>
@@ -468,7 +461,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
                 onClick={handleCopyJSON}
               >
                 {copied ? <Check size={12} /> : <Copy size={12} />}
-                {copied ? 'Nusxalandi' : 'Nusxalash'}
+                {copied ? tr('Nusxalandi') : tr('Nusxalash')}
               </button>
               <pre>{JSON.stringify(log, null, 2)}</pre>
             </div>

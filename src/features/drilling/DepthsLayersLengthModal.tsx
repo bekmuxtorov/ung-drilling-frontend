@@ -4,6 +4,7 @@ import { Modal } from '../../components/ui/Modal';
 import { ApiError } from '../../api/client';
 import type { DepthsLayersLength } from '../../api/types';
 import { RelationSelect } from '../references/RelationSelect';
+import { tr } from '../../i18n';
 
 interface DepthsLayersLengthModalProps {
   open: boolean;
@@ -49,14 +50,14 @@ export const DepthsLayersLengthModal: React.FC<DepthsLayersLengthModalProps> = (
     setError('');
 
     if (!layer) {
-      setError('Geologik chuqurlik qatlamini tanlang');
+      setError(tr('Geologik chuqurlik qatlamini tanlang'));
       return;
     }
 
     const parsedLength = length.trim() ? parseFloat(length) : null;
 
     if (parsedLength != null && (isNaN(parsedLength) || parsedLength <= 0)) {
-      setError("Qatlam qalinligi 0 dan katta (musbat son) bo‘lishi kerak");
+      setError(tr('Qatlam qalinligi 0 dan katta (musbat son) bo‘lishi kerak'));
       return;
     }
 
@@ -71,15 +72,15 @@ export const DepthsLayersLengthModal: React.FC<DepthsLayersLengthModalProps> = (
     try {
       await onSubmit(payload);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Saqlashda xatolik yuz berdi");
+      setError(err instanceof ApiError ? err.message : tr('Saqlashda xatolik yuz berdi'));
     } finally {
       setSubmitting(false);
     }
   };
 
   const modalTitle = isEdit
-    ? 'Qatlam kesimi ma‘lumotlari'
-    : 'Yangi qatlam kesimi qo‘shish';
+    ? tr('Qatlam kesimi ma‘lumotlari')
+    : tr('Yangi qatlam kesimi qo‘shish');
 
   return (
     <Modal
@@ -94,17 +95,15 @@ export const DepthsLayersLengthModal: React.FC<DepthsLayersLengthModalProps> = (
               className="btn btn--outline btn--danger"
               onClick={() => onDelete(item)}
               disabled={submitting}
-              title="Qatlam kesimini o‘chirish"
+              title={tr('Qatlam kesimini o‘chirish')}
             >
               <Trash2 size={14} />
-              O‘chirish
-            </button>
+              {tr('O‘chirish')}</button>
           )}
           <div className="modal__footer-spacer" />
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="depth-layer-form" className="btn btn--primary" disabled={submitting}>
             {submitting ? (
               <Loader2 size={14} className="animate-spin" />
@@ -113,7 +112,7 @@ export const DepthsLayersLengthModal: React.FC<DepthsLayersLengthModalProps> = (
             ) : (
               <Plus size={14} />
             )}
-            {isEdit ? 'Saqlash' : 'Qo‘shish'}
+            {isEdit ? tr('Saqlash') : tr('Qo‘shish')}
           </button>
         </>
       }
@@ -123,25 +122,25 @@ export const DepthsLayersLengthModal: React.FC<DepthsLayersLengthModalProps> = (
 
         <label className="field">
           <span className="field__label">
-            Geologik chuqurlik qatlami <span className="field__required">*</span>
+            {tr('Geologik chuqurlik qatlami')}{' '}<span className="field__required">*</span>
           </span>
           <RelationSelect
             reference="depths-layers"
-            placeholder="Qatlamni tanlang yoki qidiring..."
+            placeholder={tr('Qatlamni tanlang yoki qidiring...')}
             value={layer}
             onChange={setLayer}
           />
         </label>
 
         <label className="field">
-          <span className="field__label">Qatlam qalinligi / Oralig'i (m)</span>
+          <span className="field__label">{tr("Qatlam qalinligi / Oralig'i (m)")}</span>
           <div className="input-with-unit">
             <input
               type="number"
               step="any"
               min="0"
               className="input"
-              placeholder="Masalan: 320.5"
+              placeholder={tr('Masalan: 320.5')}
               value={length}
               onKeyDown={(e) => {
                 if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -155,7 +154,7 @@ export const DepthsLayersLengthModal: React.FC<DepthsLayersLengthModalProps> = (
                 }
               }}
             />
-            <span className="input-unit">m</span>
+            <span className="input-unit">{tr('m')}</span>
           </div>
         </label>
       </form>

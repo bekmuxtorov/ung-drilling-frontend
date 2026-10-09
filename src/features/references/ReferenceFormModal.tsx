@@ -5,6 +5,7 @@ import { ApiError } from '../../api/client';
 import type { AnyRow, FieldDef, ReferenceConfig } from './config';
 import { useOptions } from './useOptions';
 import { formatDateTimeShort } from './format';
+import { tr } from '../../i18n';
 
 interface ReferenceFormModalProps {
   config: ReferenceConfig;
@@ -46,8 +47,8 @@ const SelectField: React.FC<{
         </select>
         <ChevronDown size={14} className="select-wrap__chevron" />
       </div>
-      {loadError && <p className="field__hint field__hint--error">Ro'yxatni yuklab bo'lmadi</p>}
-      {empty && <p className="field__hint">Avval «{field.label}» ma'lumotnomasiga yozuv qo'shing</p>}
+      {loadError && <p className="field__hint field__hint--error">{tr("Ro'yxatni yuklab bo'lmadi")}</p>}
+      {empty && <p className="field__hint">{tr("Avval «{0}» ma'lumotnomasiga yozuv qo'shing", field.label)}</p>}
     </>
   );
 };
@@ -77,9 +78,9 @@ export const ReferenceFormModal: React.FC<ReferenceFormModalProps> = ({ config, 
     const next: Record<string, string> = {};
     config.fields.forEach((f) => {
       const v = values[f.name]?.trim() ?? '';
-      if (f.required && !v) next[f.name] = f.type === 'select' ? `${f.label}ni tanlang` : "Majburiy maydon";
-      else if (f.maxLength && v.length > f.maxLength) next[f.name] = `Maksimal ${f.maxLength} ta belgi`;
-      else if (f.type === 'tel' && v && !/^[+\d\s()-]{5,}$/.test(v)) next[f.name] = "Telefon raqami noto'g'ri";
+      if (f.required && !v) next[f.name] = f.type === 'select' ? tr('{0}ni tanlang', f.label) : tr('Majburiy maydon');
+      else if (f.maxLength && v.length > f.maxLength) next[f.name] = tr('Maksimal {0} ta belgi', f.maxLength);
+      else if (f.type === 'tel' && v && !/^[+\d\s()-]{5,}$/.test(v)) next[f.name] = tr("Telefon raqami noto'g'ri");
     });
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -106,7 +107,7 @@ export const ReferenceFormModal: React.FC<ReferenceFormModalProps> = ({ config, 
         setErrors(err.fieldErrors);
         setFormError(err.message);
       } else {
-        setFormError("Noma'lum xatolik yuz berdi");
+        setFormError(tr("Noma'lum xatolik yuz berdi"));
       }
       setSubmitting(false);
     }
@@ -126,19 +127,16 @@ export const ReferenceFormModal: React.FC<ReferenceFormModalProps> = ({ config, 
             <>
               <button type="button" className="btn btn--danger" onClick={() => onDelete(record)} disabled={submitting}>
                 <Trash2 size={14} />
-                O'chirish
-              </button>
+                {tr("O'chirish")}</button>
               <span className="modal__footer-spacer" />
             </>
           )}
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form={formId} className="btn btn--primary" disabled={submitting}>
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-            Saqlash
-          </button>
+            {tr('Saqlash')}</button>
         </>
       }
     >
@@ -186,14 +184,12 @@ export const ReferenceFormModal: React.FC<ReferenceFormModalProps> = ({ config, 
           <div className="form-grid">
             <div className="field">
               <label className="field__label" htmlFor="f-created_at">
-                Yaratilgan vaqt
-              </label>
+                {tr('Yaratilgan vaqt')}</label>
               <input id="f-created_at" className="input" value={formatDateTimeShort(record.created_at)} disabled readOnly />
             </div>
             <div className="field">
               <label className="field__label" htmlFor="f-updated_at">
-                Yangilangan vaqt
-              </label>
+                {tr('Yangilangan vaqt')}</label>
               <input id="f-updated_at" className="input" value={formatDateTimeShort(record.updated_at)} disabled readOnly />
             </div>
           </div>

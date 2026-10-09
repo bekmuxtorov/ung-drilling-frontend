@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Download, ChevronDown, FileSpreadsheet, FileText, FileDown } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, type ExportData } from '../../utils/exportUtils';
 import { useToast } from './Toast';
+import { tr } from '../../i18n';
 
 export interface ExportDropdownProps {
   data: ExportData;
@@ -34,7 +35,7 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({
 
   const handleExport = (format: 'excel' | 'csv' | 'pdf') => {
     if (disabled || !data.rows || data.rows.length === 0) {
-      notify('info', 'Yuklab olish uchun ma’lumot mavjud emas');
+      notify('info', tr('Yuklab olish uchun ma’lumot mavjud emas'));
       setOpen(false);
       return;
     }
@@ -42,15 +43,15 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({
     try {
       if (format === 'excel') {
         exportToExcel(data);
-        notify('success', 'Excel fayl shakllantirildi', `${data.filename}.xls`);
+        notify('success', tr('Excel fayl shakllantirildi'), `${data.filename}.xls`);
       } else if (format === 'csv') {
         exportToCSV(data);
-        notify('success', 'CSV fayl yuklandi', `${data.filename}.csv`);
+        notify('success', tr('CSV fayl yuklandi'), `${data.filename}.csv`);
       } else if (format === 'pdf') {
         exportToPDF(data);
       }
     } catch {
-      notify('error', 'Faylni eksport qilishda xatolik yuz berdi');
+      notify('error', tr('Faylni eksport qilishda xatolik yuz berdi'));
     }
     setOpen(false);
   };
@@ -67,10 +68,10 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({
         disabled={disabled}
         aria-haspopup="true"
         aria-expanded={open}
-        title="Ma'lumotlarni yuklab olish (Excel, CSV, PDF)"
+        title={tr("Ma'lumotlarni yuklab olish (Excel, CSV, PDF)")}
       >
         <Download size={size === 'sm' ? 13 : 14} />
-        <span>Yuklab olish</span>
+        <span>{tr('Yuklab olish')}</span>
         <ChevronDown
           size={size === 'sm' ? 12 : 14}
           className={`export-dropdown__chevron ${open ? 'is-open' : ''}`}
@@ -79,7 +80,7 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({
 
       {open && (
         <div className="export-dropdown__menu" role="menu">
-          <div className="export-dropdown__header">Formatni tanlang:</div>
+          <div className="export-dropdown__header">{tr('Formatni tanlang:')}</div>
           <button
             type="button"
             className="export-dropdown__item"
@@ -91,7 +92,7 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({
             </span>
             <div className="export-dropdown__item-info">
               <strong>EXCEL</strong>
-              <small>.xlsx / .xls jadvali</small>
+              <small>{tr('.xlsx / .xls jadvali')}</small>
             </div>
           </button>
 
@@ -106,7 +107,7 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({
             </span>
             <div className="export-dropdown__item-info">
               <strong>CSV</strong>
-              <small>.csv matnli fayl</small>
+              <small>{tr('.csv matnli fayl')}</small>
             </div>
           </button>
 
@@ -121,7 +122,7 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({
             </span>
             <div className="export-dropdown__item-info">
               <strong>PDF</strong>
-              <small>.pdf rasmiy ko‘chirma</small>
+              <small>{tr('.pdf rasmiy ko‘chirma')}</small>
             </div>
           </button>
         </div>

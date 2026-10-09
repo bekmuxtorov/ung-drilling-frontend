@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { formatDateTime } from '../references/format';
 import { RoleFormModal } from './RoleFormModal';
+import { tr } from '../../i18n';
 
 const PAGE_SIZE = 20;
 
@@ -57,7 +58,7 @@ export const RolesTablePanel: React.FC = () => {
           setPage((p) => p - 1);
           return;
         }
-        setError(err instanceof ApiError ? err.message : "Rollarni yuklab bo'lmadi");
+        setError(err instanceof ApiError ? err.message : tr("Rollarni yuklab bo'lmadi"));
       })
       .finally(() => !controller.signal.aborted && setLoading(false));
     return () => controller.abort();
@@ -75,12 +76,12 @@ export const RolesTablePanel: React.FC = () => {
     setDeleteLoading(true);
     try {
       await rolesApi.remove(deleting.id);
-      notify('success', "Rol o'chirildi", deleting.name);
+      notify('success', tr("Rol o'chirildi"), deleting.name);
       setDeleting(null);
       closeForm();
       reload();
     } catch (err) {
-      notify('error', "O'chirib bo'lmadi", err instanceof ApiError ? err.message : undefined);
+      notify('error', tr("O'chirib bo'lmadi"), err instanceof ApiError ? err.message : undefined);
     } finally {
       setDeleteLoading(false);
     }
@@ -109,8 +110,7 @@ export const RolesTablePanel: React.FC = () => {
           }}
         >
           <Plus size={14} />
-          Qo'shish
-        </button>
+          {tr("Qo'shish")}</button>
       </div>
 
       <div className={`table-wrap ${loading && data ? 'is-loading' : ''}`}>
@@ -118,10 +118,10 @@ export const RolesTablePanel: React.FC = () => {
           <thead>
             <tr>
               <th className="table__num">#</th>
-              <th>Nomi</th>
-              <th className="role-perms-col">Ruxsatlar</th>
-              <th className="table__date">Yaratilgan sana</th>
-              <th className="table__date">Yangilangan sana</th>
+              <th>{tr('Nomi')}</th>
+              <th className="role-perms-col">{tr('Ruxsatlar')}</th>
+              <th className="table__date">{tr('Yaratilgan sana')}</th>
+              <th className="table__date">{tr('Yangilangan sana')}</th>
             </tr>
           </thead>
           <tbody>
@@ -137,15 +137,14 @@ export const RolesTablePanel: React.FC = () => {
                 <td colSpan={colSpan} className="table__state">
                   {error}{' '}
                   <button type="button" className="link-btn" onClick={reload}>
-                    Qayta urinish
-                  </button>
+                    {tr('Qayta urinish')}</button>
                 </td>
               </tr>
             )}
             {!loading && !error && rows.length === 0 && (
               <tr>
                 <td colSpan={colSpan} className="table__state">
-                  {debouncedSearch ? 'Hech narsa topilmadi' : "Ma'lumot mavjud emas"}
+                  {debouncedSearch ? tr('Hech narsa topilmadi') : tr("Ma'lumot mavjud emas")}
                 </td>
               </tr>
             )}
@@ -188,7 +187,7 @@ export const RolesTablePanel: React.FC = () => {
           <span className="pagination__info">
             {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} / {total}
           </span>
-          <button type="button" className="icon-btn" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)} aria-label="Oldingi">
+          <button type="button" className="icon-btn" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)} aria-label={tr('Oldingi')}>
             <ChevronLeft size={16} />
           </button>
           <span className="pagination__page">
@@ -199,7 +198,7 @@ export const RolesTablePanel: React.FC = () => {
             className="icon-btn"
             disabled={page >= totalPages || loading}
             onClick={() => setPage((p) => p + 1)}
-            aria-label="Keyingi"
+            aria-label={tr('Keyingi')}
           >
             <ChevronRight size={16} />
           </button>
@@ -212,7 +211,7 @@ export const RolesTablePanel: React.FC = () => {
         initialRole={editing}
         onClose={closeForm}
         onSaved={(saved) => {
-          notify('success', editing ? "O'zgarishlar saqlandi" : "Rol qo'shildi", saved.name);
+          notify('success', editing ? tr("O'zgarishlar saqlandi") : tr("Rol qo'shildi"), saved.name);
           closeForm();
           reload();
         }}
@@ -222,8 +221,8 @@ export const RolesTablePanel: React.FC = () => {
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="Rolni o'chirmoqchimisiz?"
-        warning="Ushbu roldagi foydalanuvchilar rolsiz qoladi."
+        title={tr("Rolni o'chirmoqchimisiz?")}
+        warning={tr('Ushbu roldagi foydalanuvchilar rolsiz qoladi.')}
         onConfirm={handleDelete}
         onClose={() => setDeleting(null)}
       />

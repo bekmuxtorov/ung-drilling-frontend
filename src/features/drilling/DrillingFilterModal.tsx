@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Funnel, Search } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { RelationSelect } from '../references/RelationSelect';
+import { tr } from '../../i18n';
 
 export type DrillingFilters = Record<string, string>;
 
@@ -45,37 +46,35 @@ export const DrillingFilterModal: React.FC<DrillingFilterModalProps> = ({
     <Modal
       open={open}
       onClose={onClose}
-      title="BPA operatsiyalarini filtrlash"
+      title={tr('BPA operatsiyalarini filtrlash')}
       footer={
         <>
           <button type="button" className="btn btn--outline" onClick={handleReset}>
             <Funnel size={14} />
-            Tozalash
-          </button>
+            {tr('Tozalash')}</button>
           <button type="submit" form="drilling-filter-form" className="btn btn--primary">
             <Search size={14} />
-            Filtrlash
-          </button>
+            {tr('Filtrlash')}</button>
         </>
       }
     >
       <form id="drilling-filter-form" onSubmit={handleSubmit} className="form-grid">
         <div className="form-row form-row--2">
           <label className="field">
-            <span className="field__label">Tashkilot</span>
+            <span className="field__label">{tr('Tashkilot')}</span>
             <RelationSelect
               reference="enterprises"
-              placeholder="Barcha tashkilotlar"
+              placeholder={tr('Barcha tashkilotlar')}
               value={draft.enterprise || ''}
               onChange={(v) => setField('enterprise', v)}
             />
           </label>
 
           <label className="field">
-            <span className="field__label">Maydon</span>
+            <span className="field__label">{tr('Maydon')}</span>
             <RelationSelect
               reference="areas"
-              placeholder="Barcha maydonlar"
+              placeholder={tr('Barcha maydonlar')}
               value={draft.area || ''}
               onChange={(v) => setField('area', v)}
             />
@@ -84,20 +83,20 @@ export const DrillingFilterModal: React.FC<DrillingFilterModalProps> = ({
 
         <div className="form-row form-row--2">
           <label className="field">
-            <span className="field__label">Dastgoh (Mashina turi)</span>
+            <span className="field__label">{tr('Dastgoh (Mashina turi)')}</span>
             <RelationSelect
               reference="machine-types"
-              placeholder="Barcha mashina turlari"
+              placeholder={tr('Barcha mashina turlari')}
               value={draft.machine_type || ''}
               onChange={(v) => setField('machine_type', v)}
             />
           </label>
 
           <label className="field">
-            <span className="field__label">Mas'ul xodim</span>
+            <span className="field__label">{tr("Mas'ul xodim")}</span>
             <RelationSelect
               reference="employees"
-              placeholder="Barcha xodimlar"
+              placeholder={tr('Barcha xodimlar')}
               value={draft.employee || ''}
               onChange={(v) => setField('employee', v)}
             />
@@ -106,7 +105,7 @@ export const DrillingFilterModal: React.FC<DrillingFilterModalProps> = ({
 
         <div className="form-row form-row--2">
           <label className="field">
-            <span className="field__label">Boshlangan sana (dan)</span>
+            <span className="field__label">{tr('Boshlangan sana (dan)')}</span>
             <input
               type="date"
               className="input"
@@ -116,7 +115,7 @@ export const DrillingFilterModal: React.FC<DrillingFilterModalProps> = ({
           </label>
 
           <label className="field">
-            <span className="field__label">Boshlangan sana (gacha)</span>
+            <span className="field__label">{tr('Boshlangan sana (gacha)')}</span>
             <input
               type="date"
               className="input"
@@ -128,22 +127,22 @@ export const DrillingFilterModal: React.FC<DrillingFilterModalProps> = ({
 
         <div className="form-row form-row--2">
           <label className="field">
-            <span className="field__label">Loyihaviy chuqurlik min (m)</span>
+            <span className="field__label">{tr('Loyihaviy chuqurlik min (m)')}</span>
             <input
               type="number"
               className="input"
-              placeholder="Masalan: 2000"
+              placeholder={tr('Masalan: 2000')}
               value={draft.depth_min || ''}
               onChange={(e) => setField('depth_min', e.target.value)}
             />
           </label>
 
           <label className="field">
-            <span className="field__label">Loyihaviy chuqurlik max (m)</span>
+            <span className="field__label">{tr('Loyihaviy chuqurlik max (m)')}</span>
             <input
               type="number"
               className="input"
-              placeholder="Masalan: 5000"
+              placeholder={tr('Masalan: 5000')}
               value={draft.depth_max || ''}
               onChange={(e) => setField('depth_max', e.target.value)}
             />

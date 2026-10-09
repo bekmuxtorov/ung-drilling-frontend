@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ChevronDown, RotateCcw, Search } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import type { AuditAction } from '../../types/audit';
+import { tr } from '../../i18n';
 
 export interface AuditFilters {
   action?: AuditAction;
@@ -50,24 +51,22 @@ export const AuditLogFilterModal: React.FC<AuditLogFilterModalProps> = ({
     <Modal
       open={open}
       onClose={onClose}
-      title="Audit loglarini filtrlash"
+      title={tr('Audit loglarini filtrlash')}
       size="lg"
       footer={
         <>
           <button type="button" className="btn btn--outline" onClick={handleReset}>
             <RotateCcw size={14} />
-            Tozalash
-          </button>
+            {tr('Tozalash')}</button>
           <button type="button" className="btn btn--primary" onClick={handleSubmit}>
             <Search size={14} />
-            Qidirish
-          </button>
+            {tr('Qidirish')}</button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="form-grid form-grid--2">
         <label className="field">
-          <span className="field__label">Harakat turi</span>
+          <span className="field__label">{tr('Harakat turi')}</span>
           <span className="select-wrap">
             <select
               className={`input ${draft.action ? '' : 'input--placeholder'}`}
@@ -79,67 +78,67 @@ export const AuditLogFilterModal: React.FC<AuditLogFilterModalProps> = ({
                 }))
               }
             >
-              <option value="">Barcha harakatlar</option>
-              <option value="create">Yaratish (create)</option>
-              <option value="update">Tahrirlash (update)</option>
-              <option value="delete">O‘chirish (delete)</option>
+              <option value="">{tr('Barcha harakatlar')}</option>
+              <option value="create">{tr('Yaratish (create)')}</option>
+              <option value="update">{tr('Tahrirlash (update)')}</option>
+              <option value="delete">{tr('O‘chirish (delete)')}</option>
             </select>
             <ChevronDown size={14} className="select-wrap__chevron" />
           </span>
         </label>
 
         <label className="field">
-          <span className="field__label">Foydalanuvchi (Login)</span>
+          <span className="field__label">{tr('Foydalanuvchi (Login)')}</span>
           <input
             className="input"
-            placeholder="Masalan: admin yoki bekmuxtorov"
+            placeholder={tr('Masalan: admin yoki bekmuxtorov')}
             value={draft.username || ''}
             onChange={(e) => setDraft((d) => ({ ...d, username: e.target.value || undefined }))}
           />
         </label>
 
         <label className="field">
-          <span className="field__label">Model nomi</span>
+          <span className="field__label">{tr('Model nomi')}</span>
           <input
             className="input"
-            placeholder="Masalan: DrillingBPA, Resources, Area"
+            placeholder={tr('Masalan: DrillingBPA, Resources, Area')}
             value={draft.model_name || ''}
             onChange={(e) => setDraft((d) => ({ ...d, model_name: e.target.value || undefined }))}
           />
         </label>
 
         <label className="field">
-          <span className="field__label">Ilova (App label)</span>
+          <span className="field__label">{tr('Ilova (App label)')}</span>
           <input
             className="input"
-            placeholder="Masalan: directory, drilling, common"
+            placeholder={tr('Masalan: directory, drilling, common')}
             value={draft.app_label || ''}
             onChange={(e) => setDraft((d) => ({ ...d, app_label: e.target.value || undefined }))}
           />
         </label>
 
         <label className="field">
-          <span className="field__label">Obyekt ID</span>
+          <span className="field__label">{tr('Obyekt ID')}</span>
           <input
             className="input"
-            placeholder="Masalan: 12"
+            placeholder={tr('Masalan: 12')}
             value={draft.object_id || ''}
             onChange={(e) => setDraft((d) => ({ ...d, object_id: e.target.value || undefined }))}
           />
         </label>
 
         <label className="field">
-          <span className="field__label">IP manzil</span>
+          <span className="field__label">{tr('IP manzil')}</span>
           <input
             className="input"
-            placeholder="Masalan: 192.168.1.100 yoki 127.0.0.1"
+            placeholder={tr('Masalan: 192.168.1.100 yoki 127.0.0.1')}
             value={draft.ip_address || ''}
             onChange={(e) => setDraft((d) => ({ ...d, ip_address: e.target.value || undefined }))}
           />
         </label>
 
         <label className="field">
-          <span className="field__label">Boshlanish sanasi</span>
+          <span className="field__label">{tr('Boshlanish sanasi')}</span>
           <div className="input-with-icon">
             <input
               type="datetime-local"
@@ -151,7 +150,7 @@ export const AuditLogFilterModal: React.FC<AuditLogFilterModalProps> = ({
         </label>
 
         <label className="field">
-          <span className="field__label">Tugash sanasi</span>
+          <span className="field__label">{tr('Tugash sanasi')}</span>
           <div className="input-with-icon">
             <input
               type="datetime-local"

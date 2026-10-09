@@ -6,6 +6,7 @@ import type { DerrickErectionOperation } from '../../api/types';
 import { RelationSelect } from '../references/RelationSelect';
 import type { ReferenceKey } from '../references/config';
 import { formatDateTimeShort } from '../references/format';
+import { tr } from '../../i18n';
 
 interface OperationFormModalProps {
   open: boolean;
@@ -56,31 +57,31 @@ const toValues = (op: DerrickErectionOperation | null): Values =>
     : EMPTY;
 
 const RELATIONS: { name: string; label: string; reference: ReferenceKey; placeholder: string }[] = [
-  { name: 'enterprise', label: 'Korxona', reference: 'enterprises', placeholder: 'Korxonani tanlang' },
-  { name: 'drilling_rig_type', label: "Burg'ulash uskunasi turi", reference: 'drilling-rig-types', placeholder: 'Uskuna turini tanlang' },
-  { name: 'foreman', label: 'Prorab (usta)', reference: 'foremen', placeholder: 'Prorabni tanlang' },
+  { name: 'enterprise', label: tr('Korxona'), reference: 'enterprises', placeholder: tr('Korxonani tanlang') },
+  { name: 'drilling_rig_type', label: tr("Burg'ulash uskunasi turi"), reference: 'drilling-rig-types', placeholder: tr('Uskuna turini tanlang') },
+  { name: 'foreman', label: tr('Prorab (usta)'), reference: 'foremen', placeholder: tr('Prorabni tanlang') },
 ];
 
 const validate = (v: Values) => {
   const e: Record<string, string> = {};
   const required = ['enterprise', 'drilling_rig_type', 'foreman', 'from_area', 'to_area', 'from_well_number', 'to_well_number'];
   required.forEach((k) => {
-    if (!v[k]?.trim()) e[k] = 'Majburiy maydon';
+    if (!v[k]?.trim()) e[k] = tr('Majburiy maydon');
   });
   ['from_well_number', 'to_well_number'].forEach((k) => {
-    if (v[k] && v[k].trim().length > 50) e[k] = 'Maksimal 50 ta belgi';
+    if (v[k] && v[k].trim().length > 50) e[k] = tr('Maksimal 50 ta belgi');
   });
   ['number_employees', 'plan_days'].forEach((k) => {
-    if (v[k] && !/^\d+$/.test(v[k])) e[k] = "Musbat butun son kiriting";
+    if (v[k] && !/^\d+$/.test(v[k])) e[k] = tr('Musbat butun son kiriting');
   });
-  if (v.distance_km && !/^\d{1,6}([.,]\d{1,2})?$/.test(v.distance_km)) e.distance_km = "Masalan: 12.5 (maks. 2 kasr)";
+  if (v.distance_km && !/^\d{1,6}([.,]\d{1,2})?$/.test(v.distance_km)) e.distance_km = tr('Masalan: 12.5 (maks. 2 kasr)');
   if (v.completion_percentage) {
     const ok = /^\d{1,3}([.,]\d{1,2})?$/.test(v.completion_percentage);
     const n = parseFloat(v.completion_percentage.replace(',', '.'));
-    if (!ok || n > 100) e.completion_percentage = '0 dan 100 gacha';
+    if (!ok || n > 100) e.completion_percentage = tr('0 dan 100 gacha');
   }
   if (v.from_area && v.to_area && v.from_area === v.to_area && v.from_well_number.trim() && v.from_well_number.trim() === v.to_well_number.trim())
-    e.to_well_number = "Boshlang'ich va manzil quduq bir xil";
+    e.to_well_number = tr("Boshlang'ich va manzil quduq bir xil");
   return e;
 };
 
@@ -137,7 +138,7 @@ export const OperationFormModal: React.FC<OperationFormModalProps> = ({ open, re
       if (err instanceof ApiError) {
         setErrors(err.fieldErrors);
         setFormError(err.message);
-      } else setFormError("Noma'lum xatolik yuz berdi");
+      } else setFormError(tr("Noma'lum xatolik yuz berdi"));
       setSubmitting(false);
     }
   };
@@ -206,26 +207,23 @@ export const OperationFormModal: React.FC<OperationFormModalProps> = ({ open, re
       hidden={hidden}
       size="lg"
       onClose={submitting ? () => undefined : onClose}
-      title={isEdit ? `Operatsiya №${record?.from_well_number} → №${record?.to_well_number}` : 'Yangi operatsiya'}
+      title={isEdit ? tr('Operatsiya №{0} → №{1}', record?.from_well_number, record?.to_well_number) : tr('Yangi operatsiya')}
       footer={
         <>
           {isEdit && onDelete && record && (
             <>
               <button type="button" className="btn btn--danger" onClick={() => onDelete(record)} disabled={submitting}>
                 <Trash2 size={14} />
-                O'chirish
-              </button>
+                {tr("O'chirish")}</button>
               <span className="modal__footer-spacer" />
             </>
           )}
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="operation-form" className="btn btn--primary" disabled={submitting}>
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-            Saqlash
-          </button>
+            {tr('Saqlash')}</button>
         </>
       }
     >
@@ -233,47 +231,47 @@ export const OperationFormModal: React.FC<OperationFormModalProps> = ({ open, re
         {formError && <div className="alert">{formError}</div>}
 
         <fieldset className="form-section">
-          <legend className="form-section__title">Asosiy ma'lumotlar</legend>
+          <legend className="form-section__title">{tr("Asosiy ma'lumotlar")}</legend>
           <div className="form-grid form-grid--2">
             {RELATIONS.map((r) => (
               <React.Fragment key={r.name}>{relation(r.name, r.label, r.reference, r.placeholder)}</React.Fragment>
             ))}
-            {textInput('number_employees', 'Ishchilar soni', { inputMode: 'numeric', placeholder: '0' })}
+            {textInput('number_employees', tr('Ishchilar soni'), { inputMode: 'numeric', placeholder: '0' })}
           </div>
         </fieldset>
 
         <fieldset className="form-section">
-          <legend className="form-section__title">Ko'chirish yo'nalishi</legend>
+          <legend className="form-section__title">{tr("Ko'chirish yo'nalishi")}</legend>
           <div className="form-grid form-grid--2">
-            {relation('from_area', 'Qaysi maydondan', 'areas', 'Maydonni tanlang')}
-            {textInput('from_well_number', 'Qaysi quduqdan (№)', { maxLength: 50, placeholder: 'Masalan: 125' }, true)}
-            {relation('to_area', 'Qaysi maydonga', 'areas', 'Maydonni tanlang')}
-            {textInput('to_well_number', 'Qaysi quduqqa (№)', { maxLength: 50, placeholder: 'Masalan: 131' }, true)}
-            {textInput('distance_km', 'Masofa (km)', { inputMode: 'decimal', placeholder: '0.00' })}
+            {relation('from_area', tr('Qaysi maydondan'), 'areas', tr('Maydonni tanlang'))}
+            {textInput('from_well_number', tr('Qaysi quduqdan (№)'), { maxLength: 50, placeholder: tr('Masalan: 125') }, true)}
+            {relation('to_area', tr('Qaysi maydonga'), 'areas', tr('Maydonni tanlang'))}
+            {textInput('to_well_number', tr('Qaysi quduqqa (№)'), { maxLength: 50, placeholder: tr('Masalan: 131') }, true)}
+            {textInput('distance_km', tr('Masofa (km)'), { inputMode: 'decimal', placeholder: '0.00' })}
           </div>
         </fieldset>
 
         <fieldset className="form-section">
-          <legend className="form-section__title">Reja va bajarilish</legend>
+          <legend className="form-section__title">{tr('Reja va bajarilish')}</legend>
           <div className="form-grid form-grid--3">
-            {textInput('plan_days', 'Rejadagi kunlar', { inputMode: 'numeric', placeholder: '0' })}
-            {textInput('expected_drilling_date', "Burg'ulash boshlanishi (kutilayotgan)", { type: 'date' })}
-            {textInput('completion_percentage', 'Bajarilish foizi (%)', { inputMode: 'decimal', placeholder: '0' })}
+            {textInput('plan_days', tr('Rejadagi kunlar'), { inputMode: 'numeric', placeholder: '0' })}
+            {textInput('expected_drilling_date', tr("Burg'ulash boshlanishi (kutilayotgan)"), { type: 'date' })}
+            {textInput('completion_percentage', tr('Bajarilish foizi (%)'), { inputMode: 'decimal', placeholder: '0' })}
           </div>
           <div className="form-grid form-grid--2">
-            {textarea('work_description', 'Bajarilayotgan ish tavsifi', 'Ish jarayoni haqida qisqacha')}
-            {textarea('delay_reason', 'Kechikish sababi', 'Agar kechikish bo‘lsa, sababini yozing')}
+            {textarea('work_description', tr('Bajarilayotgan ish tavsifi'), tr('Ish jarayoni haqida qisqacha'))}
+            {textarea('delay_reason', tr('Kechikish sababi'), tr('Agar kechikish bo‘lsa, sababini yozing'))}
           </div>
         </fieldset>
 
         {isEdit && record && (
           <div className="form-grid form-grid--2">
             <div className="field">
-              <label className="field__label">Yaratilgan vaqt</label>
+              <label className="field__label">{tr('Yaratilgan vaqt')}</label>
               <input className="input" value={formatDateTimeShort(record.created_at)} disabled readOnly />
             </div>
             <div className="field">
-              <label className="field__label">Yangilangan vaqt</label>
+              <label className="field__label">{tr('Yangilangan vaqt')}</label>
               <input className="input" value={formatDateTimeShort(record.updated_at)} disabled readOnly />
             </div>
           </div>

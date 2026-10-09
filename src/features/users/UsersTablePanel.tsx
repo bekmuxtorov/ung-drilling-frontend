@@ -12,6 +12,7 @@ import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { formatDateTime } from '../references/format';
 import { UserFormModal } from './UserFormModal';
 import { UserPasswordModal } from './UserPasswordModal';
+import { tr } from '../../i18n';
 
 const PAGE_SIZE = 20;
 
@@ -40,30 +41,28 @@ const UserFilterModal: React.FC<{
     <Modal
       open={open}
       onClose={onClose}
-      title="Filtrlash"
+      title={tr('Filtrlash')}
       footer={
         <>
           <button type="button" className="btn btn--outline" onClick={() => onApply({})}>
             <Funnel size={14} />
-            Tozalash
-          </button>
+            {tr('Tozalash')}</button>
           <button type="button" className="btn btn--primary" onClick={() => onApply(draft)}>
             <Search size={14} />
-            Qidirish
-          </button>
+            {tr('Qidirish')}</button>
         </>
       }
     >
       <div className="form-grid form-grid--2">
         <label className="field">
-          <span className="field__label">Rol</span>
+          <span className="field__label">{tr('Rol')}</span>
           <span className="select-wrap">
             <select
               className={`input ${draft.role ? '' : 'input--placeholder'}`}
               value={draft.role ?? ''}
               onChange={(e) => setDraft((d) => ({ ...d, role: e.target.value || undefined }))}
             >
-              <option value="">Barcha rollar</option>
+              <option value="">{tr('Barcha rollar')}</option>
               {roles.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.name}
@@ -74,16 +73,16 @@ const UserFilterModal: React.FC<{
           </span>
         </label>
         <label className="field">
-          <span className="field__label">Holat</span>
+          <span className="field__label">{tr('Holat')}</span>
           <span className="select-wrap">
             <select
               className={`input ${draft.status ? '' : 'input--placeholder'}`}
               value={draft.status ?? ''}
               onChange={(e) => setDraft((d) => ({ ...d, status: (e.target.value || undefined) as UserFilters['status'] }))}
             >
-              <option value="">Barcha holatlar</option>
-              <option value="active">Faol</option>
-              <option value="inactive">Bloklangan</option>
+              <option value="">{tr('Barcha holatlar')}</option>
+              <option value="active">{tr('Faol')}</option>
+              <option value="inactive">{tr('Bloklangan')}</option>
             </select>
             <ChevronDown size={14} className="select-wrap__chevron" />
           </span>
@@ -149,7 +148,7 @@ export const UsersTablePanel: React.FC = () => {
           setPage((p) => p - 1);
           return;
         }
-        setError(err instanceof ApiError ? err.message : "Foydalanuvchilarni yuklab bo'lmadi");
+        setError(err instanceof ApiError ? err.message : tr("Foydalanuvchilarni yuklab bo'lmadi"));
       })
       .finally(() => !controller.signal.aborted && setLoading(false));
     return () => controller.abort();
@@ -167,12 +166,12 @@ export const UsersTablePanel: React.FC = () => {
     setDeleteLoading(true);
     try {
       await usersApi.remove(deleting.id);
-      notify('success', "Foydalanuvchi o'chirildi", `@${deleting.username}`);
+      notify('success', tr("Foydalanuvchi o'chirildi"), `@${deleting.username}`);
       setDeleting(null);
       closeForm();
       reload();
     } catch (err) {
-      notify('error', "O'chirib bo'lmadi", err instanceof ApiError ? err.message : undefined);
+      notify('error', tr("O'chirib bo'lmadi"), err instanceof ApiError ? err.message : undefined);
     } finally {
       setDeleteLoading(false);
     }
@@ -192,7 +191,7 @@ export const UsersTablePanel: React.FC = () => {
           <Search size={14} className="search-input__icon" />
           <input
             className="input"
-            placeholder="Login, ism yoki email bo'yicha..."
+            placeholder={tr("Login, ism yoki email bo'yicha...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -203,8 +202,7 @@ export const UsersTablePanel: React.FC = () => {
           onClick={() => setFilterOpen(true)}
         >
           <Funnel size={14} />
-          Filter
-          {activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
+          {tr('Filter')}{activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
         </button>
         <div className="toolbar__spacer" />
         <button
@@ -216,8 +214,7 @@ export const UsersTablePanel: React.FC = () => {
           }}
         >
           <Plus size={14} />
-          Qo'shish
-        </button>
+          {tr("Qo'shish")}</button>
       </div>
 
       <div className={`table-wrap ${loading && data ? 'is-loading' : ''}`}>
@@ -234,12 +231,12 @@ export const UsersTablePanel: React.FC = () => {
           <thead>
             <tr>
               <th className="table__num">#</th>
-              <th>Foydalanuvchi</th>
-              <th>F.I.SH / Lavozim</th>
-              <th>Rol</th>
-              <th>Holat</th>
-              <th className="table__date">Oxirgi kirish</th>
-              <th className="table__date">Yaratilgan sana</th>
+              <th>{tr('Foydalanuvchi')}</th>
+              <th>{tr('F.I.SH / Lavozim')}</th>
+              <th>{tr('Rol')}</th>
+              <th>{tr('Holat')}</th>
+              <th className="table__date">{tr('Oxirgi kirish')}</th>
+              <th className="table__date">{tr('Yaratilgan sana')}</th>
             </tr>
           </thead>
           <tbody>
@@ -255,15 +252,14 @@ export const UsersTablePanel: React.FC = () => {
                 <td colSpan={colSpan} className="table__state">
                   {error}{' '}
                   <button type="button" className="link-btn" onClick={reload}>
-                    Qayta urinish
-                  </button>
+                    {tr('Qayta urinish')}</button>
                 </td>
               </tr>
             )}
             {!loading && !error && rows.length === 0 && (
               <tr>
                 <td colSpan={colSpan} className="table__state">
-                  {debouncedSearch || activeFilterCount ? 'Hech narsa topilmadi' : 'Foydalanuvchilar mavjud emas'}
+                  {debouncedSearch || activeFilterCount ? tr('Hech narsa topilmadi') : tr('Foydalanuvchilar mavjud emas')}
                 </td>
               </tr>
             )}
@@ -282,9 +278,9 @@ export const UsersTablePanel: React.FC = () => {
                         <span className="user-cell__meta">
                           <span className="user-cell__username">
                             @{u.username}
-                            {isSelf(u) && <span className="user-cell__self">Siz</span>}
+                            {isSelf(u) && <span className="user-cell__self">{tr('Siz')}</span>}
                           </span>
-                          <span className="user-cell__email">{u.email || 'Email kiritilmagan'}</span>
+                          <span className="user-cell__email">{u.email || tr('Email kiritilmagan')}</span>
                         </span>
                       </div>
                     </td>
@@ -293,22 +289,22 @@ export const UsersTablePanel: React.FC = () => {
                       {u.employee_detail?.position_name && <small>{u.employee_detail.position_name}</small>}
                     </td>
                     <td className="table__cut">
-                      {u.role_name ? u.role_name : <span className="text-muted">Rolsiz</span>}
+                      {u.role_name ? u.role_name : <span className="text-muted">{tr('Rolsiz')}</span>}
                     </td>
                     <td>
                       <span className="user-status">
                         <span className={`status-badge ${u.is_active ? 'user-status--active' : 'user-status--blocked'}`}>
-                          {u.is_active ? 'Faol' : 'Bloklangan'}
+                          {u.is_active ? tr('Faol') : tr('Bloklangan')}
                         </span>
                         {u.is_superuser && (
-                          <span className="user-status__super" title="Superuser — cheksiz huquq">
+                          <span className="user-status__super" title={tr('Superuser — cheksiz huquq')}>
                             <Shield size={13} />
                           </span>
                         )}
                       </span>
                     </td>
                     <td className="table__date">
-                      {u.last_login ? formatDateTime(u.last_login) : <span className="text-muted">Kirilmagan</span>}
+                      {u.last_login ? formatDateTime(u.last_login) : <span className="text-muted">{tr('Kirilmagan')}</span>}
                     </td>
                     <td className="table__date">{formatDateTime(u.created_at)}</td>
                   </tr>
@@ -323,7 +319,7 @@ export const UsersTablePanel: React.FC = () => {
           <span className="pagination__info">
             {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} / {total}
           </span>
-          <button type="button" className="icon-btn" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)} aria-label="Oldingi">
+          <button type="button" className="icon-btn" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)} aria-label={tr('Oldingi')}>
             <ChevronLeft size={16} />
           </button>
           <span className="pagination__page">
@@ -334,7 +330,7 @@ export const UsersTablePanel: React.FC = () => {
             className="icon-btn"
             disabled={page >= totalPages || loading}
             onClick={() => setPage((p) => p + 1)}
-            aria-label="Keyingi"
+            aria-label={tr('Keyingi')}
           >
             <ChevronRight size={16} />
           </button>
@@ -359,7 +355,7 @@ export const UsersTablePanel: React.FC = () => {
         canDelete={!!editing && !isSelf(editing) && !editing.is_superuser}
         onClose={closeForm}
         onSaved={(saved) => {
-          notify('success', editing ? "O'zgarishlar saqlandi" : 'Foydalanuvchi yaratildi', `@${saved.username}`);
+          notify('success', editing ? tr("O'zgarishlar saqlandi") : tr('Foydalanuvchi yaratildi'), `@${saved.username}`);
           closeForm();
           reload();
         }}
@@ -371,14 +367,14 @@ export const UsersTablePanel: React.FC = () => {
         isOpen={!!passwordUser}
         user={passwordUser}
         onClose={() => setPasswordUser(null)}
-        onSuccess={() => notify('success', 'Parol yangilandi', `@${passwordUser?.username}`)}
+        onSuccess={() => notify('success', tr('Parol yangilandi'), `@${passwordUser?.username}`)}
       />
 
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="Foydalanuvchini o'chirmoqchimisiz?"
-        warning={deleting ? `«@${deleting.username}» tizimga kira olmay qoladi. Bu amalni qaytarib bo'lmaydi.` : undefined}
+        title={tr("Foydalanuvchini o'chirmoqchimisiz?")}
+        warning={deleting ? tr("«@{0}» tizimga kira olmay qoladi. Bu amalni qaytarib bo'lmaydi.", deleting.username) : undefined}
         onConfirm={handleDelete}
         onClose={() => setDeleting(null)}
       />

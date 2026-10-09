@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   AlertCircle,
   ArrowDownToLine,
@@ -27,42 +27,22 @@ import { DrillingBPAFormModal } from './DrillingBPAFormModal';
 import { WellDesignsInLengthSection } from './WellDesignsInLengthSection';
 import { WellDesignsSection } from './WellDesignsSection';
 import { calcProgress, formatDate, formatNumber } from './utils';
+import { tr } from '../../i18n';
 
 interface DrillingDetailPageProps {
   id: number;
   onBack: () => void;
 }
 
-type TabKey = 'designs' | 'dynamics' | 'layers' | 'daily' | 'resources';
-
 export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBack }) => {
   const { notify } = useToast();
   const [bpa, setBpa] = useState<DrillingBPADetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<TabKey>('designs');
 
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-
-  // Sentinel va scroll paytida tablar qatori yopishib qotib turishini kuzatish
-  const tabsSentinelRef = useRef<HTMLSpanElement>(null);
-  const [tabsStuck, setTabsStuck] = useState(false);
-
-  useEffect(() => {
-    const el = tabsSentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Sentinel topbar ostiga (48px) kirib ketganda tab qatori qotib turadi
-        setTabsStuck(!entry.isIntersecting);
-      },
-      { rootMargin: '-48px 0px 0px 0px', threshold: 0 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   const load = useCallback(
     (signal?: AbortSignal) => {
@@ -74,7 +54,7 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
         })
         .catch((err) => {
           if (signal?.aborted) return;
-          setError(err instanceof ApiError ? err.message : "Ma'lumotlarni yuklab bo'lmadi");
+          setError(err instanceof ApiError ? err.message : tr("Ma'lumotlarni yuklab bo'lmadi"));
         })
         .finally(() => !signal?.aborted && setLoading(false));
     },
@@ -90,7 +70,7 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
 
   const handleUpdatePassport = async (payload: Record<string, unknown>) => {
     await drillingBpaApi.update(id, payload);
-    notify('success', 'BPA pasporti yangilandi', String(payload.well_number || ''));
+    notify('success', tr('BPA pasporti yangilandi'), String(payload.well_number || ''));
     setFormOpen(false);
     load();
   };
@@ -99,10 +79,10 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
     setDeleteLoading(true);
     try {
       await drillingBpaApi.remove(id);
-      notify('success', 'BPA hujjati o‘chirildi', bpa?.well_number);
+      notify('success', tr('BPA hujjati o‘chirildi'), bpa?.well_number);
       onBack();
     } catch (err) {
-      notify('error', 'O‘chirib bo‘lmadi', err instanceof ApiError ? err.message : undefined);
+      notify('error', tr('O‘chirib bo‘lmadi'), err instanceof ApiError ? err.message : undefined);
     } finally {
       setDeleteLoading(false);
     }
@@ -112,7 +92,7 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
     return (
       <div className="page-state page-state--center">
         <Loader2 size={32} className="animate-spin text-brand" />
-        <span>Burg'ilash hujjati yuklanmoqda...</span>
+        <span>{tr("Burg'ilash hujjati yuklanmoqda...")}</span>
       </div>
     );
   }
@@ -121,12 +101,11 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
     return (
       <div className="page-state page-state--center">
         <AlertCircle size={32} className="text-danger" />
-        <h3 className="page-state__title">Xatolik</h3>
-        <p className="page-state__desc">{error || "Hujjat topilmadi"}</p>
+        <h3 className="page-state__title">{tr('Xatolik')}</h3>
+        <p className="page-state__desc">{error || tr('Hujjat topilmadi')}</p>
         <button type="button" className="btn btn--outline" onClick={onBack}>
           <ArrowLeft size={14} />
-          Ro‘yxatga qaytish
-        </button>
+          {tr('Ro‘yxatga qaytish')}</button>
       </div>
     );
   }
@@ -145,10 +124,9 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
             <div className="doc-title-row">
               <span className="doc-type-badge">
                 <FileText size={13} />
-                BPA Hujjati
-              </span>
+                {tr('BPA Hujjati')}</span>
               <h1 className="doc-title">
-                {bpa.number ? `№ ${bpa.number} — ` : ''}Quduq {bpa.well_number}
+                {bpa.number ? `№ ${bpa.number} — ` : ''}{tr('Quduq')}{' '}{bpa.well_number}
               </h1>
             </div>
             <div className="doc-meta-row">
@@ -177,16 +155,14 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
         <div className="doc-header__right">
           <button type="button" className="btn btn--outline" onClick={() => setFormOpen(true)}>
             <Pencil size={14} />
-            Tahrirlash
-          </button>
+            {tr('Tahrirlash')}</button>
           <button
             type="button"
             className="btn btn--outline btn--danger"
             onClick={() => setDeleteOpen(true)}
           >
             <Trash2 size={14} />
-            O‘chirish
-          </button>
+            {tr('O‘chirish')}</button>
         </div>
       </div>
 
@@ -199,7 +175,7 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
               <Building2 size={14} />
             </div>
             <div className="passport-chip__content">
-              <span className="passport-chip__label">Tashkilot</span>
+              <span className="passport-chip__label">{tr('Tashkilot')}</span>
               <span className="passport-chip__val">{bpa.enterprise?.name || '—'}</span>
             </div>
           </div>
@@ -212,7 +188,7 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
               <MapPin size={14} />
             </div>
             <div className="passport-chip__content">
-              <span className="passport-chip__label">Maydon / Kon</span>
+              <span className="passport-chip__label">{tr('Maydon / Kon')}</span>
               <span className="passport-chip__val">
                 {bpa.area?.name || '—'}
                 {bpa.area?.region ? ` (${bpa.area.region.name})` : ''}
@@ -225,7 +201,7 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
               <User size={14} />
             </div>
             <div className="passport-chip__content">
-              <span className="passport-chip__label">Mas'ul muhandis</span>
+              <span className="passport-chip__label">{tr('Supervayzer')}</span>
               <span className="passport-chip__val">{bpa.employee?.name || '—'}</span>
             </div>
           </div>
@@ -235,7 +211,7 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
               <Cog size={14} />
             </div>
             <div className="passport-chip__content">
-              <span className="passport-chip__label">Dastgoh</span>
+              <span className="passport-chip__label">{tr('Dastgoh')}</span>
               <span className="passport-chip__val">{bpa.machine_type?.name || '—'}</span>
             </div>
           </div>
@@ -245,7 +221,7 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
               <Calendar size={14} />
             </div>
             <div className="passport-chip__content">
-              <span className="passport-chip__label">Boshlangan sana</span>
+              <span className="passport-chip__label">{tr('Boshlangan sana')}</span>
               <span className="passport-chip__val">{formatDate(bpa.drilling_start_date)}</span>
             </div>
           </div>
@@ -260,9 +236,9 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
               <ArrowDownToLine size={16} />
             </div>
             <div className="telemetry-kpi__body">
-              <span className="telemetry-kpi__label">Chuqurlik (Plan)</span>
+              <span className="telemetry-kpi__label">{tr('Chuqurlik (Plan)')}</span>
               <span className="telemetry-kpi__val">
-                <strong>{depthPlan ? formatNumber(depthPlan, 0) : '—'}</strong> <small>m</small>
+                <strong>{depthPlan ? formatNumber(depthPlan, 0) : '—'}</strong> <small>{tr('m')}</small>
               </span>
             </div>
           </div>
@@ -272,9 +248,9 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
               <Gauge size={16} />
             </div>
             <div className="telemetry-kpi__body">
-              <span className="telemetry-kpi__label">Chuqurlik (Fakt)</span>
+              <span className="telemetry-kpi__label">{tr('Chuqurlik (Fakt)')}</span>
               <span className="telemetry-kpi__val">
-                <strong>{formatNumber(currentDepth, 1)}</strong> <small>m</small>
+                <strong>{formatNumber(currentDepth, 1)}</strong> <small>{tr('m')}</small>
               </span>
             </div>
           </div>
@@ -284,16 +260,16 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
               <Layers size={16} />
             </div>
             <div className="telemetry-kpi__body">
-              <span className="telemetry-kpi__label">Qolgan masofa</span>
+              <span className="telemetry-kpi__label">{tr('Qolgan masofa')}</span>
               <span className="telemetry-kpi__val">
-                <strong>{depthPlan > 0 ? formatNumber(remainingDepth, 1) : '—'}</strong> <small>m</small>
+                <strong>{depthPlan > 0 ? formatNumber(remainingDepth, 1) : '—'}</strong> <small>{tr('m')}</small>
               </span>
             </div>
           </div>
 
           <div className="telemetry-kpi telemetry-kpi--progress">
             <div className="telemetry-progress__header">
-              <span className="telemetry-kpi__label">O'tish progressi</span>
+              <span className="telemetry-kpi__label">{tr("O'tish progressi")}</span>
               <span className="telemetry-progress__pct">{formatNumber(progress, 1)}%</span>
             </div>
             <div className="telemetry-progress__track">
@@ -306,109 +282,23 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
         </div>
       </div>
 
-      {/* Document Sub-Sections (Tabs) */}
-      <div className="doc-tabs-card">
-        {/* Scroll paytida tablar qatori topbar ostida qotib turishi uchun sentinel */}
-        <span ref={tabsSentinelRef} className="doc-tabs-sentinel" aria-hidden />
-
-        <div className={`doc-tabs-bar ${tabsStuck ? 'is-stuck' : ''}`} role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'designs'}
-            className={`doc-tab-btn ${tab === 'designs' ? 'is-active' : ''}`}
-            onClick={() => setTab('designs')}
-          >
-            <span>Quduq konstruksiyasi</span>
-            <span className="doc-tab-badge">{bpa.well_designs?.length ?? 0}</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'dynamics'}
-            className={`doc-tab-btn ${tab === 'dynamics' ? 'is-active' : ''}`}
-            onClick={() => setTab('dynamics')}
-          >
-            <span>O‘tish dinamikasi</span>
-            <span className="doc-tab-badge">{bpa.well_designs_in_length?.length ?? 0}</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'layers'}
-            className={`doc-tab-btn ${tab === 'layers' ? 'is-active' : ''}`}
-            onClick={() => setTab('layers')}
-          >
-            <span>Qatlamlar kesimi</span>
-            <span className="doc-tab-badge">{bpa.depths_layers_lengths?.length ?? 0}</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'daily'}
-            className={`doc-tab-btn ${tab === 'daily' ? 'is-active' : ''}`}
-            onClick={() => setTab('daily')}
-          >
-            <span>Kunlik hisobotlar</span>
-            <span className="doc-tab-badge">{bpa.daily_works?.length ?? 0}</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'resources'}
-            className={`doc-tab-btn ${tab === 'resources' ? 'is-active' : ''}`}
-            onClick={() => setTab('resources')}
-          >
-            <span>Resurslar</span>
-            <span className="doc-tab-badge">{bpa.available_resources?.length ?? 0}</span>
-          </button>
-        </div>
-
-        <div className="doc-tabs-body">
-          {tab === 'designs' && (
-            <WellDesignsSection
-              drillingBpaId={bpa.id}
-              designs={bpa.well_designs || []}
-              onChanged={load}
-            />
-          )}
-
-          {tab === 'dynamics' && (
-            <WellDesignsInLengthSection
-              drillingBpaId={bpa.id}
-              items={bpa.well_designs_in_length || []}
-              onChanged={load}
-            />
-          )}
-
-          {tab === 'layers' && (
-            <DepthsLayersSection
-              drillingBpaId={bpa.id}
-              layers={bpa.depths_layers_lengths || []}
-              onChanged={load}
-            />
-          )}
-
-          {tab === 'daily' && (
-            <DailyWorksBPASection
-              drillingBpaId={bpa.id}
-              works={bpa.daily_works || []}
-              onChanged={load}
-            />
-          )}
-
-          {tab === 'resources' && (
-            <AvailableResourcesSection
-              drillingBpaId={bpa.id}
-              resources={bpa.available_resources || []}
-              onChanged={load}
-            />
-          )}
-        </div>
+      {/* Hujjat bo'limlari — bitta sahifada ketma-ket */}
+      <div className="doc-sections">
+        <section className="doc-section-card">
+          <WellDesignsSection drillingBpaId={bpa.id} designs={bpa.well_designs || []} onChanged={load} />
+        </section>
+        <section className="doc-section-card">
+          <WellDesignsInLengthSection drillingBpaId={bpa.id} items={bpa.well_designs_in_length || []} onChanged={load} />
+        </section>
+        <section className="doc-section-card">
+          <DepthsLayersSection drillingBpaId={bpa.id} layers={bpa.depths_layers_lengths || []} onChanged={load} />
+        </section>
+        <section className="doc-section-card">
+          <DailyWorksBPASection drillingBpaId={bpa.id} works={bpa.daily_works || []} onChanged={load} />
+        </section>
+        <section className="doc-section-card">
+          <AvailableResourcesSection drillingBpaId={bpa.id} resources={bpa.available_resources || []} onChanged={load} />
+        </section>
       </div>
 
       {/* Edit Passport Modal */}
@@ -423,8 +313,8 @@ export const DrillingDetailPage: React.FC<DrillingDetailPageProps> = ({ id, onBa
       <ConfirmDialog
         open={deleteOpen}
         loading={deleteLoading}
-        title="BPA hujjatini o‘chirmoqchimisiz?"
-        warning="Ushbu amal qaytarilmaydi. Ushbu pasportga biriktirilgan barcha quduq konstruksiyalari, o'tish dinamikalari, kunlik hisobotlar va resurs ma'lumotlari ham o'chiriladi."
+        title={tr('BPA hujjatini o‘chirmoqchimisiz?')}
+        warning={tr("Ushbu amal qaytarilmaydi. Ushbu pasportga biriktirilgan barcha quduq konstruksiyalari, o'tish dinamikalari, kunlik hisobotlar va resurs ma'lumotlari ham o'chiriladi.")}
         onConfirm={handleDelete}
         onClose={() => setDeleteOpen(false)}
       />

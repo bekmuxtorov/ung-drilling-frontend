@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import type { OperationStage } from '../../api/types';
 import { STAGE_LABELS, STAGE_ORDER, formatDate, stagesByType, todayIso, toNumber } from './utils';
+import { tr } from '../../i18n';
 
 /* Validatsiyadan o'tgan palitra (dataviz validator: light, surface #fff):
    Fakt — brend ko'k, Reja — ayni rampning ochroq pog'onasi. */
@@ -16,7 +17,7 @@ export const CompletionRing: React.FC<{ value: string | number; size?: number }>
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   return (
-    <div className="ring" style={{ width: size, height: size }} role="img" aria-label={`Bajarilish ${percent}%`}>
+    <div className="ring" style={{ width: size, height: size }} role="img" aria-label={tr('Bajarilish {0}%', percent)}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={COLOR_TRACK} strokeWidth={stroke} />
         <circle
@@ -73,7 +74,7 @@ export const StageGantt: React.FC<{ stages: OperationStage[] }> = ({ stages }) =
   }, [stages, today]);
 
   if (!domain) {
-    return <p className="chart-empty">Bosqichlar uchun sanalar kiritilmagan — grafik sanalar kiritilgach paydo bo'ladi.</p>;
+    return <p className="chart-empty">{tr("Bosqichlar uchun sanalar kiritilmagan — grafik sanalar kiritilgach paydo bo'ladi.")}</p>;
   }
 
   const span = domain.max - domain.min;
@@ -103,16 +104,13 @@ export const StageGantt: React.FC<{ stages: OperationStage[] }> = ({ stages }) =
       <div className="chart-legend">
         <span className="chart-legend__item">
           <i style={{ background: COLOR_PLAN }} />
-          Reja
-        </span>
+          {tr('Reja')}</span>
         <span className="chart-legend__item">
           <i style={{ background: COLOR_FACT }} />
-          Fakt
-        </span>
+          {tr('Fakt')}</span>
         <span className="chart-legend__item">
           <i className="chart-legend__today" />
-          Bugun
-        </span>
+          {tr('Bugun')}</span>
       </div>
 
       <div className="gantt__grid">
@@ -136,7 +134,7 @@ export const StageGantt: React.FC<{ stages: OperationStage[] }> = ({ stages }) =
                     className="gantt__bar gantt__bar--plan"
                     style={{ left: `${plan.left}%`, width: `${plan.width}%`, background: COLOR_PLAN }}
                     onMouseMove={(e) =>
-                      show(e, `${STAGE_LABELS[type]} — reja`, [
+                      show(e, tr('{0} — reja', STAGE_LABELS[type]), [
                         `${formatDate(s.plan_start_date)} – ${formatDate(s.plan_end_date)}`,
                         `${s.plan_days} kun`,
                       ])
@@ -148,14 +146,14 @@ export const StageGantt: React.FC<{ stages: OperationStage[] }> = ({ stages }) =
                     className={`gantt__bar gantt__bar--fact ${ongoing ? 'is-ongoing' : ''}`}
                     style={{ left: `${fact.left}%`, width: `${fact.width}%`, background: COLOR_FACT }}
                     onMouseMove={(e) =>
-                      show(e, `${STAGE_LABELS[type]} — fakt`, [
-                        `${formatDate(s.fact_start_date)} – ${ongoing ? 'davom etmoqda' : formatDate(s.fact_end_date)}`,
+                      show(e, tr('{0} — fakt', STAGE_LABELS[type]), [
+                        `${formatDate(s.fact_start_date)} – ${ongoing ? tr('davom etmoqda') : formatDate(s.fact_end_date)}`,
                         `${s.fact_days} kun`,
                       ])
                     }
                   />
                 )}
-                {!plan && !fact && <span className="gantt__none">Sana yo'q</span>}
+                {!plan && !fact && <span className="gantt__none">{tr("Sana yo'q")}</span>}
               </div>
             </React.Fragment>
           );
@@ -172,7 +170,7 @@ export const StageGantt: React.FC<{ stages: OperationStage[] }> = ({ stages }) =
 
         {today >= domain.min && today <= domain.max && (
           <span className="gantt__today" style={{ left: `calc(var(--gantt-label) + (100% - var(--gantt-label)) * ${pct(today) / 100})` }}>
-            <em>Bugun</em>
+            <em>{tr('Bugun')}</em>
           </span>
         )}
       </div>
@@ -204,7 +202,7 @@ export const TransportBars: React.FC<{ data: TransportTotal[]; max?: number }> =
   const rest = sorted.slice(max);
   if (rest.length) {
     shown.push({
-      name: `Boshqa (${rest.length} tur)`,
+      name: tr('Boshqa ({0} tur)', rest.length),
       count: rest.reduce((s, r) => s + r.count, 0),
       reports: rest.reduce((s, r) => s + r.reports, 0),
     });
@@ -219,7 +217,7 @@ export const TransportBars: React.FC<{ data: TransportTotal[]; max?: number }> =
           className={`hbars__row ${hover && hover !== d.name ? 'is-dim' : ''}`}
           onMouseEnter={() => setHover(d.name)}
           onMouseLeave={() => setHover(null)}
-          title={`${d.name}: ${d.count} ta (${d.reports} ta hisobotda)`}
+          title={tr('{0}: {1} ta ({2} ta hisobotda)', d.name, d.count, d.reports)}
         >
           <span className="hbars__label">{d.name}</span>
           <span className="hbars__track">
@@ -287,7 +285,7 @@ export const ActivityColumns: React.FC<{
               disabled={!d.reports}
               onClick={() => onSelect?.(d.date)}
               onMouseEnter={() => setHover({ day: d, left: ((i + 0.5) / days.length) * 100 })}
-              aria-label={`${formatDate(d.date)}: ${d.units} transport, ${d.reports} hisobot`}
+              aria-label={tr('{0}: {1} transport, {2} hisobot', formatDate(d.date), d.units, d.reports)}
             >
               <span style={{ height: `${(d.units / top) * 100}%`, background: COLOR_FACT }} />
             </button>
@@ -301,8 +299,8 @@ export const ActivityColumns: React.FC<{
       {hover && (
         <div className="chart-tip chart-tip--top" style={{ left: `${hover.left}%` }}>
           <strong>{formatDate(hover.day.date)}</strong>
-          <span>{hover.day.units} ta transport</span>
-          <span>{hover.day.reports} ta hisobot</span>
+          <span>{hover.day.units} {tr('ta transport')}</span>
+          <span>{hover.day.reports} {tr('ta hisobot')}</span>
         </div>
       )}
     </div>

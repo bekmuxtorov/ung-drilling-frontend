@@ -3,6 +3,7 @@ import { Loader2, Plus, Save, Trash2, X, Calendar, CalendarDays, CalendarRange }
 import { Modal } from '../../components/ui/Modal';
 import { ApiError } from '../../api/client';
 import type { WellDesignInLength, WellDesignPeriodType } from '../../api/types';
+import { tr } from '../../i18n';
 
 interface WellDesignInLengthModalProps {
   open: boolean;
@@ -57,12 +58,12 @@ export const WellDesignInLengthModal: React.FC<WellDesignInLengthModalProps> = (
     const parsedFact = lengthFact.trim() ? parseFloat(lengthFact) : null;
 
     if (parsedPlan != null && (isNaN(parsedPlan) || parsedPlan < 0)) {
-      setError("Reja o‘tish musbat son bo‘lishi kerak");
+      setError(tr('Reja o‘tish musbat son bo‘lishi kerak'));
       return;
     }
 
     if (parsedFact != null && (isNaN(parsedFact) || parsedFact < 0)) {
-      setError("Fakt o‘tish musbat son bo‘lishi kerak");
+      setError(tr('Fakt o‘tish musbat son bo‘lishi kerak'));
       return;
     }
 
@@ -79,16 +80,16 @@ export const WellDesignInLengthModal: React.FC<WellDesignInLengthModalProps> = (
     try {
       await onSubmit(payload);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Saqlashda xatolik yuz berdi");
+      setError(err instanceof ApiError ? err.message : tr('Saqlashda xatolik yuz berdi'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const periodName = type === 'day' ? 'Kunlik' : type === 'month' ? 'Oylik' : 'Yillik';
+  const periodName = type === 'day' ? tr('Kunlik') : type === 'month' ? tr('Oylik') : tr('Yillik');
   const modalTitle = isEdit
-    ? `O‘tish dinamikasi ma‘lumotlari (${periodName})`
-    : 'O‘tish dinamikasi qo‘shish';
+    ? tr('O‘tish dinamikasi ma‘lumotlari ({0})', periodName)
+    : tr('O‘tish dinamikasi qo‘shish');
 
   return (
     <Modal
@@ -103,17 +104,15 @@ export const WellDesignInLengthModal: React.FC<WellDesignInLengthModalProps> = (
               className="btn btn--outline btn--danger"
               onClick={() => onDelete(item)}
               disabled={submitting}
-              title="Dinamika yozuvini o‘chirish"
+              title={tr('Dinamika yozuvini o‘chirish')}
             >
               <Trash2 size={14} />
-              O‘chirish
-            </button>
+              {tr('O‘chirish')}</button>
           )}
           <div className="modal__footer-spacer" />
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="dinamika-form" className="btn btn--primary" disabled={submitting}>
             {submitting ? (
               <Loader2 size={14} className="animate-spin" />
@@ -122,7 +121,7 @@ export const WellDesignInLengthModal: React.FC<WellDesignInLengthModalProps> = (
             ) : (
               <Plus size={14} />
             )}
-            {isEdit ? 'Saqlash' : 'Qo‘shish'}
+            {isEdit ? tr('Saqlash') : tr('Qo‘shish')}
           </button>
         </>
       }
@@ -131,7 +130,7 @@ export const WellDesignInLengthModal: React.FC<WellDesignInLengthModalProps> = (
         {error && <div className="field-error-alert">{error}</div>}
 
         <div className="field">
-          <span className="field__label">Hisobot davri</span>
+          <span className="field__label">{tr('Hisobot davri')}</span>
           <div className="design-type-segmented">
             <button
               type="button"
@@ -139,37 +138,34 @@ export const WellDesignInLengthModal: React.FC<WellDesignInLengthModalProps> = (
               onClick={() => setType('day')}
             >
               <Calendar size={14} />
-              Kunlik
-            </button>
+              {tr('Kunlik')}</button>
             <button
               type="button"
               className={`design-type-btn ${type === 'month' ? 'is-active is-plan' : ''}`}
               onClick={() => setType('month')}
             >
               <CalendarDays size={14} />
-              Oylik
-            </button>
+              {tr('Oylik')}</button>
             <button
               type="button"
               className={`design-type-btn ${type === 'year' ? 'is-active is-plan' : ''}`}
               onClick={() => setType('year')}
             >
               <CalendarRange size={14} />
-              Yillik
-            </button>
+              {tr('Yillik')}</button>
           </div>
         </div>
 
         <div className="bpa-form-row">
           <label className="field">
-            <span className="field__label">Reja o'tish (m)</span>
+            <span className="field__label">{tr("Reja o'tish (m)")}</span>
             <div className="input-with-unit">
               <input
                 type="number"
                 step="any"
                 min="0"
                 className="input"
-                placeholder="Masalan: 45.0"
+                placeholder={tr('Masalan: 45.0')}
                 value={lengthPlan}
                 onKeyDown={(e) => {
                   if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -183,19 +179,19 @@ export const WellDesignInLengthModal: React.FC<WellDesignInLengthModalProps> = (
                   }
                 }}
               />
-              <span className="input-unit">m</span>
+              <span className="input-unit">{tr('m')}</span>
             </div>
           </label>
 
           <label className="field">
-            <span className="field__label">Fakt o'tish (m)</span>
+            <span className="field__label">{tr("Fakt o'tish (m)")}</span>
             <div className="input-with-unit">
               <input
                 type="number"
                 step="any"
                 min="0"
                 className="input"
-                placeholder="Masalan: 48.2"
+                placeholder={tr('Masalan: 48.2')}
                 value={lengthFact}
                 onKeyDown={(e) => {
                   if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -209,13 +205,13 @@ export const WellDesignInLengthModal: React.FC<WellDesignInLengthModalProps> = (
                   }
                 }}
               />
-              <span className="input-unit">m</span>
+              <span className="input-unit">{tr('m')}</span>
             </div>
           </label>
         </div>
 
         <label className="field">
-          <span className="field__label">Boshlanish sanasi</span>
+          <span className="field__label">{tr('Boshlanish sanasi')}</span>
           <input
             type="datetime-local"
             className="input"

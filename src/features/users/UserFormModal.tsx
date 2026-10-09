@@ -6,6 +6,7 @@ import { Modal } from '../../components/ui/Modal';
 import { loadOptions, type Option } from '../references/api';
 import { formatDateTimeShort } from '../references/format';
 import type { RoleItem, UserCreatePayload, UserItem, UserUpdatePayload } from '../../types/auth';
+import { tr } from '../../i18n';
 
 interface UserFormModalProps {
   isOpen: boolean;
@@ -91,11 +92,11 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
     setGeneralError('');
 
     const errors: Record<string, string> = {};
-    if (!username.trim()) errors.username = 'Majburiy maydon';
+    if (!username.trim()) errors.username = tr('Majburiy maydon');
     if (!isEdit) {
-      if (!password) errors.password = 'Majburiy maydon';
-      else if (password.length < 6) errors.password = 'Kamida 6 ta belgi';
-      if (password !== passwordConfirm) errors.password_confirm = 'Parollar mos kelmadi';
+      if (!password) errors.password = tr('Majburiy maydon');
+      else if (password.length < 6) errors.password = tr('Kamida 6 ta belgi');
+      if (password !== passwordConfirm) errors.password_confirm = tr('Parollar mos kelmadi');
     }
     setFieldErrors(errors);
     if (Object.keys(errors).length) return;
@@ -123,7 +124,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
       if (err instanceof ApiError) {
         setGeneralError(err.message);
         setFieldErrors(err.fieldErrors ?? {});
-      } else setGeneralError('Saqlashda xatolik yuz berdi');
+      } else setGeneralError(tr('Saqlashda xatolik yuz berdi'));
       setSaving(false);
     }
   };
@@ -170,7 +171,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
       hidden={hidden}
       size="lg"
       onClose={saving ? () => undefined : onClose}
-      title={isEdit ? `@${initialUser?.username}` : "Foydalanuvchi qo'shish"}
+      title={isEdit ? `@${initialUser?.username}` : tr("Foydalanuvchi qo'shish")}
       footer={
         <>
           {isEdit && initialUser && (
@@ -181,29 +182,25 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                   className="btn btn--danger"
                   onClick={() => onDelete(initialUser)}
                   disabled={saving || !canDelete}
-                  title={canDelete ? undefined : "O'zingizni yoki superuser'ni o'chirib bo'lmaydi"}
+                  title={canDelete ? undefined : tr("O'zingizni yoki superuser'ni o'chirib bo'lmaydi")}
                 >
                   <Trash2 size={14} />
-                  O'chirish
-                </button>
+                  {tr("O'chirish")}</button>
               )}
               {onChangePassword && (
                 <button type="button" className="btn btn--outline" onClick={() => onChangePassword(initialUser)} disabled={saving}>
                   <KeyRound size={14} />
-                  Parolni o'zgartirish
-                </button>
+                  {tr("Parolni o'zgartirish")}</button>
               )}
               <span className="modal__footer-spacer" />
             </>
           )}
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={saving}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="user-form" className="btn btn--primary" disabled={saving}>
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-            Saqlash
-          </button>
+            {tr('Saqlash')}</button>
         </>
       }
     >
@@ -211,18 +208,18 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
         {generalError && <div className="alert">{generalError}</div>}
 
         <fieldset className="form-section">
-          <legend className="form-section__title">Hisob ma'lumotlari</legend>
+          <legend className="form-section__title">{tr("Hisob ma'lumotlari")}</legend>
           <div className="form-grid form-grid--2">
             <div className="field">
               <label className="field__label" htmlFor="u-username">
-                Login<span className="field__required">*</span>
+                {tr('Login')}<span className="field__required">*</span>
               </label>
               <input
                 id="u-username"
                 className={`input ${fieldErrors.username ? 'input--error' : ''}`}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Masalan: j.aliyev"
+                placeholder={tr('Masalan: j.aliyev')}
                 autoComplete="off"
                 disabled={saving}
                 autoFocus={!isEdit}
@@ -231,8 +228,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
             </div>
             <div className="field">
               <label className="field__label" htmlFor="u-email">
-                Email
-              </label>
+                {tr('Email')}</label>
               <input
                 id="u-email"
                 type="email"
@@ -249,7 +245,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
               <>
                 <div className="field">
                   <label className="field__label" htmlFor="u-password">
-                    Parol<span className="field__required">*</span>
+                    {tr('Parol')}<span className="field__required">*</span>
                   </label>
                   <div className="password-input">
                     <input
@@ -258,7 +254,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                       className={`input ${fieldErrors.password ? 'input--error' : ''}`}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Kamida 6 ta belgi"
+                      placeholder={tr('Kamida 6 ta belgi')}
                       autoComplete="new-password"
                       disabled={saving}
                     />
@@ -267,7 +263,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                       className="password-input__toggle"
                       onClick={() => setShowPassword((v) => !v)}
                       tabIndex={-1}
-                      aria-label={showPassword ? 'Parolni yashirish' : "Parolni ko'rsatish"}
+                      aria-label={showPassword ? tr('Parolni yashirish') : tr("Parolni ko'rsatish")}
                     >
                       {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                     </button>
@@ -276,7 +272,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                 </div>
                 <div className="field">
                   <label className="field__label" htmlFor="u-password2">
-                    Parolni tasdiqlash<span className="field__required">*</span>
+                    {tr('Parolni tasdiqlash')}<span className="field__required">*</span>
                   </label>
                   <input
                     id="u-password2"
@@ -284,7 +280,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                     className={`input ${fieldErrors.password_confirm ? 'input--error' : ''}`}
                     value={passwordConfirm}
                     onChange={(e) => setPasswordConfirm(e.target.value)}
-                    placeholder="Parolni qayta kiriting"
+                    placeholder={tr('Parolni qayta kiriting')}
                     autoComplete="new-password"
                     disabled={saving}
                   />
@@ -296,47 +292,45 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
         </fieldset>
 
         <fieldset className="form-section">
-          <legend className="form-section__title">Shaxsiy ma'lumotlar va rol</legend>
+          <legend className="form-section__title">{tr("Shaxsiy ma'lumotlar va rol")}</legend>
           <div className="form-grid form-grid--2">
             <div className="field">
               <label className="field__label" htmlFor="u-last">
-                Familiya
-              </label>
-              <input id="u-last" className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Familiya" disabled={saving} />
+                {tr('Familiya')}</label>
+              <input id="u-last" className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={tr('Familiya')} disabled={saving} />
             </div>
             <div className="field">
               <label className="field__label" htmlFor="u-first">
-                Ism
-              </label>
-              <input id="u-first" className="input" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Ism" disabled={saving} />
+                {tr('Ism')}</label>
+              <input id="u-first" className="input" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder={tr('Ism')} disabled={saving} />
             </div>
-            {select('u-role', 'Rol', roleId, setRoleId, 'Rol biriktirilmagan', roles.map((r) => ({ value: String(r.id), label: r.name })))}
-            {select('u-employee', 'Xodim', employeeId, setEmployeeId, 'Xodim biriktirilmagan', employees)}
+            {select('u-role', tr('Rol'), roleId, setRoleId, tr('Rol biriktirilmagan'), roles.map((r) => ({ value: String(r.id), label: r.name })))}
+            {select('u-employee', tr('Xodim'), employeeId, setEmployeeId, tr('Xodim biriktirilmagan'), employees)}
           </div>
         </fieldset>
 
         <fieldset className="form-section">
-          <legend className="form-section__title">Holat va huquqlar</legend>
+          <legend className="form-section__title">{tr('Holat va huquqlar')}</legend>
           <div className="flag-grid">
             <label className={`flag ${isActive ? 'is-on' : ''}`}>
               <input type="checkbox" className="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} disabled={saving} />
               <span>
-                <strong>Faol</strong>
-                <small>Tizimga kira oladi</small>
+                <strong>{tr('Faol')}</strong>
+                <small>{tr('Tizimga kira oladi')}</small>
               </span>
             </label>
             <label className={`flag ${isStaff ? 'is-on' : ''}`}>
               <input type="checkbox" className="checkbox" checked={isStaff} onChange={(e) => setIsStaff(e.target.checked)} disabled={saving} />
               <span>
-                <strong>Tizim ma'muri</strong>
-                <small>Staff huquqi</small>
+                <strong>{tr("Tizim ma'muri")}</strong>
+                <small>{tr('Staff huquqi')}</small>
               </span>
             </label>
             <label className={`flag ${isSuperuser ? 'is-on' : ''}`}>
               <input type="checkbox" className="checkbox" checked={isSuperuser} onChange={(e) => setIsSuperuser(e.target.checked)} disabled={saving} />
               <span>
-                <strong>Superuser</strong>
-                <small>Cheksiz huquq</small>
+                <strong>{tr('Superuser')}</strong>
+                <small>{tr('Cheksiz huquq')}</small>
               </span>
             </label>
           </div>
@@ -345,12 +339,12 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
         {isEdit && initialUser && (
           <div className="form-grid form-grid--2">
             <div className="field">
-              <label className="field__label">Yaratilgan vaqt</label>
+              <label className="field__label">{tr('Yaratilgan vaqt')}</label>
               <input className="input" value={formatDateTimeShort(initialUser.created_at)} disabled readOnly />
             </div>
             <div className="field">
-              <label className="field__label">Oxirgi kirish</label>
-              <input className="input" value={initialUser.last_login ? formatDateTimeShort(initialUser.last_login) : 'Kirilmagan'} disabled readOnly />
+              <label className="field__label">{tr('Oxirgi kirish')}</label>
+              <input className="input" value={initialUser.last_login ? formatDateTimeShort(initialUser.last_login) : tr('Kirilmagan')} disabled readOnly />
             </div>
           </div>
         )}

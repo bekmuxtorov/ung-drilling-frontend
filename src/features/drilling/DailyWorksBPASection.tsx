@@ -6,7 +6,7 @@ import { useToast } from '../../components/ui/Toast';
 import { dailyWorksBpaApi } from './api';
 import { DailyWorkBPAModal } from './DailyWorkBPAModal';
 import { formatDate, formatNumber } from './utils';
-import { ExportDropdown } from '../../components/ui/ExportDropdown';
+import { tr } from '../../i18n';
 
 interface DailyWorksBPASectionProps {
   drillingBpaId: number;
@@ -38,10 +38,10 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
   const handleSubmit = async (payload: Record<string, unknown>) => {
     if (editing) {
       await dailyWorksBpaApi.update(editing.id, payload);
-      notify('success', 'Kunlik hisobot yangilandi');
+      notify('success', tr('Kunlik hisobot yangilandi'));
     } else {
       await dailyWorksBpaApi.create(payload);
-      notify('success', 'Kunlik hisobot qo‘shildi');
+      notify('success', tr('Kunlik hisobot qo‘shildi'));
     }
     setModalOpen(false);
     setEditing(null);
@@ -53,11 +53,11 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
     setDeleteLoading(true);
     try {
       await dailyWorksBpaApi.remove(deleting.id);
-      notify('success', 'Kunlik hisobot o‘chirildi');
+      notify('success', tr('Kunlik hisobot o‘chirildi'));
       setDeleting(null);
       onChanged();
     } catch {
-      notify('error', 'O‘chirib bo‘lmadi');
+      notify('error', tr('O‘chirib bo‘lmadi'));
     } finally {
       setDeleteLoading(false);
     }
@@ -67,48 +67,23 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
     <div className="tab-section">
       <div className="tab-section__toolbar">
         <div>
-          <h4 className="tab-section__title">Kunlik burg'ilash hisobotlari va eritma parametrlari</h4>
+          <h4 className="tab-section__title">{tr("Kunlik burg'ilash hisobotlari va eritma parametrlari")}</h4>
           <p className="tab-section__sub">
-            Sutkalik bajarilgan ishlar, burg'ilash eritmasi (promivka) va gidravlik / mexanik rejimlar jurnali
-          </p>
+            {tr("Sutkalik bajarilgan ishlar, burg'ilash eritmasi (promivka) va gidravlik / mexanik rejimlar jurnali")}</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <ExportDropdown
-            data={{
-              title: `Kunlik burg'ilash hisobotlari va eritma parametrlari`,
-              subtitle: `Sutkalik bajarilgan ishlar, eritma (promivka) va burg'ilash rejimlari jurnali`,
-              filename: `kunlik_hisobotlar_${drillingBpaId}`,
-              headers: ['#', 'Sana', 'Bajarilgan ish tavsifi', 'Zichlik', 'Qovushqoqlik', 'Suv berish', 'Loy qobig‘i', 'pH', 'Yuklama', 'RPM', 'Bosim', 'Sarf'],
-              rows: works.map((w, idx) => [
-                idx + 1,
-                formatDate(w.report_date),
-                w.description || '—',
-                Number(w.density) > 0 ? `${formatNumber(w.density, 2)} g/sm³` : '—',
-                Number(w.viscosity) > 0 ? `${formatNumber(w.viscosity)} s` : '—',
-                Number(w.fluid_loss) > 0 ? `${formatNumber(w.fluid_loss)} sm³` : '—',
-                Number(w.mud_cake) > 0 ? `${formatNumber(w.mud_cake)} mm` : '—',
-                Number(w.ph_level) > 0 ? String(w.ph_level) : '—',
-                Number(w.weight_on_bit) > 0 ? `${formatNumber(w.weight_on_bit)} t` : '—',
-                Number(w.rpm) > 0 ? String(w.rpm) : '—',
-                Number(w.pump_pressure) > 0 ? `${formatNumber(w.pump_pressure)} MPa` : '—',
-                Number(w.flow_rate) > 0 ? `${formatNumber(w.flow_rate)} l/s` : '—',
-              ]),
-            }}
-          />
           <button type="button" className="btn btn--primary" onClick={handleOpenAdd}>
             <Plus size={14} />
-            Kunlik hisobot qo‘shish
-          </button>
+            {tr('Kunlik hisobot qo‘shish')}</button>
         </div>
       </div>
 
       {works.length === 0 ? (
         <div className="empty-state">
-          <p className="empty-state__text">Kunlik hisobotlar kiritilmagan</p>
+          <p className="empty-state__text">{tr('Kunlik hisobotlar kiritilmagan')}</p>
           <button type="button" className="btn btn--outline" onClick={handleOpenAdd}>
             <Plus size={14} />
-            Birinchi hisobotni kiritish
-          </button>
+            {tr('Birinchi hisobotni kiritish')}</button>
         </div>
       ) : (
         <div className="table-wrap">
@@ -116,10 +91,10 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
             <thead>
               <tr>
                 <th className="table__num">#</th>
-                <th style={{ width: '120px' }}>Sana</th>
-                <th>Bajarilgan ish tavsifi</th>
-                <th>Eritma parametrlari</th>
-                <th>Burg'ilash rejimi</th>
+                <th style={{ width: '120px' }}>{tr('Sana')}</th>
+                <th>{tr('Bajarilgan ish tavsifi')}</th>
+                <th>{tr('Eritma parametrlari')}</th>
+                <th>{tr("Burg'ilash rejimi")}</th>
               </tr>
             </thead>
             <tbody>
@@ -128,7 +103,7 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
                   key={w.id}
                   className="clickable-row"
                   onClick={() => handleOpenEdit(w)}
-                  title="Batafsil ko‘rish va tahrirlash uchun bosing"
+                  title={tr('Batafsil ko‘rish va tahrirlash uchun bosing')}
                 >
                   <td className="table__num">{index + 1}</td>
                   <td>
@@ -141,22 +116,22 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
                     <div className="params-compact">
                       {Number(w.density) > 0 && (
                         <span className="param-tag">
-                          Zichlik: <b>{formatNumber(w.density, 2)} g/sm³</b>
+                          {tr('Zichlik:')}{' '}<b>{formatNumber(w.density, 2)} {tr('g/sm³')}</b>
                         </span>
                       )}
                       {Number(w.viscosity) > 0 && (
                         <span className="param-tag">
-                          Qovushqoqlik: <b>{formatNumber(w.viscosity)} s</b>
+                          {tr('Qovushqoqlik:')}{' '}<b>{formatNumber(w.viscosity)} {tr('s')}</b>
                         </span>
                       )}
                       {Number(w.fluid_loss) > 0 && (
                         <span className="param-tag">
-                          Suv: <b>{formatNumber(w.fluid_loss)} sm³</b>
+                          {tr('Suv:')}{' '}<b>{formatNumber(w.fluid_loss)} {tr('sm³')}</b>
                         </span>
                       )}
                       {Number(w.mud_cake) > 0 && (
                         <span className="param-tag">
-                          Loy: <b>{formatNumber(w.mud_cake)} mm</b>
+                          {tr('Loy:')}{' '}<b>{formatNumber(w.mud_cake)} {tr('mm')}</b>
                         </span>
                       )}
                       {Number(w.ph_level) > 0 && (
@@ -176,7 +151,7 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
                     <div className="params-compact">
                       {Number(w.weight_on_bit) > 0 && (
                         <span className="param-tag param-tag--mech">
-                          Yuklama: <b>{formatNumber(w.weight_on_bit)} t</b>
+                          {tr('Yuklama:')}{' '}<b>{formatNumber(w.weight_on_bit)} {tr('t')}</b>
                         </span>
                       )}
                       {Number(w.rpm) > 0 && (
@@ -186,12 +161,12 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
                       )}
                       {Number(w.pump_pressure) > 0 && (
                         <span className="param-tag param-tag--mech">
-                          Bosim: <b>{formatNumber(w.pump_pressure)} MPa</b>
+                          {tr('Bosim:')}{' '}<b>{formatNumber(w.pump_pressure)} {tr('MPa')}</b>
                         </span>
                       )}
                       {Number(w.flow_rate) > 0 && (
                         <span className="param-tag param-tag--mech">
-                          Sarf: <b>{formatNumber(w.flow_rate)} l/s</b>
+                          {tr('Sarf:')}{' '}<b>{formatNumber(w.flow_rate)} l/s</b>
                         </span>
                       )}
                       {!Number(w.weight_on_bit) &&
@@ -226,7 +201,7 @@ export const DailyWorksBPASection: React.FC<DailyWorksBPASectionProps> = ({
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="Kunlik hisobotni o‘chirmoqchimisiz?"
+        title={tr('Kunlik hisobotni o‘chirmoqchimisiz?')}
         onConfirm={handleDelete}
         onClose={() => setDeleting(null)}
       />

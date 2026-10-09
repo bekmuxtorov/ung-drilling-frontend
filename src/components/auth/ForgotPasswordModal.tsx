@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, KeyRound, Mail, CheckCircle2, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import type { Translations } from '../../utils/i18n';
+import { tr } from '../../i18n';
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
   const handleSendCode = (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier.trim()) {
-      setError("Iltimos, login, elektron pochta yoki telefon raqamingizni kiriting");
+      setError(tr('Iltimos, login, elektron pochta yoki telefon raqamingizni kiriting'));
       return;
     }
     setError('');
@@ -39,7 +40,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim() || code.length < 4) {
-      setError("Tasdiqlash kodini to'liq kiriting (masalan: 1234)");
+      setError(tr("Tasdiqlash kodini to'liq kiriting (masalan: 1234)"));
       return;
     }
     setError('');
@@ -119,8 +120,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
                 {t.title}
               </h3>
               <p style={{ fontSize: '12px', color: 'var(--slate-500)', marginTop: '2px' }}>
-                Xavfsiz hisobni qayta tiklash
-              </p>
+                {tr('Xavfsiz hisobni qayta tiklash')}</p>
             </div>
           </div>
           <button
@@ -279,7 +279,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
               >
                 <ShieldCheck size={20} color="var(--ung-emerald-500)" />
                 <p style={{ fontSize: '13px', color: '#065F46' }}>
-                  Tasdiqlash kodi <strong>{identifier}</strong> ga yuborildi. (Test uchun: <strong>7788</strong>)
+                  {tr('Tasdiqlash kodi')}{' '}<strong>{identifier}</strong> {tr('ga yuborildi. (Test uchun:')}{' '}<strong>7788</strong>)
                 </p>
               </div>
 
@@ -293,8 +293,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
                     marginBottom: '6px',
                   }}
                 >
-                  SMS / E-pochta tasdiqlash kodi
-                </label>
+                  {tr('SMS / E-pochta tasdiqlash kodi')}</label>
                 <input
                   type="text"
                   maxLength={6}
@@ -338,8 +337,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
                     fontSize: '14px',
                   }}
                 >
-                  Ortga
-                </button>
+                  {tr('Ortga')}</button>
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -360,7 +358,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
                   {isLoading ? (
                     <Loader2 size={16} className="animate-spin" />
                   ) : (
-                    'Tasdiqlash va davom etish'
+                    tr('Tasdiqlash va davom etish')
                   )}
                 </button>
               </div>
@@ -385,8 +383,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
                 <CheckCircle2 size={32} />
               </div>
               <h4 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--slate-900)' }}>
-                Havola yuborildi!
-              </h4>
+                {tr('Havola yuborildi!')}</h4>
               <p
                 style={{
                   fontSize: '14px',
@@ -395,8 +392,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
                   lineHeight: 1.5,
                 }}
               >
-                Yangi parolni o'rnatish havolasi ko'rsatilgan kontaktga yuborildi. Iltimos, pochtangizni yoki SMS xabarnomani tekshiring.
-              </p>
+                {tr("Yangi parolni o'rnatish havolasi ko'rsatilgan kontaktga yuborildi. Iltimos, pochtangizni yoki SMS xabarnomani tekshiring.")}</p>
               <button
                 type="button"
                 onClick={resetAndClose}
@@ -410,8 +406,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
                   fontSize: '14px',
                 }}
               >
-                Tizimga kirish sahifasiga qaytish
-              </button>
+                {tr('Tizimga kirish sahifasiga qaytish')}</button>
             </div>
           )}
         </div>

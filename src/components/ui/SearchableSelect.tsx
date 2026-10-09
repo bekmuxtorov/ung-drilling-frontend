@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Search, X, Check, Loader2, Plus } from 'lucide-react';
+import { tr } from '../../i18n';
 
 export interface SelectOption {
   value: string;
@@ -140,7 +141,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
               tabIndex={-1}
               className="searchable-select__clear-btn"
               onClick={handleClear}
-              title="Tozalash"
+              title={tr('Tozalash')}
             >
               <X size={11} />
             </span>
@@ -189,7 +190,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   e.stopPropagation();
                   setSearchQuery('');
                 }}
-                title="Tozalash"
+                title={tr('Tozalash')}
               >
                 <X size={12} />
               </button>
@@ -201,12 +202,12 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
             {loading ? (
               <div className="searchable-select__loading">
                 <Loader2 size={14} className="animate-spin text-brand" />
-                <span>Yuklanmoqda…</span>
+                <span>{tr('Yuklanmoqda…')}</span>
               </div>
             ) : filteredOptions.length === 0 ? (
               <div className="searchable-select__empty">
                 <span className="searchable-select__empty-text">
-                  {searchQuery ? `"${searchQuery}" bo‘yicha topilmadi` : 'Ma’lumot mavjud emas'}
+                  {searchQuery ? tr('"{0}" bo‘yicha topilmadi', searchQuery) : tr('Ma’lumot mavjud emas')}
                 </span>
                 {onCreate && (
                   <button
@@ -222,8 +223,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                     <Plus size={13} />
                     <span>
                       {searchQuery.trim()
-                        ? `"${searchQuery.trim()}" ni qo‘shish`
-                        : (createLabel || 'Yangi qo‘shish')}
+                        ? tr('"{0}" ni qo‘shish', searchQuery.trim())
+                        : (createLabel || tr('Yangi qo‘shish'))}
                     </span>
                   </button>
                 )}
@@ -261,7 +262,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                 }}
               >
                 <Plus size={13} />
-                <span>{createLabel || 'Yangi qo‘shish'}</span>
+                <span>{createLabel || tr('Yangi qo‘shish')}</span>
               </button>
             </div>
           )}

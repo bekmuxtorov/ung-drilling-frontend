@@ -3,6 +3,7 @@ import { Funnel, Search } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import type { ReferenceConfig } from './config';
 import { RelationSelect } from './RelationSelect';
+import { tr } from '../../i18n';
 
 export type FilterValues = Record<string, string>;
 
@@ -33,7 +34,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ open, config, value, o
     <Modal
       open={open}
       onClose={onClose}
-      title="Filtrlash"
+      title={tr('Filtrlash')}
       footer={
         <>
           <button
@@ -45,18 +46,16 @@ export const FilterModal: React.FC<FilterModalProps> = ({ open, config, value, o
             }}
           >
             <Funnel size={14} />
-            Tozalash
-          </button>
+            {tr('Tozalash')}</button>
           <button type="submit" form="filter-form" className="btn btn--primary">
             <Search size={14} />
-            Qidirish
-          </button>
+            {tr('Qidirish')}</button>
         </>
       }
     >
       <form id="filter-form" className="form-grid" onSubmit={submit}>
         <label className="field">
-          <span className="field__label">Yaratilgan sanadan</span>
+          <span className="field__label">{tr('Yaratilgan sanadan')}</span>
           <span className="date-wrap">
             <input
               type="date"
@@ -65,11 +64,11 @@ export const FilterModal: React.FC<FilterModalProps> = ({ open, config, value, o
               max={draft.date_to || undefined}
               onChange={(e) => set('date_from', e.target.value)}
             />
-            <span className="date-ph">Boshlanish sanasini kiriting</span>
+            <span className="date-ph">{tr('Boshlanish sanasini kiriting')}</span>
           </span>
         </label>
         <label className="field">
-          <span className="field__label">Yaratilgan sanagacha</span>
+          <span className="field__label">{tr('Yaratilgan sanagacha')}</span>
           <span className="date-wrap">
             <input
               type="date"
@@ -78,7 +77,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ open, config, value, o
               min={draft.date_from || undefined}
               onChange={(e) => set('date_to', e.target.value)}
             />
-            <span className="date-ph">Tugash sanasini kiriting</span>
+            <span className="date-ph">{tr('Tugash sanasini kiriting')}</span>
           </span>
         </label>
         {config.filters?.map((f) => (

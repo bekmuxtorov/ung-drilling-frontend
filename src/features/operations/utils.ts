@@ -1,21 +1,22 @@
 import type { DerrickErectionOperation, OperationStage, StageType } from '../../api/types';
+import { tr } from '../../i18n';
 
 export const STAGE_ORDER: StageType[] = ['dismantling', 'transportation', 'installation'];
 
 export const STAGE_LABELS: Record<StageType, string> = {
-  dismantling: 'Demontaj',
-  transportation: 'Tashish',
-  installation: 'Montaj',
+  dismantling: tr('Demontaj'),
+  transportation: tr('Tashish'),
+  installation: tr('Montaj'),
 };
 
 export type StageStatus = 'missing' | 'planned' | 'in_progress' | 'done' | 'overdue';
 
 export const STAGE_STATUS_LABELS: Record<StageStatus, string> = {
-  missing: 'Kiritilmagan',
-  planned: 'Rejada',
-  in_progress: 'Jarayonda',
-  done: 'Yakunlangan',
-  overdue: 'Kechikmoqda',
+  missing: tr('Kiritilmagan'),
+  planned: tr('Rejada'),
+  in_progress: tr('Jarayonda'),
+  done: tr('Yakunlangan'),
+  overdue: tr('Kechikmoqda'),
 };
 
 const pad = (n: number) => String(n).padStart(2, '0');

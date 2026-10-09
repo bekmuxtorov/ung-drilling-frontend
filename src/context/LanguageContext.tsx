@@ -1,43 +1,22 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import type { SupportedLanguage } from '../types/auth';
 import { translations, type Translations } from '../utils/i18n';
+import { locale, setLocale } from '../i18n';
 
 interface LanguageContextType {
   language: SupportedLanguage;
+  /** Tilni o'zgartiradi (sahifa qayta yuklanadi) */
   setLanguage: (lang: SupportedLanguage) => void;
   t: Translations;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const LANG_STORAGE_KEY = 'ung_app_lang';
+const value: LanguageContextType = { language: locale, setLanguage: setLocale, t: translations[locale] };
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<SupportedLanguage>(() => {
-    const saved = localStorage.getItem(LANG_STORAGE_KEY) as SupportedLanguage;
-    if (saved && ['uz', 'oz', 'ru', 'en'].includes(saved)) {
-      return saved;
-    }
-    return 'uz';
-  });
-
-  const setLanguage = (lang: SupportedLanguage) => {
-    setLanguageState(lang);
-    localStorage.setItem(LANG_STORAGE_KEY, lang);
-  };
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-  }, [language]);
-
-  const t = translations[language] || translations.uz;
-
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
-};
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>
+);
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);

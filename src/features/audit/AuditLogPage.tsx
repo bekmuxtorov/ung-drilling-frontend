@@ -23,6 +23,7 @@ import { formatDateTime } from '../references/format';
 import { AuditLogDetailModal } from './AuditLogDetailModal';
 import { AuditLogFilterModal, type AuditFilters } from './AuditLogFilterModal';
 import '../../styles/audit.css';
+import { tr } from '../../i18n';
 
 const SCROLL_PAGE_SIZE = 25;
 
@@ -90,7 +91,7 @@ export const AuditLogPage: React.FC = () => {
       })
       .catch((err) => {
         if (controller.signal.aborted) return;
-        setError(err instanceof ApiError ? err.message : 'Audit loglarni yuklab bo‘lmadi');
+        setError(err instanceof ApiError ? err.message : tr('Audit loglarni yuklab bo‘lmadi'));
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
@@ -175,21 +176,21 @@ export const AuditLogPage: React.FC = () => {
         return (
           <span className="audit-badge audit-badge--create">
             <PlusCircle size={13} />
-            {display || 'Yaratish'}
+            {display || tr('Yaratish')}
           </span>
         );
       case 'update':
         return (
           <span className="audit-badge audit-badge--update">
             <RefreshCw size={13} />
-            {display || 'Tahrirlash'}
+            {display || tr('Tahrirlash')}
           </span>
         );
       case 'delete':
         return (
           <span className="audit-badge audit-badge--delete">
             <Trash2 size={13} />
-            {display || 'O‘chirish'}
+            {display || tr('O‘chirish')}
           </span>
         );
       default:
@@ -206,7 +207,7 @@ export const AuditLogPage: React.FC = () => {
             <Search size={14} className="search-input__icon" />
             <input
               className="input"
-              placeholder="Login, obyekt, model, IP yoki MAC bo‘yicha qidirish..."
+              placeholder={tr('Login, obyekt, model, IP yoki MAC bo‘yicha qidirish...')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -219,32 +220,28 @@ export const AuditLogPage: React.FC = () => {
               className={`audit-action-tab ${selectedAction === '' ? 'is-active' : ''}`}
               onClick={() => handleActionTabChange('')}
             >
-              Barchasi
-            </button>
+              {tr('Barchasi')}</button>
             <button
               type="button"
               className={`audit-action-tab ${selectedAction === 'create' ? 'is-active' : ''}`}
               onClick={() => handleActionTabChange('create')}
             >
               <PlusCircle size={12} color="#079455" />
-              Yaratish
-            </button>
+              {tr('Yaratish')}</button>
             <button
               type="button"
               className={`audit-action-tab ${selectedAction === 'update' ? 'is-active' : ''}`}
               onClick={() => handleActionTabChange('update')}
             >
               <RefreshCw size={12} color="#175cd3" />
-              Tahrirlash
-            </button>
+              {tr('Tahrirlash')}</button>
             <button
               type="button"
               className={`audit-action-tab ${selectedAction === 'delete' ? 'is-active' : ''}`}
               onClick={() => handleActionTabChange('delete')}
             >
               <Trash2 size={12} color="#d92d20" />
-              O‘chirish
-            </button>
+              {tr('O‘chirish')}</button>
           </div>
 
           {/* Advanced Filter Modal Trigger */}
@@ -254,8 +251,7 @@ export const AuditLogPage: React.FC = () => {
             onClick={() => setFilterModalOpen(true)}
           >
             <Filter size={14} />
-            Filter
-            {activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
+            {tr('Filter')}{activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
           </button>
 
           {(Boolean(search) || activeFilterCount > 0) && (
@@ -263,11 +259,10 @@ export const AuditLogPage: React.FC = () => {
               type="button"
               className="btn btn--outline"
               onClick={handleResetFilters}
-              title="Barcha filtrlarni tozalash"
+              title={tr('Barcha filtrlarni tozalash')}
             >
               <RotateCcw size={13} />
-              Tozalash
-            </button>
+              {tr('Tozalash')}</button>
           )}
 
           <div className="toolbar__spacer" />
@@ -276,30 +271,29 @@ export const AuditLogPage: React.FC = () => {
             type="button"
             className="btn btn--outline"
             onClick={reload}
-            title="Yangilash"
+            title={tr('Yangilash')}
             disabled={loading}
           >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-              Yangilash
-            </button>
+              {tr('Yangilash')}</button>
             {/* Export Dropdown */}
             <ExportDropdown
               data={{
-                title: 'Tizim audit loglari hisoboti',
-                subtitle: 'Foydalanuvchilar harakatlari va xavfsizlik nazorati jurnali',
+                title: tr('Tizim audit loglari hisoboti'),
+                subtitle: tr('Foydalanuvchilar harakatlari va xavfsizlik nazorati jurnali'),
                 filename: `audit_loglari_${new Date().toISOString().slice(0, 10)}`,
                 headers: [
                   '#',
-                  'Sana va vaqt',
-                  'Foydalanuvchi',
-                  'Harakat',
-                  'Ilova',
-                  'Model',
-                  'Obyekt ID',
-                  'Obyekt tavsifi',
-                  'O‘zgartirilgan maydonlar soni',
-                  'IP manzil',
-                  'MAC ID',
+                  tr('Sana va vaqt'),
+                  tr('Foydalanuvchi'),
+                  tr('Harakat'),
+                  tr('Ilova'),
+                  tr('Model'),
+                  tr('Obyekt ID'),
+                  tr('Obyekt tavsifi'),
+                  tr('O‘zgartirilgan maydonlar soni'),
+                  tr('IP manzil'),
+                  tr('MAC ID'),
                 ],
                 rows: logs.map((r, i) => {
                   const count = r.changes
@@ -331,13 +325,13 @@ export const AuditLogPage: React.FC = () => {
             <thead>
               <tr>
                 <th className="table__num">#</th>
-                <th style={{ width: '165px' }}>Vaqt (Sana / Soat)</th>
-                <th style={{ width: '210px' }}>Foydalanuvchi</th>
-                <th style={{ width: '130px' }}>Harakat</th>
-                <th style={{ width: '170px' }}>Model / Ilova</th>
-                <th>Obyekt tavsifi</th>
-                <th style={{ width: '190px', textAlign: 'center' }}>O‘zgartirilgan maydonlar soni(ta)</th>
-                <th style={{ width: '175px' }}>Tarmoq / Qurilma</th>
+                <th style={{ width: '165px' }}>{tr('Vaqt (Sana / Soat)')}</th>
+                <th style={{ width: '210px' }}>{tr('Foydalanuvchi')}</th>
+                <th style={{ width: '130px' }}>{tr('Harakat')}</th>
+                <th style={{ width: '170px' }}>{tr('Model / Ilova')}</th>
+                <th>{tr('Obyekt tavsifi')}</th>
+                <th style={{ width: '190px', textAlign: 'center' }}>{tr('O‘zgartirilgan maydonlar soni(ta)')}</th>
+                <th style={{ width: '175px' }}>{tr('Tarmoq / Qurilma')}</th>
               </tr>
             </thead>
             <tbody>
@@ -352,10 +346,9 @@ export const AuditLogPage: React.FC = () => {
                           color="var(--brand-600)"
                         />
                       </div>
-                      <h4 className="audit-empty-state__title">Audit loglari yuklanmoqda...</h4>
+                      <h4 className="audit-empty-state__title">{tr('Audit loglari yuklanmoqda...')}</h4>
                       <p className="audit-empty-state__desc">
-                        Iltimos, kuting. Tizim amallari jurnali serverdan olinmoqda.
-                      </p>
+                        {tr('Iltimos, kuting. Tizim amallari jurnali serverdan olinmoqda.')}</p>
                     </div>
                   </td>
                 </tr>
@@ -366,7 +359,7 @@ export const AuditLogPage: React.FC = () => {
                       <div className="audit-empty-state__icon-wrap audit-empty-state__icon-wrap--error">
                         <AlertCircle size={28} color="#dc2626" />
                       </div>
-                      <h4 className="audit-empty-state__title">Ma’lumotlarni yuklashda xatolik</h4>
+                      <h4 className="audit-empty-state__title">{tr('Ma’lumotlarni yuklashda xatolik')}</h4>
                       <p className="audit-empty-state__desc">{error}</p>
                       <button
                         type="button"
@@ -374,7 +367,7 @@ export const AuditLogPage: React.FC = () => {
                         onClick={reload}
                       >
                         <RefreshCw size={14} />
-                        <span>Qayta urinish</span>
+                        <span>{tr('Qayta urinish')}</span>
                       </button>
                     </div>
                   </td>
@@ -388,11 +381,11 @@ export const AuditLogPage: React.FC = () => {
                           <div className="audit-empty-state__icon-wrap audit-empty-state__icon-wrap--filter">
                             <SearchX size={30} strokeWidth={1.8} color="var(--brand-600)" />
                           </div>
-                          <h4 className="audit-empty-state__title">Audit loglari topilmadi</h4>
+                          <h4 className="audit-empty-state__title">{tr('Audit loglari topilmadi')}</h4>
                           <p className="audit-empty-state__desc">
                             {debouncedSearch
-                              ? `«${debouncedSearch}» qidiruv so‘rovi yoki tanlangan filtrlar bo‘yicha mos keluvchi yozuvlar topilmadi.`
-                              : 'Tanlangan filtrlar bo‘yicha mos keluvchi audit yozuvlari mavjud emas.'}
+                              ? tr('«{0}» qidiruv so‘rovi yoki tanlangan filtrlar bo‘yicha mos keluvchi yozuvlar topilmadi.', debouncedSearch)
+                              : tr('Tanlangan filtrlar bo‘yicha mos keluvchi audit yozuvlari mavjud emas.')}
                           </p>
                           <button
                             type="button"
@@ -400,7 +393,7 @@ export const AuditLogPage: React.FC = () => {
                             onClick={handleResetFilters}
                           >
                             <RotateCcw size={14} />
-                            <span>Filtrlarni tozalash</span>
+                            <span>{tr('Filtrlarni tozalash')}</span>
                           </button>
                         </>
                       ) : (
@@ -408,17 +401,16 @@ export const AuditLogPage: React.FC = () => {
                           <div className="audit-empty-state__icon-wrap audit-empty-state__icon-wrap--empty">
                             <Inbox size={30} strokeWidth={1.8} color="var(--gray-400)" />
                           </div>
-                          <h4 className="audit-empty-state__title">Audit loglari mavjud emas</h4>
+                          <h4 className="audit-empty-state__title">{tr('Audit loglari mavjud emas')}</h4>
                           <p className="audit-empty-state__desc">
-                            Tizimda foydalanuvchilar tomonidan amalga oshirilgan harakatlar tarixi avtomatik shu yerda qayd etiladi.
-                          </p>
+                            {tr('Tizimda foydalanuvchilar tomonidan amalga oshirilgan harakatlar tarixi avtomatik shu yerda qayd etiladi.')}</p>
                           <button
                             type="button"
                             className="audit-empty-state__btn"
                             onClick={reload}
                           >
                             <RefreshCw size={14} />
-                            <span>Yangilash</span>
+                            <span>{tr('Yangilash')}</span>
                           </button>
                         </>
                       )}
@@ -433,7 +425,7 @@ export const AuditLogPage: React.FC = () => {
                       key={row.id}
                       className="clickable-row"
                       onClick={() => handleOpenDetail(row)}
-                      title="Batafsil ko‘rish uchun bosing"
+                      title={tr('Batafsil ko‘rish uchun bosing')}
                     >
                       <td className="table__num">{index + 1}</td>
                       <td>
@@ -464,14 +456,14 @@ export const AuditLogPage: React.FC = () => {
                       </td>
                       <td>{renderActionBadge(row.action, row.action_display)}</td>
                       <td>
-                        <span className="audit-model-tag" title={`Obyekt ID: ${row.object_id}`}>
+                        <span className="audit-model-tag" title={tr('Obyekt ID: {0}', row.object_id)}>
                           <span className="audit-model-app">{row.app_label}.</span>
                           {row.model_name}
                         </span>
                       </td>
                       <td>
                         <span className="audit-obj-repr" title={row.object_repr}>
-                          {row.object_repr || `ID: #${row.object_id}`}
+                          {row.object_repr || tr('ID: #{0}', row.object_id)}
                         </span>
                       </td>
                       <td style={{ textAlign: 'center', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: 'var(--gray-800)' }}>
@@ -479,12 +471,12 @@ export const AuditLogPage: React.FC = () => {
                       </td>
                       <td>
                         <div className="audit-network">
-                          <span className="audit-network__ip" title="IP manzil">
+                          <span className="audit-network__ip" title={tr('IP manzil')}>
                             <Globe size={11} />
                             {row.ip_address || '—'}
                           </span>
                           {row.mac_address && (
-                            <span className="audit-network__mac" title="MAC ID / Qurilma">
+                            <span className="audit-network__mac" title={tr('MAC ID / Qurilma')}>
                               <Laptop size={11} />
                               {row.mac_address}
                             </span>
@@ -505,14 +497,14 @@ export const AuditLogPage: React.FC = () => {
           {loadingMore && (
             <div className="audit-scroll-loading">
               <Loader2 size={16} className="animate-spin" color="var(--brand-600)" />
-              <span>Yana ma’lumotlar yuklanmoqda...</span>
+              <span>{tr('Yana ma’lumotlar yuklanmoqda...')}</span>
             </div>
           )}
 
           {/* End of list indicator */}
           {!hasMore && logs.length > 0 && (
             <div className="audit-scroll-end">
-              <span>Barcha {total} ta qayd ko‘rsatildi</span>
+              <span>{tr('Barcha')}{' '}{total} {tr('ta qayd ko‘rsatildi')}</span>
             </div>
           )}
         </div>

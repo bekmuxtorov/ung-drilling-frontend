@@ -1,3 +1,5 @@
+import { tr } from '../i18n';
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '/api/v1';
 
 export type QueryParams = Record<string, string | number | boolean | null | undefined>;
@@ -107,11 +109,11 @@ const parseError = async (response: Response): Promise<ApiError> => {
   }
 
   if (!message) {
-    if (Object.keys(fieldErrors).length) message = "Kiritilgan ma'lumotlarda xatolik bor";
-    else if (response.status === 404) message = "Ma'lumot topilmadi";
-    else if (response.status === 403 || response.status === 401) message = "Ushbu amal uchun ruxsat yo'q yoki sessiya tugagan";
-    else if (response.status >= 500) message = 'Serverda ichki xatolik yuz berdi';
-    else message = `So'rov bajarilmadi (${response.status})`;
+    if (Object.keys(fieldErrors).length) message = tr("Kiritilgan ma'lumotlarda xatolik bor");
+    else if (response.status === 404) message = tr("Ma'lumot topilmadi");
+    else if (response.status === 403 || response.status === 401) message = tr("Ushbu amal uchun ruxsat yo'q yoki sessiya tugagan");
+    else if (response.status >= 500) message = tr('Serverda ichki xatolik yuz berdi');
+    else message = tr("So'rov bajarilmadi ({0})", response.status);
   }
 
   return new ApiError(response.status, message, fieldErrors);

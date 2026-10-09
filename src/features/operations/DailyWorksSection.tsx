@@ -9,13 +9,14 @@ import { dailyTransportsApi, dailyWorksApi } from './api';
 import { ActivityColumns, type DayActivity } from './charts';
 import { DailyWorkFormModal, type DailyWorkFormValues } from './DailyWorkFormModal';
 import { formatDate } from './utils';
+import { tr } from '../../i18n';
 
 const PAGE_SIZE = 15;
 const pad = (n: number) => String(n).padStart(2, '0');
 
 const MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'];
 const MONTHS_SHORT = ['yan', 'fev', 'mar', 'apr', 'may', 'iyn', 'iyl', 'avg', 'sen', 'okt', 'noy', 'dek'];
-const WEEKDAYS = ['Yakshanba', 'Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba'];
+const WEEKDAYS = [tr('Yakshanba'), tr('Dushanba'), tr('Seshanba'), tr('Chorshanba'), tr('Payshanba'), tr('Juma'), tr('Shanba')];
 
 /** Mahalliy sana kaliti: YYYY-MM-DD */
 const localDay = (iso: string) => {
@@ -30,8 +31,8 @@ const relativeLabel = (day: string) => {
   const today = localDay(new Date().toISOString());
   const y = new Date();
   y.setDate(y.getDate() - 1);
-  if (day === today) return 'Bugun';
-  if (day === localDay(y.toISOString())) return 'Kecha';
+  if (day === today) return tr('Bugun');
+  if (day === localDay(y.toISOString())) return tr('Kecha');
   return null;
 };
 
@@ -77,7 +78,7 @@ const saveDailyWork = async (operationId: number, record: DailyWorkDescription |
   if (failed) {
     const reason = failed.reason;
     throw new PartialSaveError(
-      `Hisobot saqlandi, lekin ayrim transportlarni saqlab bo'lmadi. ${reason instanceof ApiError ? reason.message : ''}`,
+      tr("Hisobot saqlandi, lekin ayrim transportlarni saqlab bo'lmadi. {0}", reason instanceof ApiError ? reason.message : ''),
       await dailyWorksApi.retrieve(saved.id).catch(() => saved),
     );
   }
@@ -142,7 +143,7 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
       })
       .catch((err) => {
         if (controller.signal.aborted) return;
-        setError(err instanceof ApiError ? err.message : "Ma'lumotlarni yuklab bo'lmadi");
+        setError(err instanceof ApiError ? err.message : tr("Ma'lumotlarni yuklab bo'lmadi"));
       })
       .finally(() => !controller.signal.aborted && setLoading(false));
     return () => controller.abort();
@@ -163,7 +164,7 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
     } finally {
       setReloadToken((t) => t + 1);
     }
-    notify('success', editing ? 'Hisobot yangilandi' : "Hisobot qo'shildi");
+    notify('success', editing ? tr('Hisobot yangilandi') : tr("Hisobot qo'shildi"));
     setFormOpen(false);
     setEditing(null);
     onChanged();
@@ -174,13 +175,13 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
     setDeleteLoading(true);
     try {
       await dailyWorksApi.remove(deleting.id);
-      notify('success', "Hisobot o'chirildi");
+      notify('success', tr("Hisobot o'chirildi"));
       setDeleting(null);
       setFormOpen(false);
       setEditing(null);
       reload();
     } catch (err) {
-      notify('error', "O'chirib bo'lmadi", err instanceof ApiError ? err.message : undefined);
+      notify('error', tr("O'chirib bo'lmadi"), err instanceof ApiError ? err.message : undefined);
     } finally {
       setDeleteLoading(false);
     }
@@ -232,10 +233,10 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
   );
 
   const stats = [
-    { icon: ClipboardList, label: 'Jami hisobotlar', value: allWorks.length },
-    { icon: CalendarDays, label: 'Faol kunlar', value: summary.activeDays },
-    { icon: Truck, label: 'Transport birliklari', value: summary.units },
-    { icon: Clock, label: 'Oxirgi hisobot', value: summary.latest ? formatDate(localDay(summary.latest)) : '—' },
+    { icon: ClipboardList, label: tr('Jami hisobotlar'), value: allWorks.length },
+    { icon: CalendarDays, label: tr('Faol kunlar'), value: summary.activeDays },
+    { icon: Truck, label: tr('Transport birliklari'), value: summary.units },
+    { icon: Clock, label: tr('Oxirgi hisobot'), value: summary.latest ? formatDate(localDay(summary.latest)) : '—' },
   ];
 
   return (
@@ -256,8 +257,8 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
           </dl>
           <div className="daily__chart">
             <div className="daily__chart-head">
-              <span>Kunlik jalb qilingan transport</span>
-              <small>{singleDay ? 'Qayta bosib bekor qiling' : 'Ustun — kun filtri'}</small>
+              <span>{tr('Kunlik jalb qilingan transport')}</span>
+              <small>{singleDay ? tr('Qayta bosib bekor qiling') : tr('Ustun — kun filtri')}</small>
             </div>
             <ActivityColumns
               data={summary.days}
@@ -281,15 +282,15 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
       <div className="toolbar toolbar--compact">
         <div className="search-input">
           <Search size={14} className="search-input__icon" />
-          <input className="input" placeholder="Tavsif bo'yicha qidirish..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <input className="input" placeholder={tr("Tavsif bo'yicha qidirish...")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div className="date-range">
-          {dateInput(dateFrom, setDateFrom, 'Sanadan', { max: dateTo || undefined, 'aria-label': 'Sanadan' })}
+          {dateInput(dateFrom, setDateFrom, tr('Sanadan'), { max: dateTo || undefined, 'aria-label': tr('Sanadan') })}
           <span className="range-inputs__sep">—</span>
-          {dateInput(dateTo, setDateTo, 'Sanagacha', { min: dateFrom || undefined, 'aria-label': 'Sanagacha' })}
+          {dateInput(dateTo, setDateTo, tr('Sanagacha'), { min: dateFrom || undefined, 'aria-label': tr('Sanagacha') })}
         </div>
         {hasFilters && (
-          <button type="button" className="icon-btn icon-btn--bordered" onClick={clearFilters} title="Filtrlarni tozalash" aria-label="Filtrlarni tozalash">
+          <button type="button" className="icon-btn icon-btn--bordered" onClick={clearFilters} title={tr('Filtrlarni tozalash')} aria-label={tr('Filtrlarni tozalash')}>
             <X size={15} />
           </button>
         )}
@@ -303,14 +304,12 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
           }}
         >
           <Plus size={14} />
-          Hisobot qo'shish
-        </button>
+          {tr("Hisobot qo'shish")}</button>
       </div>
 
       {hasFilters && !loading && !error && items.length > 0 && (
         <div className="daily__found">
-          Filtr bo'yicha <strong>{total}</strong> ta hisobot topildi
-        </div>
+          {tr("Filtr bo'yicha")}{' '}<strong>{total}</strong> {tr('ta hisobot topildi')}</div>
       )}
 
       {/* Vaqt shkalasi */}
@@ -324,15 +323,14 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
           <div className="table__state">
             {error}{' '}
             <button type="button" className="link-btn" onClick={() => setReloadToken((t) => t + 1)}>
-              Qayta urinish
-            </button>
+              {tr('Qayta urinish')}</button>
           </div>
         )}
         {!loading && !error && items.length === 0 && (
           <div className="daily__empty">
             <ClipboardList size={22} />
-            <strong>{hasFilters ? 'Hech narsa topilmadi' : 'Kunlik hisobotlar hali kiritilmagan'}</strong>
-            <span>{hasFilters ? "Qidiruv yoki sana oralig'ini o'zgartirib ko'ring" : "Birinchi hisobotni qo'shish uchun yuqoridagi tugmani bosing"}</span>
+            <strong>{hasFilters ? tr('Hech narsa topilmadi') : tr('Kunlik hisobotlar hali kiritilmagan')}</strong>
+            <span>{hasFilters ? tr("Qidiruv yoki sana oralig'ini o'zgartirib ko'ring") : tr("Birinchi hisobotni qo'shish uchun yuqoridagi tugmani bosing")}</span>
           </div>
         )}
 
@@ -355,7 +353,7 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
                       {rel && <span className="tl-day__rel">{rel}</span>}
                     </span>
                     <span className="tl-day__meta">
-                      {rows.length} ta hisobot{units > 0 && ` · ${units} ta transport`}
+                      {rows.length} {tr('ta hisobot')}{units > 0 && tr(' · {0} ta transport', units)}
                     </span>
                   </div>
                   <div className="tl-day__items">
@@ -395,13 +393,11 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
       {items.length > 0 && (
         <div className="daily__more">
           <span>
-            {items.length} / {total} ta hisobot ko'rsatilmoqda
-          </span>
+            {items.length} / {total} {tr("ta hisobot ko'rsatilmoqda")}</span>
           {hasMore && (
             <button type="button" className="btn btn--outline" disabled={loading} onClick={() => setPage((p) => p + 1)}>
               {loading ? <Loader2 size={14} className="animate-spin" /> : <ChevronDown size={14} />}
-              Ko'proq yuklash
-            </button>
+              {tr("Ko'proq yuklash")}</button>
           )}
         </div>
       )}
@@ -421,8 +417,8 @@ export const DailyWorksSection: React.FC<DailyWorksSectionProps> = ({ operationI
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="Kunlik hisobotni o'chirmoqchimisiz?"
-        warning={deleting?.transport_items.length ? "Unga biriktirilgan transportlar ham o'chiriladi." : undefined}
+        title={tr("Kunlik hisobotni o'chirmoqchimisiz?")}
+        warning={deleting?.transport_items.length ? tr("Unga biriktirilgan transportlar ham o'chiriladi.") : undefined}
         onConfirm={handleDelete}
         onClose={() => setDeleting(null)}
       />

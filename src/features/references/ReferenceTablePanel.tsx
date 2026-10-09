@@ -10,6 +10,7 @@ import { getReferenceApi, invalidateOptions } from './api';
 import { formatDateTime } from './format';
 import { FilterModal, type FilterValues } from './FilterModal';
 import { ReferenceFormModal } from './ReferenceFormModal';
+import { tr } from '../../i18n';
 
 const PAGE_SIZE = 20;
 
@@ -62,7 +63,7 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
           setPage((p) => p - 1);
           return;
         }
-        setError(err instanceof ApiError ? err.message : "Ma'lumotlarni yuklab bo'lmadi");
+        setError(err instanceof ApiError ? err.message : tr("Ma'lumotlarni yuklab bo'lmadi"));
       })
       .finally(() => !controller.signal.aborted && setLoading(false));
     return () => controller.abort();
@@ -85,7 +86,7 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
   const handleSubmit = async (payload: Record<string, unknown>) => {
     if (editing) await api.update(editing.id, payload);
     else await api.create(payload);
-    notify('success', editing ? "O'zgarishlar saqlandi" : `${config.singular} qo'shildi`, String(payload.name));
+    notify('success', editing ? tr("O'zgarishlar saqlandi") : `${config.singular} qo'shildi`, String(payload.name));
     setFormOpen(false);
     setEditing(null);
     reload();
@@ -96,13 +97,13 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
     setDeleteLoading(true);
     try {
       await api.remove(deleting.id);
-      notify('success', "O'chirildi", deleting.name);
+      notify('success', tr("O'chirildi"), deleting.name);
       setDeleting(null);
       setFormOpen(false);
       setEditing(null);
       reload();
     } catch (err) {
-      notify('error', "O'chirib bo'lmadi", err instanceof ApiError ? err.message : undefined);
+      notify('error', tr("O'chirib bo'lmadi"), err instanceof ApiError ? err.message : undefined);
     } finally {
       setDeleteLoading(false);
     }
@@ -121,7 +122,7 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
           if (!res.next) break;
         }
       }
-      const header = ['#', ...config.columns.map((c) => c.label), 'Yaratilgan sana', 'Yangilangan sana'];
+      const header = ['#', ...config.columns.map((c) => c.label), tr('Yaratilgan sana'), tr('Yangilangan sana')];
       const lines = rows.map((row, i) =>
         [
           i + 1,
@@ -145,7 +146,7 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      notify('error', "Yuklab bo'lmadi", err instanceof ApiError ? err.message : undefined);
+      notify('error', tr("Yuklab bo'lmadi"), err instanceof ApiError ? err.message : undefined);
     } finally {
       setExporting(false);
     }
@@ -180,8 +181,7 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
           onClick={() => setFilterOpen(true)}
         >
           <Funnel size={14} />
-          Filter
-          {activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
+          {tr('Filter')}{activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
         </button>
 
         <div className="toolbar__spacer" />
@@ -194,33 +194,29 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
             disabled={exporting || !total}
           >
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} className="icon-excel" />}
-            Yuklash
-          </button>
+            {tr('Yuklash')}</button>
           <button
             type="button"
             className="btn btn--outline split-btn__toggle"
             onClick={() => setExportMenu((v) => !v)}
             disabled={exporting || !total}
-            aria-label="Yuklash turlari"
+            aria-label={tr('Yuklash turlari')}
           >
             <ChevronDown size={14} />
           </button>
           {exportMenu && (
             <div className="dropdown">
               <button type="button" className="dropdown__item" onClick={() => handleExport('all')}>
-                Barcha yozuvlar
-              </button>
+                {tr('Barcha yozuvlar')}</button>
               <button type="button" className="dropdown__item" onClick={() => handleExport('page')}>
-                Joriy sahifa
-              </button>
+                {tr('Joriy sahifa')}</button>
             </div>
           )}
         </div>
 
         <button type="button" className="btn btn--primary" onClick={openCreate}>
           <Plus size={14} />
-          Qo'shish
-        </button>
+          {tr("Qo'shish")}</button>
       </div>
 
       <div className={`table-wrap ${loading && data ? 'is-loading' : ''}`}>
@@ -233,8 +229,8 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
                   {col.label}
                 </th>
               ))}
-              <th className="table__date">Yaratilgan sana</th>
-              <th className="table__date">Yangilangan sana</th>
+              <th className="table__date">{tr('Yaratilgan sana')}</th>
+              <th className="table__date">{tr('Yangilangan sana')}</th>
             </tr>
           </thead>
           <tbody>
@@ -250,15 +246,14 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
                 <td colSpan={colSpan} className="table__state">
                   {error}{' '}
                   <button type="button" className="link-btn" onClick={reload}>
-                    Qayta urinish
-                  </button>
+                    {tr('Qayta urinish')}</button>
                 </td>
               </tr>
             )}
             {!loading && !error && rows.length === 0 && (
               <tr>
                 <td colSpan={colSpan} className="table__state">
-                  {debouncedSearch || activeFilterCount ? 'Hech narsa topilmadi' : "Ma'lumot mavjud emas"}
+                  {debouncedSearch || activeFilterCount ? tr('Hech narsa topilmadi') : tr("Ma'lumot mavjud emas")}
                 </td>
               </tr>
             )}
@@ -293,7 +288,7 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
             className="icon-btn"
             disabled={page <= 1 || loading}
             onClick={() => setPage((p) => p - 1)}
-            aria-label="Oldingi"
+            aria-label={tr('Oldingi')}
           >
             <ChevronLeft size={16} />
           </button>
@@ -305,7 +300,7 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
             className="icon-btn"
             disabled={page >= totalPages || loading}
             onClick={() => setPage((p) => p + 1)}
-            aria-label="Keyingi"
+            aria-label={tr('Keyingi')}
           >
             <ChevronRight size={16} />
           </button>
@@ -339,7 +334,7 @@ export const ReferenceTablePanel: React.FC<{ config: ReferenceConfig }> = ({ con
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title={`${config.singular}ni o'chirmoqchimisiz?`}
+        title={tr("{0}ni o'chirmoqchimisiz?", config.singular)}
         warning={config.deleteWarning}
         onConfirm={handleDelete}
         onClose={() => setDeleting(null)}

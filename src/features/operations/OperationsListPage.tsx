@@ -19,8 +19,9 @@ import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { operationsApi } from './api';
 import { OperationFilterModal, type OperationFilters } from './OperationFilterModal';
 import { OperationFormModal } from './OperationFormModal';
-import { ProgressBar, StageSegments } from './components';
+import { ProgressBar, StageProgressCell } from './components';
 import { STAGE_LABELS, STAGE_ORDER, STAGE_STATUS_LABELS, formatDate, formatDecimal, getStageStatus, stagesByType } from './utils';
+import { tr } from '../../i18n';
 
 const PAGE_SIZE = 20;
 
@@ -96,7 +97,7 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
           setPage((p) => p - 1);
           return;
         }
-        setError(err instanceof ApiError ? err.message : "Ma'lumotlarni yuklab bo'lmadi");
+        setError(err instanceof ApiError ? err.message : tr("Ma'lumotlarni yuklab bo'lmadi"));
       })
       .finally(() => !controller.signal.aborted && setLoading(false));
     return () => controller.abort();
@@ -116,7 +117,7 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
 
   const handleCreate = async (payload: Record<string, unknown>) => {
     const created = await operationsApi.create(payload);
-    notify('success', "Operatsiya qo'shildi", `№${created.from_well_number} → №${created.to_well_number}`);
+    notify('success', tr("Operatsiya qo'shildi"), `№${created.from_well_number} → №${created.to_well_number}`);
     setFormOpen(false);
     onOpen(created.id);
   };
@@ -136,21 +137,21 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
       }
       const header = [
         '#',
-        'Korxona',
-        "Burg'ulash uskunasi",
-        'Qaysi maydondan',
-        'Quduq (dan)',
-        'Qaysi maydonga',
-        'Quduq (ga)',
-        'Prorab',
-        'Ishchilar soni',
-        'Masofa (km)',
-        'Reja kun',
-        "Burg'ulash sanasi",
-        'Bajarilish (%)',
+        tr('Korxona'),
+        tr("Burg'ulash uskunasi"),
+        tr('Qaysi maydondan'),
+        tr('Quduq (dan)'),
+        tr('Qaysi maydonga'),
+        tr('Quduq (ga)'),
+        tr('Prorab'),
+        tr('Ishchilar soni'),
+        tr('Masofa (km)'),
+        tr('Reja kun'),
+        tr("Burg'ulash sanasi"),
+        tr('Bajarilish (%)'),
         ...STAGE_ORDER.map((t) => STAGE_LABELS[t]),
-        'Kunlik hisobotlar',
-        'Kechikish sababi',
+        tr('Kunlik hisobotlar'),
+        tr('Kechikish sababi'),
       ];
       const lines = rows.map((op, i) => {
         const stages = stagesByType(op.stages);
@@ -185,7 +186,7 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      notify('error', "Yuklab bo'lmadi", err instanceof ApiError ? err.message : undefined);
+      notify('error', tr("Yuklab bo'lmadi"), err instanceof ApiError ? err.message : undefined);
     } finally {
       setExporting(false);
     }
@@ -195,7 +196,7 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
   const total = data?.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const offset = (page - 1) * PAGE_SIZE;
-  const colSpan = 8;
+  const colSpan = 6 + STAGE_ORDER.length;
 
   return (
     <div className="ref-panel">
@@ -204,7 +205,7 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
           <Search size={14} className="search-input__icon" />
           <input
             className="input"
-            placeholder="Quduq raqami, maydon yoki prorab..."
+            placeholder={tr('Quduq raqami, maydon yoki prorab...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -215,8 +216,7 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
           onClick={() => setFilterOpen(true)}
         >
           <Funnel size={14} />
-          Filter
-          {activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
+          {tr('Filter')}{activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
         </button>
 
         <div className="toolbar__spacer" />
@@ -229,33 +229,29 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
             disabled={exporting || !total}
           >
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} className="icon-excel" />}
-            Yuklash
-          </button>
+            {tr('Yuklash')}</button>
           <button
             type="button"
             className="btn btn--outline split-btn__toggle"
             onClick={() => setExportMenu((v) => !v)}
             disabled={exporting || !total}
-            aria-label="Yuklash turlari"
+            aria-label={tr('Yuklash turlari')}
           >
             <ChevronDown size={14} />
           </button>
           {exportMenu && (
             <div className="dropdown">
               <button type="button" className="dropdown__item" onClick={() => handleExport('all')}>
-                Barcha yozuvlar
-              </button>
+                {tr('Barcha yozuvlar')}</button>
               <button type="button" className="dropdown__item" onClick={() => handleExport('page')}>
-                Joriy sahifa
-              </button>
+                {tr('Joriy sahifa')}</button>
             </div>
           )}
         </div>
 
         <button type="button" className="btn btn--primary" onClick={() => setFormOpen(true)}>
           <Plus size={14} />
-          Qo'shish
-        </button>
+          {tr("Qo'shish")}</button>
       </div>
 
       <div className={`table-wrap ${loading && data ? 'is-loading' : ''}`}>
@@ -264,28 +260,30 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
             <col className="col-num" />
             <col className="col-route" />
             <col className="col-org" />
-            <col className="col-foreman" />
             <col className="col-distance" />
             <col className="col-date" />
-            <col className="col-stages" />
+            {STAGE_ORDER.map((t) => (
+              <col key={t} className="col-stage" />
+            ))}
             <col className="col-progress" />
           </colgroup>
           <thead>
             <tr>
               <th className="table__num">#</th>
-              <th>Yo'nalish</th>
-              <th>Korxona / Uskuna</th>
-              <th>Prorab</th>
+              <th>{tr("Yo'nalish")}</th>
+              <th>{tr('Korxona / Uskuna')}</th>
               <th className="is-right">
                 <span className="sort-pair">
-                  <SortButton label="Masofa" field="distance_km" ordering={ordering} onSort={toggleSort} />
+                  <SortButton label={tr('Masofa')} field="distance_km" ordering={ordering} onSort={toggleSort} />
                   <span className="sort-pair__sep">/</span>
-                  <SortButton label="Kun" field="plan_days" ordering={ordering} onSort={toggleSort} />
+                  <SortButton label={tr('Kun')} field="plan_days" ordering={ordering} onSort={toggleSort} />
                 </span>
               </th>
-              <SortableHeader label="Burg'ulash" field="expected_drilling_date" ordering={ordering} onSort={toggleSort} title="Kutilayotgan burg'ulash sanasi" />
-              <th>Bosqichlar</th>
-              <SortableHeader label="Bajarilish" field="completion_percentage" ordering={ordering} onSort={toggleSort} />
+              <SortableHeader label={tr("Burg'ulash")} field="expected_drilling_date" ordering={ordering} onSort={toggleSort} title={tr("Kutilayotgan burg'ulash sanasi")} />
+              {STAGE_ORDER.map((t) => (
+                <th key={t}>{STAGE_LABELS[t]}</th>
+              ))}
+              <SortableHeader label={tr('Bajarilish')} field="completion_percentage" ordering={ordering} onSort={toggleSort} />
             </tr>
           </thead>
           <tbody>
@@ -301,15 +299,14 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
                 <td colSpan={colSpan} className="table__state">
                   {error}{' '}
                   <button type="button" className="link-btn" onClick={reload}>
-                    Qayta urinish
-                  </button>
+                    {tr('Qayta urinish')}</button>
                 </td>
               </tr>
             )}
             {!loading && !error && rows.length === 0 && (
               <tr>
                 <td colSpan={colSpan} className="table__state">
-                  {debouncedSearch || activeFilterCount ? 'Hech narsa topilmadi' : "Operatsiyalar mavjud emas"}
+                  {debouncedSearch || activeFilterCount ? tr('Hech narsa topilmadi') : tr('Operatsiyalar mavjud emas')}
                 </td>
               </tr>
             )}
@@ -340,21 +337,20 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
                     <span>{op.enterprise?.name}</span>
                     <small>{op.drilling_rig_type?.name}</small>
                   </td>
-                  <td className="table__cut" title={op.foreman?.name}>
-                    {op.foreman?.name}
-                  </td>
                   <td className="is-right table__num-cell">
                     <span className="num-stack">
                       <span>
-                        {formatDecimal(op.distance_km)} <span className="unit">km</span>
+                        {formatDecimal(op.distance_km)} <span className="unit">{tr('km')}</span>
                       </span>
-                      <small>{op.plan_days} kun</small>
+                      <small>{op.plan_days} {tr('kun')}</small>
                     </span>
                   </td>
                   <td className="table__num-cell">{formatDate(op.expected_drilling_date)}</td>
-                  <td>
-                    <StageSegments stages={op.stages} />
-                  </td>
+                  {STAGE_ORDER.map((t) => (
+                    <td key={t}>
+                      <StageProgressCell stage={stagesByType(op.stages).get(t)} label={STAGE_LABELS[t]} />
+                    </td>
+                  ))}
                   <td className="table__progress">
                     <ProgressBar value={op.completion_percentage} compact />
                   </td>
@@ -369,7 +365,7 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
           <span className="pagination__info">
             {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} / {total}
           </span>
-          <button type="button" className="icon-btn" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)} aria-label="Oldingi">
+          <button type="button" className="icon-btn" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)} aria-label={tr('Oldingi')}>
             <ChevronLeft size={16} />
           </button>
           <span className="pagination__page">
@@ -380,7 +376,7 @@ export const OperationsListPage: React.FC<{ onOpen: (id: number) => void }> = ({
             className="icon-btn"
             disabled={page >= totalPages || loading}
             onClick={() => setPage((p) => p + 1)}
-            aria-label="Keyingi"
+            aria-label={tr('Keyingi')}
           >
             <ChevronRight size={16} />
           </button>

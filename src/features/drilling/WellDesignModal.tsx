@@ -3,6 +3,7 @@ import { Loader2, Plus, Save, Trash2, X, Compass, CheckCircle2 } from 'lucide-re
 import { Modal } from '../../components/ui/Modal';
 import { ApiError } from '../../api/client';
 import type { WellDesign, WellDesignType } from '../../api/types';
+import { tr } from '../../i18n';
 
 interface WellDesignModalProps {
   open: boolean;
@@ -59,22 +60,22 @@ export const WellDesignModal: React.FC<WellDesignModalProps> = ({
     const parsedLength = length.trim() ? parseFloat(length) : null;
 
     if (parsedDiameter == null || isNaN(parsedDiameter)) {
-      setError("Quvur diametrini kiriting");
+      setError(tr('Quvur diametrini kiriting'));
       return;
     }
 
     if (parsedDiameter <= 0) {
-      setError("Quvur diametri 0 dan katta (musbat son) bo‘lishi kerak");
+      setError(tr('Quvur diametri 0 dan katta (musbat son) bo‘lishi kerak'));
       return;
     }
 
     if (parsedLength == null || isNaN(parsedLength)) {
-      setError("Tushirish chuqurligi / Uzunligini kiriting");
+      setError(tr('Tushirish chuqurligi / Uzunligini kiriting'));
       return;
     }
 
     if (parsedLength <= 0) {
-      setError("Tushirish chuqurligi / Uzunligi 0 dan katta (musbat son) bo‘lishi kerak");
+      setError(tr('Tushirish chuqurligi / Uzunligi 0 dan katta (musbat son) bo‘lishi kerak'));
       return;
     }
 
@@ -91,17 +92,17 @@ export const WellDesignModal: React.FC<WellDesignModalProps> = ({
     try {
       await onSubmit(payload);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Saqlashda xatolik yuz berdi");
+      setError(err instanceof ApiError ? err.message : tr('Saqlashda xatolik yuz berdi'));
     } finally {
       setSubmitting(false);
     }
   };
 
   const modalTitle = isEdit
-    ? `Konstruksiya ma‘lumotlari (${type === 'fact' ? 'Fakt' : 'Reja'})`
+    ? tr('Konstruksiya ma‘lumotlari ({0})', type === 'fact' ? tr('Fakt') : tr('Reja'))
     : type === 'fact'
-      ? 'Fakt bo‘yicha konstruksiya qo‘shish'
-      : 'Reja (Plan) bo‘yicha konstruksiya qo‘shish';
+      ? tr('Fakt bo‘yicha konstruksiya qo‘shish')
+      : tr('Reja (Plan) bo‘yicha konstruksiya qo‘shish');
 
   return (
     <Modal
@@ -116,17 +117,15 @@ export const WellDesignModal: React.FC<WellDesignModalProps> = ({
               className="btn btn--outline btn--danger"
               onClick={() => onDelete(item)}
               disabled={submitting}
-              title="Konstruksiyani o‘chirish"
+              title={tr('Konstruksiyani o‘chirish')}
             >
               <Trash2 size={14} />
-              O‘chirish
-            </button>
+              {tr('O‘chirish')}</button>
           )}
           <div className="modal__footer-spacer" />
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button
             type="submit"
             form="well-design-form"
@@ -140,7 +139,7 @@ export const WellDesignModal: React.FC<WellDesignModalProps> = ({
             ) : (
               <Plus size={14} />
             )}
-            {isEdit ? 'Saqlash' : 'Qo‘shish'}
+            {isEdit ? tr('Saqlash') : tr('Qo‘shish')}
           </button>
         </>
       }
@@ -149,7 +148,7 @@ export const WellDesignModal: React.FC<WellDesignModalProps> = ({
         {error && <div className="field-error-alert">{error}</div>}
 
         <div className="field">
-          <span className="field__label">Konstruksiya turi</span>
+          <span className="field__label">{tr('Konstruksiya turi')}</span>
           <div className="design-type-segmented">
             <button
               type="button"
@@ -157,28 +156,26 @@ export const WellDesignModal: React.FC<WellDesignModalProps> = ({
               onClick={() => setType('plan')}
             >
               <Compass size={14} />
-              Reja (Plan)
-            </button>
+              {tr('Reja (Plan)')}</button>
             <button
               type="button"
               className={`design-type-btn ${type === 'fact' ? 'is-active is-fact' : ''}`}
               onClick={() => setType('fact')}
             >
               <CheckCircle2 size={14} />
-              Fakt (Amaldagi)
-            </button>
+              {tr('Fakt (Amaldagi)')}</button>
           </div>
         </div>
 
         <label className="field">
-          <span className="field__label">Quvur diametri (mm)</span>
+          <span className="field__label">{tr('Quvur diametri (mm)')}</span>
           <div className="input-with-unit">
             <input
               type="number"
               step="any"
               min="0"
               className="input"
-              placeholder="Masalan: 244.5"
+              placeholder={tr('Masalan: 244.5')}
               value={pipeDiameter}
               onKeyDown={(e) => {
                 if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -193,19 +190,19 @@ export const WellDesignModal: React.FC<WellDesignModalProps> = ({
               }}
               required
             />
-            <span className="input-unit">mm</span>
+            <span className="input-unit">{tr('mm')}</span>
           </div>
         </label>
 
         <label className="field">
-          <span className="field__label">Tushirish chuqurligi / Uzunligi (m)</span>
+          <span className="field__label">{tr('Tushirish chuqurligi / Uzunligi (m)')}</span>
           <div className="input-with-unit">
             <input
               type="number"
               step="any"
               min="0"
               className="input"
-              placeholder="Masalan: 1250"
+              placeholder={tr('Masalan: 1250')}
               value={length}
               onKeyDown={(e) => {
                 if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -220,12 +217,12 @@ export const WellDesignModal: React.FC<WellDesignModalProps> = ({
               }}
               required
             />
-            <span className="input-unit">m</span>
+            <span className="input-unit">{tr('m')}</span>
           </div>
         </label>
 
         <label className="field">
-          <span className="field__label">Boshlanish sanasi</span>
+          <span className="field__label">{tr('Boshlanish sanasi')}</span>
           <input
             type="datetime-local"
             className="input"

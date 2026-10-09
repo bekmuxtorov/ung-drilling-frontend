@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   FileSpreadsheet,
   Funnel,
   Loader2,
@@ -19,6 +17,7 @@ import { drillingBpaApi, drillingBpaListApi } from './api';
 import { DrillingBPAFormModal } from './DrillingBPAFormModal';
 import { DrillingFilterModal, type DrillingFilters } from './DrillingFilterModal';
 import { calcProgress, formatDate, formatNumber } from './utils';
+import { tr } from '../../i18n';
 
 const PAGE_SIZE = 20;
 
@@ -35,9 +34,13 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
   const [filters, setFilters] = useState<DrillingFilters>({});
   const [ordering] = useState('-id');
   const [reloadToken, setReloadToken] = useState(0);
+  const [retryToken, setRetryToken] = useState(0);
 
   const [data, setData] = useState<Paginated<DrillingBPA> | null>(null);
+  /** Scroll orqali yig'ilgan barcha yuklangan qatorlar */
+  const [items, setItems] = useState<DrillingBPA[]>([]);
   const [loading, setLoading] = useState(true);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState('');
 
   const [filterOpen, setFilterOpen] = useState(false);
@@ -53,9 +56,10 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
     [debouncedSearch, ordering, filters],
   );
 
+  // Qidiruv/filtr o'zgarsa yoki qayta yuklansa — boshidan
   useEffect(() => {
     setPage(1);
-  }, [queryParams]);
+  }, [queryParams, reloadToken]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -63,18 +67,17 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
     setError('');
     drillingBpaListApi
       .list({ page, page_size: PAGE_SIZE, ...queryParams }, controller.signal)
-      .then(setData)
+      .then((res) => {
+        setData(res);
+        setItems((prev) => (page === 1 ? res.results : [...prev, ...res.results.filter((r) => !prev.some((p) => p.id === r.id))]));
+      })
       .catch((err) => {
         if (controller.signal.aborted) return;
-        if (err instanceof ApiError && err.status === 404 && page > 1) {
-          setPage((p) => p - 1);
-          return;
-        }
-        setError(err instanceof ApiError ? err.message : "Ma'lumotlarni yuklab bo'lmadi");
+        setError(err instanceof ApiError ? err.message : tr("Ma'lumotlarni yuklab bo'lmadi"));
       })
       .finally(() => !controller.signal.aborted && setLoading(false));
     return () => controller.abort();
-  }, [page, queryParams, reloadToken]);
+  }, [page, queryParams, reloadToken, retryToken]);
 
   useEffect(() => {
     if (!exportMenu) return;
@@ -89,7 +92,7 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
 
   const handleCreatePassport = async (payload: Record<string, unknown>) => {
     const created = await drillingBpaApi.create(payload);
-    notify('success', 'BPA pasporti yaratildi', `Quduq ${created.well_number}`);
+    notify('success', tr('BPA pasporti yaratildi'), `Quduq ${created.well_number}`);
     setFormOpen(false);
     reload();
   };
@@ -99,7 +102,7 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
     setExporting(true);
     try {
       const rows: DrillingBPA[] = [];
-      if (scope === 'page') rows.push(...(data?.results ?? []));
+      if (scope === 'page') rows.push(...items);
       else {
         for (let p = 1; p <= 50; p += 1) {
           const res = await drillingBpaListApi.list({ page: p, page_size: 200, ...queryParams });
@@ -110,16 +113,17 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
 
       const header = [
         '#',
-        'BPA Raqami',
-        'Quduq raqami',
-        'Tashkilot',
-        'Maydon',
-        'Dastgoh turi',
-        'Masʼul xodim',
-        'Boshlangan sana',
-        'Loyihaviy chuqurlik (m)',
-        'Joriy chuqurlik (m)',
-        'Progress (%)',
+        tr('BPA Raqami'),
+        tr('Quduq raqami'),
+        tr('Tashkilot'),
+        tr('Hudud'),
+        tr('Maydon'),
+        tr('Dastgoh turi'),
+        tr('Masʼul xodim'),
+        tr('Boshlangan sana'),
+        tr('Loyihaviy chuqurlik (m)'),
+        tr('Joriy chuqurlik (m)'),
+        tr('Progress (%)'),
       ];
 
       const lines = rows.map((row, i) => {
@@ -130,6 +134,7 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
           row.number || '',
           row.well_number,
           row.enterprise?.name || '',
+          row.area?.region?.name || '',
           row.area?.name || '',
           row.machine_type?.name || '',
           row.employee?.name || '',
@@ -152,16 +157,27 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
       link.click();
       URL.revokeObjectURL(url);
     } catch {
-      notify('error', 'Eksport qilib bo‘lmadi');
+      notify('error', tr('Eksport qilib bo‘lmadi'));
     } finally {
       setExporting(false);
     }
   };
 
-  const rows = data?.results ?? [];
+  const rows = items;
   const total = data?.count ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const offset = (page - 1) * PAGE_SIZE;
+  const hasMore = !!data?.next;
+
+  // Ro'yxat oxiri ko'ringanda keyingi sahifani yuklash
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore || loading || error) return;
+    const observer = new IntersectionObserver(
+      (entries) => entries[0].isIntersecting && setPage((p) => p + 1),
+      { rootMargin: '300px 0px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loading, error]);
 
   return (
     <div className="ref-panel">
@@ -171,7 +187,7 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
           <Search size={14} className="search-input__icon" />
           <input
             className="input"
-            placeholder="Quduq raqami, hujjat №, maydon yoki korxona bilan qidirish..."
+            placeholder={tr('Quduq raqami, hujjat №, maydon yoki korxona bilan qidirish...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -184,8 +200,7 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
           onClick={() => setFilterOpen(true)}
         >
           <Funnel size={14} />
-          Filter
-          {activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
+          {tr('Filter')}{activeFilterCount > 0 && <span className="btn__badge">{activeFilterCount}</span>}
         </button>
 
         <div className="toolbar__spacer" />
@@ -198,24 +213,22 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
             disabled={exporting || !total}
           >
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} className="icon-excel" />}
-            Yuklash
-          </button>
+            {tr('Yuklash')}</button>
           <button
             type="button"
             className="btn btn--outline split-btn__toggle"
             onClick={() => setExportMenu((v) => !v)}
             disabled={exporting || !total}
-            aria-label="Yuklash variantlari"
+            aria-label={tr('Yuklash variantlari')}
           >
             <ChevronDown size={14} />
           </button>
           {exportMenu && (
             <div className="dropdown">
               <button type="button" className="dropdown__item" onClick={() => handleExport('all')}>
-                Barcha BPA hujjatlari
-              </button>
+                {tr('Barcha BPA hujjatlari')}</button>
               <button type="button" className="dropdown__item" onClick={() => handleExport('page')}>
-                Joriy sahifa
+                {tr('Yuklangan qatorlar (')}{items.length})
               </button>
             </div>
           )}
@@ -223,30 +236,29 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
 
         <button type="button" className="btn btn--primary" onClick={() => setFormOpen(true)}>
           <Plus size={14} />
-          Qo'shish
-        </button>
+          {tr("Qo'shish")}</button>
       </div>
 
       {/* Table Container */}
-      <div className={`table-wrap ${loading && data ? 'is-loading' : ''}`}>
+      <div className={`table-wrap ${loading && page === 1 && data ? 'is-loading' : ''}`}>
         <table className="table">
           <thead>
             <tr>
               <th className="table__num">#</th>
-              <th>Hujjat №</th>
-              <th>Quduq raqami</th>
-              <th>Maydon / Hudud</th>
-              <th>Tashkilot</th>
-              <th>Dastgoh turi</th>
-              <th>Mas'ul xodim</th>
-              <th>Boshlangan sana</th>
-              <th>Loyiha chuqurligi</th>
-              <th>Joriy chuqurlik</th>
-              <th style={{ width: '150px' }}>Progress</th>
+              <th>{tr('Hudud')}</th>
+              <th>{tr('Maydon')}</th>
+              <th>{tr('Quduq raqami')}</th>
+              <th>{tr('Tashkilot')}</th>
+              <th>{tr('Dastgoh turi')}</th>
+              <th>{tr("Mas'ul xodim")}</th>
+              <th>{tr('Boshlangan sana')}</th>
+              <th>{tr('Loyiha chuqurligi')}</th>
+              <th>{tr('Joriy chuqurlik')}</th>
+              <th style={{ width: '150px' }}>{tr('Progress')}</th>
             </tr>
           </thead>
           <tbody>
-            {loading && !data && (
+            {loading && page === 1 && !rows.length && (
               <tr>
                 <td colSpan={11} className="table__state">
                   <Loader2 size={20} className="animate-spin" />
@@ -254,13 +266,12 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
               </tr>
             )}
 
-            {!loading && error && (
+            {!loading && error && !rows.length && (
               <tr>
                 <td colSpan={11} className="table__state">
                   {error}{' '}
                   <button type="button" className="link-btn" onClick={reload}>
-                    Qayta urinish
-                  </button>
+                    {tr('Qayta urinish')}</button>
                 </td>
               </tr>
             )}
@@ -269,14 +280,13 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
               <tr>
                 <td colSpan={11} className="table__state">
                   {debouncedSearch || activeFilterCount
-                    ? 'Qidiruv bo‘yicha hech qanday BPA pasporti topilmadi'
-                    : "Hozircha burg'ilash (BPA) pasportlari mavjud emas"}
+                    ? tr('Qidiruv bo‘yicha hech qanday BPA pasporti topilmadi')
+                    : tr("Hozircha burg'ilash (BPA) pasportlari mavjud emas")}
                 </td>
               </tr>
             )}
 
-            {!error &&
-              rows.map((row, index) => {
+            {rows.map((row, index) => {
                 const cur = row.current_depth ?? row.current_dept ?? 0;
                 const prog = calcProgress(cur, row.depth_plan);
                 return (
@@ -287,21 +297,19 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && onOpen(row.id)}
                   >
-                    <td className="table__num">{offset + index + 1}</td>
-                    <td>
-                      <span className="doc-num-tag">{row.number || `#${row.id}`}</span>
-                    </td>
+                    <td className="table__num">{index + 1}</td>
+                    <td>{row.area?.region?.name || '—'}</td>
+                    <td>{row.area?.name || '—'}</td>
                     <td>
                       <strong className="well-num-text">{row.well_number}</strong>
                     </td>
-                    <td>{row.area?.name || '—'}</td>
                     <td>{row.enterprise?.name || '—'}</td>
                     <td>{row.machine_type?.name || '—'}</td>
                     <td>{row.employee?.name || '—'}</td>
                     <td>{formatDate(row.drilling_start_date)}</td>
                     <td>{row.depth_plan ? `${formatNumber(row.depth_plan, 0)} m` : '—'}</td>
                     <td>
-                      <strong>{formatNumber(cur, 1)} m</strong>
+                      <strong>{formatNumber(cur, 1)} {tr('m')}</strong>
                     </td>
                     <td>
                       <div className="table-progress">
@@ -321,33 +329,25 @@ export const DrillingListPage: React.FC<{ onOpen: (id: number) => void }> = ({ o
         </table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <span className="pagination__info">
-            {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} / {total}
-          </span>
-          <button
-            type="button"
-            className="icon-btn"
-            disabled={page <= 1 || loading}
-            onClick={() => setPage((p) => p - 1)}
-            aria-label="Oldingi sahifa"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <span className="pagination__page">
-            {page} / {totalPages}
-          </span>
-          <button
-            type="button"
-            className="icon-btn"
-            disabled={page >= totalPages || loading}
-            onClick={() => setPage((p) => p + 1)}
-            aria-label="Keyingi sahifa"
-          >
-            <ChevronRight size={16} />
-          </button>
+      {/* Scroll pagination */}
+      {rows.length > 0 && (
+        <div ref={sentinelRef} className="scroll-loader">
+          {loading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" /> {tr('Yuklanmoqda...')}
+            </>
+          ) : error ? (
+            <>
+              {error}{' '}
+              <button type="button" className="link-btn" onClick={() => setRetryToken((t) => t + 1)}>
+                {tr('Qayta urinish')}</button>
+            </>
+          ) : hasMore ? (
+            <span>
+              {rows.length} / {total} {tr('— davomi uchun pastga aylantiring')}</span>
+          ) : (
+            <span>{tr('Barchasi yuklandi ·')}{' '}{total} {tr('ta BPA pasporti')}</span>
+          )}
         </div>
       )}
 

@@ -8,6 +8,7 @@ import {
   setAuthTokens,
   ApiError,
 } from '../api/client';
+import { tr } from '../i18n';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
@@ -31,12 +32,12 @@ export const mapBackendUserToUser = (u: any): User => {
   const roleName =
     u.role?.name ||
     u.role_name ||
-    (u.is_superuser ? 'Super Administrator' : u.is_staff ? 'Tizim Administratori' : 'Foydalanuvchi');
+    (u.is_superuser ? tr('Super Administrator') : u.is_staff ? tr('Tizim Administratori') : tr('Foydalanuvchi'));
 
   const department =
     u.employee?.position_name ||
     u.department ||
-    "O'zbekneftgaz AJ Burg'ilash departamenti";
+    tr("O'zbekneftgaz AJ Burg'ilash departamenti");
 
   return {
     id: u.id,
@@ -167,11 +168,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAuthState((prev) => ({ ...prev, isLoading: false }));
       if (err instanceof ApiError) {
         if (err.status === 401) {
-          return { success: false, error: "Kiritilgan login yoki parol noto'g'ri." };
+          return { success: false, error: tr("Kiritilgan login yoki parol noto'g'ri.") };
         }
         return { success: false, error: err.message };
       }
-      return { success: false, error: "Serverga ulanishda xatolik yuz berdi." };
+      return { success: false, error: tr('Serverga ulanishda xatolik yuz berdi.') };
     }
   };
 

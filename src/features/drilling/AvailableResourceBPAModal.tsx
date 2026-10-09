@@ -4,6 +4,7 @@ import { Modal } from '../../components/ui/Modal';
 import { ApiError } from '../../api/client';
 import type { AvailableResourcesBPA } from '../../api/types';
 import { RelationSelect } from '../references/RelationSelect';
+import { tr } from '../../i18n';
 
 interface AvailableResourceBPAModalProps {
   open: boolean;
@@ -53,16 +54,16 @@ export const AvailableResourceBPAModal: React.FC<AvailableResourceBPAModalProps>
     if (submitting) return;
 
     if (!resourceId) {
-      setError('Resurs (moddiy-texnik vosita) turini tanlang');
+      setError(tr('Resurs (moddiy-texnik vosita) turini tanlang'));
       return;
     }
     if (!unitId) {
-      setError('O‘lchov birligini tanlang');
+      setError(tr('O‘lchov birligini tanlang'));
       return;
     }
 
     if (value && parseFloat(value) < 0) {
-      setError('Miqdor manfiy bo‘lishi mumkin emas');
+      setError(tr('Miqdor manfiy bo‘lishi mumkin emas'));
       return;
     }
 
@@ -80,7 +81,7 @@ export const AvailableResourceBPAModal: React.FC<AvailableResourceBPAModalProps>
     try {
       await onSubmit(payload);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Saqlashda xatolik yuz berdi");
+      setError(err instanceof ApiError ? err.message : tr('Saqlashda xatolik yuz berdi'));
     } finally {
       setSubmitting(false);
     }
@@ -91,7 +92,7 @@ export const AvailableResourceBPAModal: React.FC<AvailableResourceBPAModalProps>
       open={open}
       onClose={onClose}
       size="md"
-      title={isEdit ? 'Resurs ma’lumotini tahrirlash' : 'Resurs / Material biriktirish'}
+      title={isEdit ? tr('Resurs ma’lumotini tahrirlash') : tr('Resurs / Material biriktirish')}
       footer={
         <>
           {isEdit && onDelete && (
@@ -100,30 +101,26 @@ export const AvailableResourceBPAModal: React.FC<AvailableResourceBPAModalProps>
               className="btn btn--outline btn--danger"
               onClick={() => onDelete(item)}
               disabled={submitting}
-              title="Resursni o‘chirish"
+              title={tr('Resursni o‘chirish')}
             >
               <Trash2 size={14} />
-              O‘chirish
-            </button>
+              {tr('O‘chirish')}</button>
           )}
           <div className="modal__footer-spacer" />
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="avail-res-form" className="btn btn--primary" disabled={submitting}>
             {submitting ? (
               <Loader2 size={14} className="animate-spin" />
             ) : isEdit ? (
               <>
                 <Save size={14} />
-                Saqlash
-              </>
+                {tr('Saqlash')}</>
             ) : (
               <>
                 <Plus size={14} />
-                Qo‘shish
-              </>
+                {tr('Qo‘shish')}</>
             )}
           </button>
         </>
@@ -134,11 +131,11 @@ export const AvailableResourceBPAModal: React.FC<AvailableResourceBPAModalProps>
 
         <div className="field">
           <span className="field__label">
-            Resurs (Moddiy-texnik vosita) <span className="field__required">*</span>
+            {tr('Resurs (Moddiy-texnik vosita)')}{' '}<span className="field__required">*</span>
           </span>
           <RelationSelect
             reference="resources"
-            placeholder="Resursni tanlang yoki qidiring..."
+            placeholder={tr('Resursni tanlang yoki qidiring...')}
             value={resourceId}
             onChange={setResourceId}
             allowCreate
@@ -147,13 +144,13 @@ export const AvailableResourceBPAModal: React.FC<AvailableResourceBPAModalProps>
 
         <div className="bpa-form-row">
           <label className="field">
-            <span className="field__label">Miqdori</span>
+            <span className="field__label">{tr('Miqdori')}</span>
             <input
               type="number"
               step="any"
               min="0"
               className="input"
-              placeholder="Masalan: 45.5"
+              placeholder={tr('Masalan: 45.5')}
               value={value}
               onKeyDown={(e) => {
                 if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -171,11 +168,11 @@ export const AvailableResourceBPAModal: React.FC<AvailableResourceBPAModalProps>
 
           <div className="field">
             <span className="field__label">
-              O‘lchov birligi <span className="field__required">*</span>
+              {tr('O‘lchov birligi')}{' '}<span className="field__required">*</span>
             </span>
             <RelationSelect
               reference="units"
-              placeholder="Birlikni tanlang..."
+              placeholder={tr('Birlikni tanlang...')}
               value={unitId}
               onChange={setUnitId}
               allowCreate
@@ -184,11 +181,11 @@ export const AvailableResourceBPAModal: React.FC<AvailableResourceBPAModalProps>
         </div>
 
         <label className="field">
-          <span className="field__label">Izoh / Holat tavsifi</span>
+          <span className="field__label">{tr('Izoh / Holat tavsifi')}</span>
           <textarea
             className="input textarea"
             rows={3}
-            placeholder="Ombordagi qoldiq, sarflangan joyi yoki yetkazib berish holati haqida qisqacha ma'lumot..."
+            placeholder={tr("Ombordagi qoldiq, sarflangan joyi yoki yetkazib berish holati haqida qisqacha ma'lumot...")}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />

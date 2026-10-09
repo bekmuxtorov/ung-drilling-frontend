@@ -75,12 +75,11 @@
 .table--ops th { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .table--ops td { height: 56px; }
 .table--ops .col-num { width: 48px; }
-.table--ops .col-route { width: 36%; }
-.table--ops .col-org { width: 38%; }
-.table--ops .col-foreman { width: 26%; }
+.table--ops .col-route { width: 48%; }
+.table--ops .col-org { width: 52%; }
 .table--ops .col-distance { width: 148px; }
 .table--ops .col-date { width: 112px; }
-.table--ops .col-stages { width: 92px; }
+.table--ops .col-stage { width: 112px; }
 .table--ops .col-progress { width: 164px; }
 
 .num-stack { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1.3; }
@@ -158,6 +157,10 @@
 .stage-status--done { --st-bg: #ecfdf3; --st-fg: #067647; --st-dot: #12b76a; }
 .stage-status--overdue { --st-bg: #fef3f2; --st-fg: #b42318; --st-dot: #f04438; }
 
+.stage-cell { display: grid; grid-template-columns: minmax(0, 1fr) 36px; align-items: center; gap: 8px; }
+.stage-cell__track { height: 6px; border-radius: 3px; background: var(--gray-100); overflow: hidden; }
+.stage-cell__fill { display: block; height: 100%; border-radius: 3px; background: var(--st-dot); }
+.stage-cell__pct { text-align: right; font-size: 12.5px; font-weight: 600; color: var(--st-fg); font-variant-numeric: tabular-nums; }
 .stage-segments { display: inline-flex; gap: 3px; }
 .stage-segments__item { width: 18px; height: 6px; border-radius: 3px; background: var(--st-dot); }
 

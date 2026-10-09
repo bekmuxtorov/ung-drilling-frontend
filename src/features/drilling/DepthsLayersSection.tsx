@@ -6,6 +6,7 @@ import { useToast } from '../../components/ui/Toast';
 import { depthsLayersLengthApi } from './api';
 import { DepthsLayersLengthModal } from './DepthsLayersLengthModal';
 import { formatNumber } from './utils';
+import { tr } from '../../i18n';
 
 interface DepthsLayersSectionProps {
   drillingBpaId: number;
@@ -49,10 +50,10 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
   const handleSubmit = async (payload: Record<string, unknown>) => {
     if (editing) {
       await depthsLayersLengthApi.update(editing.id, payload);
-      notify('success', 'Qatlam kesimi yangilandi');
+      notify('success', tr('Qatlam kesimi yangilandi'));
     } else {
       await depthsLayersLengthApi.create(payload);
-      notify('success', 'Qatlam kesimi qo‘shildi');
+      notify('success', tr('Qatlam kesimi qo‘shildi'));
     }
     setModalOpen(false);
     setEditing(null);
@@ -64,13 +65,13 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
     setDeleteLoading(true);
     try {
       await depthsLayersLengthApi.remove(deleting.id);
-      notify('success', 'O‘chirildi');
+      notify('success', tr('O‘chirildi'));
       setDeleting(null);
       setModalOpen(false);
       setEditing(null);
       onChanged();
     } catch {
-      notify('error', 'O‘chirib bo‘lmadi');
+      notify('error', tr('O‘chirib bo‘lmadi'));
     } finally {
       setDeleteLoading(false);
     }
@@ -80,15 +81,13 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
     <div className="tab-section">
       <div className="tab-section__toolbar">
         <div>
-          <h4 className="tab-section__title">Geologik chuqurlik qatlamlari (Depths Layers)</h4>
+          <h4 className="tab-section__title">{tr('Geologik chuqurlik qatlamlari (Depths Layers)')}</h4>
           <p className="tab-section__sub">
-            Burg'ilangan geologik formatsiyalar va stratigrafik gorizontlar chuqurlik oraliqlari
-          </p>
+            {tr("Burg'ilangan geologik formatsiyalar va stratigrafik gorizontlar chuqurlik oraliqlari")}</p>
         </div>
         <button type="button" className="btn btn--primary" onClick={handleOpenAdd}>
           <Plus size={14} />
-          Qo‘shish
-        </button>
+          {tr('Qo‘shish')}</button>
       </div>
 
       {layers.length > 0 && totalLength > 0 && (
@@ -96,7 +95,7 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
           <div className="strata-summary-head">
             <span className="strata-summary-title">
               <Layers size={15} />
-              Stratigrafik qatlamlar diagrammasi (Jami: {formatNumber(totalLength)} m)
+              {tr('Stratigrafik qatlamlar diagrammasi (Jami:')}{' '}{formatNumber(totalLength)} m)
             </span>
           </div>
           <div className="strata-bar">
@@ -108,7 +107,7 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
                   key={l.id}
                   className="strata-bar__segment"
                   style={{ width: `${pct}%`, backgroundColor: color }}
-                  title={`${l.layer?.name || 'Qatlam'}: ${formatNumber(l.length)} m (${formatNumber(pct, 1)}%)`}
+                  title={`${l.layer?.name || tr('Qatlam')}: ${formatNumber(l.length)} m (${formatNumber(pct, 1)}%)`}
                 >
                   {pct > 8 && <span className="strata-bar__label">{l.layer?.name || ''}</span>}
                 </div>
@@ -133,11 +132,10 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
 
       {layers.length === 0 ? (
         <div className="empty-state">
-          <p className="empty-state__text">Chuqurlik qatlamlari bo‘yicha ma’lumot kiritilmagan</p>
+          <p className="empty-state__text">{tr('Chuqurlik qatlamlari bo‘yicha ma’lumot kiritilmagan')}</p>
           <button type="button" className="btn btn--outline" onClick={handleOpenAdd}>
             <Plus size={14} />
-            Birinchi qatlamni qo‘shish
-          </button>
+            {tr('Birinchi qatlamni qo‘shish')}</button>
         </div>
       ) : (
         <div className="table-wrap">
@@ -145,9 +143,9 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
             <thead>
               <tr>
                 <th className="table__num">#</th>
-                <th>Qatlam nomi</th>
-                <th>Qatlam qalinligi / Oralig'i (m)</th>
-                <th>Umumiy chuqurlikdagi ulushi</th>
+                <th>{tr('Qatlam nomi')}</th>
+                <th>{tr("Qatlam qalinligi / Oralig'i (m)")}</th>
+                <th>{tr('Umumiy chuqurlikdagi ulushi')}</th>
               </tr>
             </thead>
             <tbody>
@@ -158,7 +156,7 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
                     key={l.id}
                     className="clickable-row"
                     onClick={() => handleOpenEdit(l)}
-                    title="Batafsil ko‘rish va tahrirlash uchun bosing"
+                    title={tr('Batafsil ko‘rish va tahrirlash uchun bosing')}
                   >
                     <td className="table__num">{index + 1}</td>
                     <td>
@@ -201,10 +199,10 @@ export const DepthsLayersSection: React.FC<DepthsLayersSectionProps> = ({
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="Qatlam kesimini o‘chirish"
+        title={tr('Qatlam kesimini o‘chirish')}
         warning={
           deleting
-            ? `${deleting.layer?.name || 'Ushbu qatlam'} kesimini (${deleting.length ? deleting.length + ' m' : ''}) rostdan ham o‘chirmoqchimisiz?`
+            ? tr('{0} kesimini ({1}) rostdan ham o‘chirmoqchimisiz?', deleting.layer?.name || tr('Ushbu qatlam'), deleting.length ? deleting.length + ' m' : '')
             : undefined
         }
         onConfirm={handleDelete}

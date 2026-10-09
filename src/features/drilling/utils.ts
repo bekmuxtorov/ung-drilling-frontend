@@ -1,14 +1,15 @@
 import type { WellDesignPeriodType, WellDesignType } from '../../api/types';
+import { tr } from '../../i18n';
 
 export const WELL_DESIGN_TYPE_LABELS: Record<WellDesignType, string> = {
-  plan: 'Loyihaviy (Reja)',
-  fact: 'Amaldagi (Fakt)',
+  plan: tr('Loyihaviy (Reja)'),
+  fact: tr('Amaldagi (Fakt)'),
 };
 
 export const WELL_DESIGN_PERIOD_LABELS: Record<WellDesignPeriodType, string> = {
-  day: 'Kunlik',
-  month: 'Oylik',
-  year: 'Yillik',
+  day: tr('Kunlik'),
+  month: tr('Oylik'),
+  year: tr('Yillik'),
 };
 
 const pad = (n: number) => String(n).padStart(2, '0');

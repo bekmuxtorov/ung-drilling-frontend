@@ -2,7 +2,7 @@ import React from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { LoginPage } from './pages/LoginPage';
-import { DashboardPreview } from './pages/DashboardPreview';
+import { DashboardPage } from './features/dashboard/DashboardPage';
 import { ReferencesPage } from './features/references/ReferencesPage';
 import { UsersPage } from './features/users/UsersPage';
 import { OperationsListPage } from './features/operations/OperationsListPage';
@@ -14,9 +14,13 @@ import { Construction, Loader2 } from 'lucide-react';
 import './styles/app.css';
 import './styles/operations.css';
 import './styles/drilling.css';
+import './styles/dashboard.css';
+import './styles/daily-report.css';
 import { DrillingListPage } from './features/drilling/DrillingListPage';
 import { DrillingDetailPage } from './features/drilling/DrillingDetailPage';
+import { DailyReportPage } from './features/drilling/DailyReportPage';
 import { AuditLogPage } from './features/audit/AuditLogPage';
+import { tr } from './i18n';
 
 const AuthenticatedApp: React.FC = () => {
   const { segments, navigate } = useHashRoute();
@@ -28,13 +32,15 @@ const AuthenticatedApp: React.FC = () => {
         ? 'gqi-minora'
         : section === 'gqi-burgulash'
           ? 'gqi-burgulash'
-          : segments.join('/') || 'dashboard';
+          : section === 'daily-report'
+            ? 'daily-report'
+            : segments.join('/') || 'dashboard';
   const operationId = section === 'gqi-minora' && subSection ? Number(subSection) : NaN;
   const drillingId = section === 'gqi-burgulash' && subSection ? Number(subSection) : NaN;
   const extraCrumbs = Number.isFinite(operationId)
-    ? [`Operatsiya #${operationId}`]
+    ? [tr('Operatsiya #{0}', operationId)]
     : Number.isFinite(drillingId)
-      ? [`BPA Pasporti #${drillingId}`]
+      ? [tr('BPA Pasporti #{0}', drillingId)]
       : [];
 
   let page: React.ReactNode;
@@ -43,6 +49,13 @@ const AuthenticatedApp: React.FC = () => {
     page = <UsersPage initialTab="users" />;
   else if (section === 'roles')
     page = <UsersPage initialTab="roles" />;
+  else if (section === 'daily-report')
+    page = (
+      <DailyReportPage
+        initialBpaId={subSection ? Number(subSection) : undefined}
+        onNavigate={navigate}
+      />
+    );
   else if (section === 'gqi-minora')
     page = Number.isFinite(operationId) ? (
       <OperationDetailPage key={operationId} id={operationId} onBack={() => navigate('gqi-minora')} />
@@ -55,14 +68,14 @@ const AuthenticatedApp: React.FC = () => {
     ) : (
       <DrillingListPage onOpen={(id) => navigate(`gqi-burgulash/${id}`)} />
     );
-  else if (section === 'dashboard') page = <div className="page-padded"><DashboardPreview /></div>;
+  else if (section === 'dashboard') page = <div className="page-padded"><DashboardPage /></div>;
   else if (section === 'audit-log') page = <AuditLogPage />;
   else
     page = (
       <div className="placeholder">
         <Construction size={28} />
-        <h3>{getBreadcrumbs(path).at(-1) ?? "Sahifa"}</h3>
-        <p>Ushbu bo'lim ishlab chiqilmoqda</p>
+        <h3>{getBreadcrumbs(path).at(-1) ?? tr('Sahifa')}</h3>
+        <p>{tr("Ushbu bo'lim ishlab chiqilmoqda")}</p>
       </div>
     );
 
@@ -92,8 +105,7 @@ const MainView: React.FC = () => {
       >
         <Loader2 size={36} color="var(--ung-cyan-400)" className="animate-spin" />
         <span style={{ fontSize: '14px', letterSpacing: '0.05em', color: '#94A3B8' }}>
-          UNG BURG'ILASH TIZIMI YUKLANMOQDA...
-        </span>
+          {tr("UNG BURG'ILASH TIZIMI YUKLANMOQDA...")}</span>
       </div>
     );
   }

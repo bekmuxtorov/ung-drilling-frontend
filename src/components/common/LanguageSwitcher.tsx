@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import type { SupportedLanguage } from '../../types/auth';
+import { LOCALES } from '../../i18n';
 
 interface LanguageSwitcherProps {
   currentLang: SupportedLanguage;
@@ -9,12 +10,7 @@ interface LanguageSwitcherProps {
   className?: string;
 }
 
-const languages: { code: SupportedLanguage; name: string; label: string }[] = [
-  { code: 'uz', name: "O'zbekcha", label: 'UZ' },
-  { code: 'oz', name: 'Ўзбекча', label: 'ЎЗ' },
-  { code: 'ru', name: 'Русский', label: 'RU' },
-  { code: 'en', name: 'English', label: 'EN' },
-];
+const languages = LOCALES.map((l) => ({ code: l.code, name: l.name, label: l.short }));
 
 export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   currentLang,

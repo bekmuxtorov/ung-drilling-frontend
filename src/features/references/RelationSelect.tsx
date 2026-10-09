@@ -7,6 +7,7 @@ import { SearchableSelect } from '../../components/ui/SearchableSelect';
 import { Modal } from '../../components/ui/Modal';
 import { useToast } from '../../components/ui/Toast';
 import { Loader2, Plus, X } from 'lucide-react';
+import { tr } from '../../i18n';
 
 interface RelationSelectProps {
   reference: ReferenceKey;
@@ -43,7 +44,7 @@ export const RelationSelect: React.FC<RelationSelectProps> = ({
 
   // Default allowCreate to true for references with a single 'name' field like resources and units
   const shouldAllowCreate = allowCreate ?? (reference === 'resources' || reference === 'units');
-  const singular = REFERENCE_MAP[reference]?.singular || 'Yozuv';
+  const singular = REFERENCE_MAP[reference]?.singular || tr('Yozuv');
 
   const handleOpenCreate = (query: string) => {
     setNewName(query.trim());
@@ -63,10 +64,10 @@ export const RelationSelect: React.FC<RelationSelectProps> = ({
       invalidateOptions(reference);
       setVersion((v) => v + 1);
       onChange(String(created.id));
-      notify('success', `Yangi ${singular.toLowerCase()} muvaffaqiyatli qo‘shildi`);
+      notify('success', tr('Yangi {0} muvaffaqiyatli qo‘shildi', singular.toLowerCase()));
       setCreateModalOpen(false);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Saqlashda xatolik yuz berdi';
+      const msg = err instanceof Error ? err.message : tr('Saqlashda xatolik yuz berdi');
       setCreateError(msg);
     } finally {
       setCreating(false);
@@ -85,7 +86,7 @@ export const RelationSelect: React.FC<RelationSelectProps> = ({
         disabled={disabled}
         error={error}
         onCreate={shouldAllowCreate ? handleOpenCreate : undefined}
-        createLabel={createLabel || `Yangi ${singular.toLowerCase()} qo‘shish`}
+        createLabel={createLabel || tr('Yangi {0} qo‘shish', singular.toLowerCase())}
       />
 
       {shouldAllowCreate && (
@@ -93,19 +94,19 @@ export const RelationSelect: React.FC<RelationSelectProps> = ({
           open={createModalOpen}
           onClose={() => setCreateModalOpen(false)}
           size="sm"
-          title={`Yangi ${singular.toLowerCase()} qo‘shish`}
+          title={tr('Yangi {0} qo‘shish', singular.toLowerCase())}
         >
           <form onSubmit={handleCreateSubmit} noValidate>
             {createError && <div className="field-error-alert">{createError}</div>}
             <div className="field" style={{ marginBottom: 16 }}>
               <span className="field__label">
-                {singular} nomi <span className="field__required">*</span>
+                {tr('{0} nomi', singular)} <span className="field__required">*</span>
               </span>
               <input
                 type="text"
                 className="input"
                 autoFocus
-                placeholder={`${singular} nomini kiriting...`}
+                placeholder={tr('{0} nomini kiriting...', singular)}
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 required
@@ -120,16 +121,14 @@ export const RelationSelect: React.FC<RelationSelectProps> = ({
                 disabled={creating}
               >
                 <X size={14} />
-                Bekor qilish
-              </button>
+                {tr('Bekor qilish')}</button>
               <button
                 type="submit"
                 className="btn btn--primary"
                 disabled={creating || !newName.trim()}
               >
                 {creating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-                Qo‘shish
-              </button>
+                {tr('Qo‘shish')}</button>
             </div>
           </form>
         </Modal>

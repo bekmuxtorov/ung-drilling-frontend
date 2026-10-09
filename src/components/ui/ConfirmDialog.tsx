@@ -1,6 +1,7 @@
 import React from 'react';
 import { Loader2, Trash2, X } from 'lucide-react';
 import { Modal } from './Modal';
+import { tr } from '../../i18n';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -23,12 +24,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, title, warni
       <>
         <button type="button" className="btn btn--outline" onClick={onClose} disabled={loading}>
           <X size={14} />
-          Bekor qilish
-        </button>
+          {tr('Bekor qilish')}</button>
         <button type="button" className="btn btn--danger" onClick={onConfirm} disabled={loading}>
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-          O'chirish
-        </button>
+          {tr("O'chirish")}</button>
       </>
     }
   >

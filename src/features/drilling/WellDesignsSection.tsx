@@ -6,7 +6,7 @@ import { useToast } from '../../components/ui/Toast';
 import { wellDesignApi } from './api';
 import { WellDesignModal } from './WellDesignModal';
 import { formatDateTime, formatNumber } from './utils';
-import { ExportDropdown } from '../../components/ui/ExportDropdown';
+import { tr } from '../../i18n';
 
 interface WellDesignsSectionProps {
   drillingBpaId: number;
@@ -43,13 +43,13 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
 
   const handleSubmit = async (payload: Record<string, unknown>) => {
     const isFact = (payload.type || targetType) === 'fact';
-    const typeLabel = isFact ? 'Fakt' : 'Reja (Plan)';
+    const typeLabel = isFact ? tr('Fakt') : tr('Reja (Plan)');
     if (editing) {
       await wellDesignApi.update(editing.id, payload);
-      notify('success', `${typeLabel} konstruksiyasi yangilandi`, `${payload.pipe_diameter || ''} mm`);
+      notify('success', tr('{0} konstruksiyasi yangilandi', typeLabel), `${payload.pipe_diameter || ''} mm`);
     } else {
       await wellDesignApi.create(payload);
-      notify('success', `${typeLabel} konstruksiyasi qo‘shildi`, `${payload.pipe_diameter || ''} mm`);
+      notify('success', tr('{0} konstruksiyasi qo‘shildi', typeLabel), `${payload.pipe_diameter || ''} mm`);
     }
     setModalOpen(false);
     setEditing(null);
@@ -61,13 +61,13 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
     setDeleteLoading(true);
     try {
       await wellDesignApi.remove(deleting.id);
-      notify('success', 'O‘chirildi', `Konstruksiya elementi #${deleting.id}`);
+      notify('success', tr('O‘chirildi'), tr('Konstruksiya elementi #{0}', deleting.id));
       setDeleting(null);
       setModalOpen(false);
       setEditing(null);
       onChanged();
     } catch {
-      notify('error', 'O‘chirib bo‘lmadi');
+      notify('error', tr('O‘chirib bo‘lmadi'));
     } finally {
       setDeleteLoading(false);
     }
@@ -81,8 +81,8 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
         <div className="well-design-empty">
           <p className="well-design-empty__text">
             {isPlan
-              ? 'Reja bo‘yicha konstruksiyalar kiritilmagan'
-              : 'Fakt bo‘yicha konstruksiyalar kiritilmagan'}
+              ? tr('Reja bo‘yicha konstruksiyalar kiritilmagan')
+              : tr('Fakt bo‘yicha konstruksiyalar kiritilmagan')}
           </p>
           <button
             type="button"
@@ -90,7 +90,7 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
             onClick={() => handleOpenAdd(type)}
           >
             <Plus size={13} />
-            {isPlan ? 'Reja qo‘shish' : 'Fakt qo‘shish'}
+            {isPlan ? tr('Reja qo‘shish') : tr('Fakt qo‘shish')}
           </button>
         </div>
       );
@@ -102,9 +102,9 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
           <thead>
             <tr>
               <th className="table__num">#</th>
-              <th>Quvur diametri (mm)</th>
-              <th>Tushirish chuqurligi / Uzunligi (m)</th>
-              <th>Boshlanish sanasi</th>
+              <th>{tr('Quvur diametri (mm)')}</th>
+              <th>{tr('Tushirish chuqurligi / Uzunligi (m)')}</th>
+              <th>{tr('Boshlanish sanasi')}</th>
             </tr>
           </thead>
           <tbody>
@@ -113,7 +113,7 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
                 key={d.id}
                 className="clickable-row"
                 onClick={() => handleOpenEdit(d)}
-                title="Batafsil ko‘rish va tahrirlash uchun bosing"
+                title={tr('Batafsil ko‘rish va tahrirlash uchun bosing')}
               >
                 <td className="table__num">{index + 1}</td>
                 <td>
@@ -135,26 +135,10 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
     <div className="tab-section">
       <div className="tab-section__toolbar">
         <div>
-          <h4 className="tab-section__title">Quduq konstruksiyasi (Well Design)</h4>
+          <h4 className="tab-section__title">{tr('Quduq konstruksiyasi (Well Design)')}</h4>
           <p className="tab-section__sub">
-            Reja (Plan) va amaldagi (Fakt) quduq kesimi bo‘yicha tushirilgan quvurlar taqqoslamasi
-          </p>
+            {tr('Reja (Plan) va amaldagi (Fakt) quduq kesimi bo‘yicha tushirilgan quvurlar taqqoslamasi')}</p>
         </div>
-        <ExportDropdown
-          data={{
-            title: `Quduq konstruksiyasi — Umumiy taqqoslama`,
-            subtitle: `Reja (Plan) va amaldagi (Fakt) quvurlar taqqoslamasi`,
-            filename: `quduq_konstruksiyasi_${drillingBpaId}`,
-            headers: ['#', 'Konstruksiya turi', 'Quvur diametri (mm)', 'Tushirish chuqurligi / Uzunligi (m)', 'Boshlanish sanasi'],
-            rows: designs.map((d, index) => [
-              index + 1,
-              d.type === 'fact' ? 'Fakt (Amaldagi)' : 'Reja (Plan)',
-              d.pipe_diameter ? `${formatNumber(d.pipe_diameter)} mm` : '—',
-              d.length ? `${formatNumber(d.length)} m` : '—',
-              formatDateTime(d.start_date) || '—',
-            ]),
-          }}
-        />
       </div>
 
       {/* 2-Column Split: Plan (Left) and Fact (Right) */}
@@ -167,35 +151,19 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
                 <Compass size={16} />
               </span>
               <div className="well-design-card__titles">
-                <h5 className="well-design-card__title">Reja (Plan)</h5>
-                <span className="well-design-card__subtitle">Loyiha bo‘yicha konstruksiya</span>
+                <h5 className="well-design-card__title">{tr('Reja (Plan)')}</h5>
+                <span className="well-design-card__subtitle">{tr('Loyiha bo‘yicha konstruksiya')}</span>
               </div>
-              <span className="well-design-card__count">{planDesigns.length} ta</span>
+              <span className="well-design-card__count">{planDesigns.length} {tr('ta')}</span>
             </div>
             <div className="well-design-card__actions">
-              <ExportDropdown
-                size="sm"
-                data={{
-                  title: `Quduq konstruksiyasi — Reja (Plan)`,
-                  subtitle: `Loyiha bo‘yicha rejalashtirilgan quvurlar`,
-                  filename: `quduq_konstruksiyasi_reja_${drillingBpaId}`,
-                  headers: ['#', 'Quvur diametri (mm)', 'Tushirish chuqurligi / Uzunligi (m)', 'Boshlanish sanasi'],
-                  rows: planDesigns.map((d, index) => [
-                    index + 1,
-                    d.pipe_diameter ? `${formatNumber(d.pipe_diameter)} mm` : '—',
-                    d.length ? `${formatNumber(d.length)} m` : '—',
-                    formatDateTime(d.start_date) || '—',
-                  ]),
-                }}
-              />
               <button
                 type="button"
                 className="btn btn--sm btn--primary"
                 onClick={() => handleOpenAdd('plan')}
               >
                 <Plus size={13} />
-                Qo‘shish
-              </button>
+                {tr('Qo‘shish')}</button>
             </div>
           </div>
           <div className="well-design-card__body">{renderTable(planDesigns, 'plan')}</div>
@@ -209,35 +177,19 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
                 <CheckCircle2 size={16} />
               </span>
               <div className="well-design-card__titles">
-                <h5 className="well-design-card__title">Fakt (Amaldagi)</h5>
-                <span className="well-design-card__subtitle">Quduqqa amalda tushirilgan</span>
+                <h5 className="well-design-card__title">{tr('Fakt (Amaldagi)')}</h5>
+                <span className="well-design-card__subtitle">{tr('Quduqqa amalda tushirilgan')}</span>
               </div>
-              <span className="well-design-card__count">{factDesigns.length} ta</span>
+              <span className="well-design-card__count">{factDesigns.length} {tr('ta')}</span>
             </div>
             <div className="well-design-card__actions">
-              <ExportDropdown
-                size="sm"
-                data={{
-                  title: `Quduq konstruksiyasi — Fakt (Amaldagi)`,
-                  subtitle: `Quduqqa amalda tushirilgan quvurlar`,
-                  filename: `quduq_konstruksiyasi_fakt_${drillingBpaId}`,
-                  headers: ['#', 'Quvur diametri (mm)', 'Tushirish chuqurligi / Uzunligi (m)', 'Boshlanish sanasi'],
-                  rows: factDesigns.map((d, index) => [
-                    index + 1,
-                    d.pipe_diameter ? `${formatNumber(d.pipe_diameter)} mm` : '—',
-                    d.length ? `${formatNumber(d.length)} m` : '—',
-                    formatDateTime(d.start_date) || '—',
-                  ]),
-                }}
-              />
               <button
                 type="button"
                 className="btn btn--sm btn--success"
                 onClick={() => handleOpenAdd('fact')}
               >
                 <Plus size={13} />
-                Qo‘shish
-              </button>
+                {tr('Qo‘shish')}</button>
             </div>
           </div>
           <div className="well-design-card__body">{renderTable(factDesigns, 'fact')}</div>
@@ -262,10 +214,10 @@ export const WellDesignsSection: React.FC<WellDesignsSectionProps> = ({
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="Konstruksiyani o‘chirish"
+        title={tr('Konstruksiyani o‘chirish')}
         warning={
           deleting
-            ? `${deleting.type === 'fact' ? 'Fakt' : 'Reja'} konstruksiyasi (#${deleting.id}, ${deleting.pipe_diameter ? deleting.pipe_diameter + ' mm' : ''}) ni rostdan ham o‘chirmoqchimisiz?`
+            ? tr('{0} konstruksiyasi (#{1}, {2}) ni rostdan ham o‘chirmoqchimisiz?', deleting.type === 'fact' ? tr('Fakt') : tr('Reja'), deleting.id, deleting.pipe_diameter ? deleting.pipe_diameter + ' mm' : '')
             : undefined
         }
         onConfirm={handleDelete}

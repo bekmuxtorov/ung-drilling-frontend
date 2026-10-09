@@ -4,6 +4,7 @@ import { Modal } from '../../components/ui/Modal';
 import { ApiError } from '../../api/client';
 import type { DailyWorkDescriptionBPA } from '../../api/types';
 import { todayIso } from './utils';
+import { tr } from '../../i18n';
 
 interface DailyWorkBPAModalProps {
   open: boolean;
@@ -79,27 +80,27 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
     if (submitting) return;
 
     if (!reportDate) {
-      setError('Hisobot sanasini kiriting');
+      setError(tr('Hisobot sanasini kiriting'));
       return;
     }
 
     const numericFields = [
-      { name: 'Zichlik', val: density },
-      { name: 'Qovushqoqlik', val: viscosity },
-      { name: 'Suv beruvchanlik', val: fluidLoss },
-      { name: "Loy qobig'i", val: mudCake },
-      { name: 'pH darajasi', val: phLevel },
-      { name: 'Dolotoga yuklama', val: weightOnBit },
-      { name: 'Aylanishlar soni', val: rpm },
-      { name: 'Nasos bosimi', val: pumpPressure },
-      { name: 'Sarf / Oqim', val: flowRate },
+      { name: tr('Zichlik'), val: density },
+      { name: tr('Qovushqoqlik'), val: viscosity },
+      { name: tr('Suv beruvchanlik'), val: fluidLoss },
+      { name: tr("Loy qobig'i"), val: mudCake },
+      { name: tr('pH darajasi'), val: phLevel },
+      { name: tr('Dolotoga yuklama'), val: weightOnBit },
+      { name: tr('Aylanishlar soni'), val: rpm },
+      { name: tr('Nasos bosimi'), val: pumpPressure },
+      { name: tr('Sarf / Oqim'), val: flowRate },
     ];
 
     for (const f of numericFields) {
       if (f.val.trim()) {
         const num = parseFloat(f.val);
         if (isNaN(num) || num < 0) {
-          setError(`${f.name} musbat son bo‘lishi kerak`);
+          setError(tr('{0} musbat son bo‘lishi kerak', f.name));
           return;
         }
       }
@@ -126,7 +127,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
     try {
       await onSubmit(payload);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Saqlashda xatolik yuz berdi");
+      setError(err instanceof ApiError ? err.message : tr('Saqlashda xatolik yuz berdi'));
     } finally {
       setSubmitting(false);
     }
@@ -137,7 +138,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
       open={open}
       onClose={onClose}
       size="lg"
-      title={isEdit ? 'Kunlik hisobotni tahrirlash' : 'Yangi kunlik hisobot va parametrlar'}
+      title={isEdit ? tr('Kunlik hisobotni tahrirlash') : tr('Yangi kunlik hisobot va parametrlar')}
       footer={
         <>
           {isEdit && onDelete && (
@@ -146,30 +147,26 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
               className="btn btn--outline btn--danger"
               onClick={() => onDelete(item)}
               disabled={submitting}
-              title="Hisobotni o‘chirish"
+              title={tr('Hisobotni o‘chirish')}
             >
               <Trash2 size={14} />
-              O‘chirish
-            </button>
+              {tr('O‘chirish')}</button>
           )}
           <div className="modal__footer-spacer" />
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={submitting}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="daily-work-bpa-form" className="btn btn--primary" disabled={submitting}>
             {submitting ? (
               <Loader2 size={14} className="animate-spin" />
             ) : isEdit ? (
               <>
                 <Save size={14} />
-                O‘zgarishlarni saqlash
-              </>
+                {tr('O‘zgarishlarni saqlash')}</>
             ) : (
               <>
                 <Plus size={14} />
-                Qo‘shish
-              </>
+                {tr('Qo‘shish')}</>
             )}
           </button>
         </>
@@ -182,13 +179,13 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
         <div className="bpa-form-group">
           <div className="bpa-form-group__title">
             <Calendar size={15} />
-            <span>Asosiy hisobot ma'lumotlari</span>
+            <span>{tr("Asosiy hisobot ma'lumotlari")}</span>
           </div>
 
           <div className="bpa-form-row">
             <label className="field">
               <span className="field__label">
-                Hisobot sanasi <span className="field__required">*</span>
+                {tr('Hisobot sanasi')}{' '}<span className="field__required">*</span>
               </span>
               <input
                 type="date"
@@ -201,11 +198,11 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
           </div>
 
           <label className="field">
-            <span className="field__label">Bajarilgan ishlar tavsifi</span>
+            <span className="field__label">{tr('Bajarilgan ishlar tavsifi')}</span>
             <textarea
               className="input"
               rows={3}
-              placeholder="Sutka davomida bajarilgan burg'ilash, quvur tushirish yoki sementlash ishlari..."
+              placeholder={tr("Sutka davomida bajarilgan burg'ilash, quvur tushirish yoki sementlash ishlari...")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -216,12 +213,12 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
         <div className="bpa-form-group">
           <div className="bpa-form-group__title">
             <Droplets size={15} />
-            <span>Burg'ilash eritmasi parametrlari (Promivka)</span>
+            <span>{tr("Burg'ilash eritmasi parametrlari (Promivka)")}</span>
           </div>
 
           <div className="bpa-form-row bpa-form-row--3">
             <label className="field">
-              <span className="field__label">Zichlik (g/sm³)</span>
+              <span className="field__label">{tr('Zichlik (g/sm³)')}</span>
               <input
                 type="number"
                 step="any"
@@ -234,7 +231,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
             </label>
 
             <label className="field">
-              <span className="field__label">Qovushqoqlik (sek)</span>
+              <span className="field__label">{tr('Qovushqoqlik (sek)')}</span>
               <input
                 type="number"
                 step="any"
@@ -247,7 +244,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
             </label>
 
             <label className="field">
-              <span className="field__label">Suv beruvchanlik (sm³/30m)</span>
+              <span className="field__label">{tr('Suv beruvchanlik (sm³/30m)')}</span>
               <input
                 type="number"
                 step="any"
@@ -262,7 +259,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
 
           <div className="bpa-form-row">
             <label className="field">
-              <span className="field__label">Loy qobig'i (mm)</span>
+              <span className="field__label">{tr("Loy qobig'i (mm)")}</span>
               <input
                 type="number"
                 step="any"
@@ -275,7 +272,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
             </label>
 
             <label className="field">
-              <span className="field__label">pH darajasi</span>
+              <span className="field__label">{tr('pH darajasi')}</span>
               <input
                 type="number"
                 step="any"
@@ -293,12 +290,12 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
         <div className="bpa-form-group">
           <div className="bpa-form-group__title">
             <Gauge size={15} />
-            <span>Burg'ilash mexanik ko'rsatkichlari</span>
+            <span>{tr("Burg'ilash mexanik ko'rsatkichlari")}</span>
           </div>
 
           <div className="bpa-form-row">
             <label className="field">
-              <span className="field__label">Dolotoga yuklama (t)</span>
+              <span className="field__label">{tr('Dolotoga yuklama (t)')}</span>
               <input
                 type="number"
                 step="any"
@@ -311,7 +308,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
             </label>
 
             <label className="field">
-              <span className="field__label">Nasos bosimi (MPa)</span>
+              <span className="field__label">{tr('Nasos bosimi (MPa)')}</span>
               <input
                 type="number"
                 step="any"
@@ -326,7 +323,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
 
           <div className="bpa-form-row">
             <label className="field">
-              <span className="field__label">Aylanishlar soni (ayl/min)</span>
+              <span className="field__label">{tr('Aylanishlar soni (ayl/min)')}</span>
               <input
                 type="number"
                 step="any"
@@ -339,7 +336,7 @@ export const DailyWorkBPAModal: React.FC<DailyWorkBPAModalProps> = ({
             </label>
 
             <label className="field">
-              <span className="field__label">Sarf / Oqim (l/sek)</span>
+              <span className="field__label">{tr('Sarf / Oqim (l/sek)')}</span>
               <input
                 type="number"
                 step="any"

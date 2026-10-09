@@ -10,6 +10,7 @@ import { StageStatusBadge } from './components';
 import { StageFormModal } from './StageFormModal';
 import { StageActionDialog, type StageAction } from './StageActionDialog';
 import { STAGE_LABELS, STAGE_ORDER, formatDate, getStageStatus, todayIso } from './utils';
+import { tr } from '../../i18n';
 
 interface StagesSectionProps {
   operationId: number;
@@ -31,7 +32,7 @@ const periodLine = (label: string, start: string | null, end: string | null, day
         <span>
           {formatDate(start)} – {ongoing && !end ? 'hozir' : formatDate(end)}
         </span>
-        <small>{days} kun</small>
+        <small>{days} {tr('kun')}</small>
       </>
     ) : (
       <span className="text-muted">—</span>
@@ -41,7 +42,7 @@ const periodLine = (label: string, start: string | null, end: string | null, day
 
 const stageErrorMessage = (err: unknown) => {
   if (err instanceof ApiError && err.status === 405)
-    return "Bosqich yaratish serverda hozircha yopiq (POST /operation-stages/ — 405). Backend administratoriga murojaat qiling.";
+    return tr('Bosqich yaratish serverda hozircha yopiq (POST /operation-stages/ — 405). Backend administratoriga murojaat qiling.');
   return err instanceof ApiError ? err.message : undefined;
 };
 
@@ -98,7 +99,7 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
         throw err;
       }
     }
-    notify('success', editing ? 'Bosqich yangilandi' : "Bosqich qo'shildi", labelOf(payload.stage_type as StageType));
+    notify('success', editing ? tr('Bosqich yangilandi') : tr("Bosqich qo'shildi"), labelOf(payload.stage_type as StageType));
     setFormOpen(false);
     setEditing(null);
     onChanged();
@@ -109,13 +110,13 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
     setDeleteLoading(true);
     try {
       await stagesApi.remove(deleting.id);
-      notify('success', "Bosqich o'chirildi", labelOf(deleting.stage_type));
+      notify('success', tr("Bosqich o'chirildi"), labelOf(deleting.stage_type));
       setDeleting(null);
       setFormOpen(false);
       setEditing(null);
       onChanged();
     } catch (err) {
-      notify('error', "O'chirib bo'lmadi", err instanceof ApiError ? err.message : undefined);
+      notify('error', tr("O'chirib bo'lmadi"), err instanceof ApiError ? err.message : undefined);
     } finally {
       setDeleteLoading(false);
     }
@@ -141,7 +142,7 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
     return {
       kind: 'start',
       label,
-      warning: prevOpen ? `Oldingi bosqich («${prev.stage?.stage_type_display || labelOf(prev.type)}») hali yakunlanmagan.` : undefined,
+      warning: prevOpen ? tr('Oldingi bosqich («{0}») hali yakunlanmagan.', prev.stage?.stage_type_display || labelOf(prev.type)) : undefined,
     };
   };
 
@@ -163,14 +164,14 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
           const next = rows[index + 1];
           if (next) await startStage(next, date);
         }
-        notify('success', `«${action.label}» yakunlandi`, startNext && action.nextLabel ? `«${action.nextLabel}» boshlandi` : undefined);
+        notify('success', tr('«{0}» yakunlandi', action.label), startNext && action.nextLabel ? tr('«{0}» boshlandi', action.nextLabel) : undefined);
       } else {
         await startStage(row, date);
-        notify('success', `«${action.label}» boshlandi`, formatDate(date));
+        notify('success', tr('«{0}» boshlandi', action.label), formatDate(date));
       }
       setPending(null);
     } catch (err) {
-      notify('error', "Holatni o'zgartirib bo'lmadi", stageErrorMessage(err));
+      notify('error', tr("Holatni o'zgartirib bo'lmadi"), stageErrorMessage(err));
     } finally {
       setActionLoading(false);
       onChanged();
@@ -181,7 +182,7 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
     const action = actionFor(row, index);
     if (!action)
       return (
-        <span className="stage-done" title="Bosqich yakunlangan">
+        <span className="stage-done" title={tr('Bosqich yakunlangan')}>
           <CircleCheck size={16} />
         </span>
       );
@@ -196,7 +197,7 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
         }}
       >
         {isFinish ? <Flag size={13} /> : <Play size={13} />}
-        {isFinish ? 'Yakunlash' : 'Boshlash'}
+        {isFinish ? tr('Yakunlash') : tr('Boshlash')}
       </button>
     );
   };
@@ -215,10 +216,10 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
           <thead>
             <tr>
               <th className="table__num">#</th>
-              <th>Bosqich</th>
-              <th>Holat</th>
-              <th>Muddat (reja / fakt)</th>
-              <th className="is-right">Amal</th>
+              <th>{tr('Bosqich')}</th>
+              <th>{tr('Holat')}</th>
+              <th>{tr('Muddat (reja / fakt)')}</th>
+              <th className="is-right">{tr('Amal')}</th>
             </tr>
           </thead>
           <tbody>
@@ -251,9 +252,9 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
                   </td>
                   <td>
                     <span className="period-cell">
-                      {periodLine('Reja', stage.plan_start_date, stage.plan_end_date, stage.plan_days)}
+                      {periodLine(tr('Reja'), stage.plan_start_date, stage.plan_end_date, stage.plan_days)}
                       {periodLine(
-                        'Fakt',
+                        tr('Fakt'),
                         stage.fact_start_date,
                         stage.fact_end_date,
                         stage.fact_days,
@@ -272,7 +273,7 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
                     <StageStatusBadge />
                   </td>
                   <td>
-                    <span className="text-muted">Ma'lumot kiritilmagan</span>
+                    <span className="text-muted">{tr("Ma'lumot kiritilmagan")}</span>
                   </td>
                   <td className="is-right">{actionButton({ type }, i)}</td>
                 </tr>
@@ -307,7 +308,7 @@ export const StagesSection: React.FC<StagesSectionProps> = ({ operationId, stage
       <ConfirmDialog
         open={!!deleting}
         loading={deleteLoading}
-        title="Bosqichni o'chirmoqchimisiz?"
+        title={tr("Bosqichni o'chirmoqchimisiz?")}
         onConfirm={handleDelete}
         onClose={() => setDeleting(null)}
       />

@@ -5,6 +5,7 @@ import { permissionsApi, rolesApi } from '../../api/accounts';
 import { Modal } from '../../components/ui/Modal';
 import { formatDateTimeShort } from '../references/format';
 import type { PermissionItem, RoleItem, RolePayload } from '../../types/auth';
+import { tr } from '../../i18n';
 
 interface RoleFormModalProps {
   isOpen: boolean;
@@ -16,12 +17,12 @@ interface RoleFormModalProps {
 }
 
 const APP_LABEL_NAMES: Record<string, string> = {
-  directory: "Ma'lumotnomalar",
-  operations: 'Operatsiyalar',
-  accounts: 'Foydalanuvchilar va rollar',
-  auth: 'Autentifikatsiya',
-  contenttypes: 'Tizim obyektlari',
-  sessions: 'Sessiyalar',
+  directory: tr("Ma'lumotnomalar"),
+  operations: tr('Operatsiyalar'),
+  accounts: tr('Foydalanuvchilar va rollar'),
+  auth: tr('Autentifikatsiya'),
+  contenttypes: tr('Tizim obyektlari'),
+  sessions: tr('Sessiyalar'),
 };
 
 export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, initialRole, onClose, onSaved, onDelete }) => {
@@ -93,7 +94,7 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
     if (saving) return;
     setError('');
     if (!name.trim()) {
-      setFieldErrors({ name: 'Majburiy maydon' });
+      setFieldErrors({ name: tr('Majburiy maydon') });
       return;
     }
     setFieldErrors({});
@@ -106,7 +107,7 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
       if (err instanceof ApiError) {
         setError(err.message);
         setFieldErrors(err.fieldErrors ?? {});
-      } else setError('Saqlashda xatolik yuz berdi');
+      } else setError(tr('Saqlashda xatolik yuz berdi'));
       setSaving(false);
     }
   };
@@ -117,26 +118,23 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
       hidden={hidden}
       size="lg"
       onClose={saving ? () => undefined : onClose}
-      title={isEdit ? initialRole?.name : "Rol qo'shish"}
+      title={isEdit ? initialRole?.name : tr("Rol qo'shish")}
       footer={
         <>
           {isEdit && initialRole && onDelete && (
             <>
               <button type="button" className="btn btn--danger" onClick={() => onDelete(initialRole)} disabled={saving}>
                 <Trash2 size={14} />
-                O'chirish
-              </button>
+                {tr("O'chirish")}</button>
               <span className="modal__footer-spacer" />
             </>
           )}
           <button type="button" className="btn btn--outline" onClick={onClose} disabled={saving}>
             <X size={14} />
-            Bekor qilish
-          </button>
+            {tr('Bekor qilish')}</button>
           <button type="submit" form="role-form" className="btn btn--primary" disabled={saving}>
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-            Saqlash
-          </button>
+            {tr('Saqlash')}</button>
         </>
       }
     >
@@ -145,14 +143,14 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
 
         <div className="field">
           <label className="field__label" htmlFor="role-name">
-            Nomi<span className="field__required">*</span>
+            {tr('Nomi')}<span className="field__required">*</span>
           </label>
           <input
             id="role-name"
             className={`input ${fieldErrors.name ? 'input--error' : ''}`}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Masalan: Dispetcher"
+            placeholder={tr('Masalan: Dispetcher')}
             disabled={saving}
             autoFocus={!isEdit}
           />
@@ -162,8 +160,7 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
         <div className="perm">
           <div className="perm__head">
             <span className="form-subtitle">
-              Ruxsatlar
-              <span className="count-pill">
+              {tr('Ruxsatlar')}<span className="count-pill">
                 {selected.size} / {allPermissions.length}
               </span>
             </span>
@@ -173,11 +170,9 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
                 className="link-btn"
                 onClick={() => setSelected((prev) => new Set([...prev, ...filtered.map((p) => p.id)]))}
               >
-                Hammasini tanlash
-              </button>
+                {tr('Hammasini tanlash')}</button>
               <button type="button" className="link-btn link-btn--muted" onClick={() => setSelected(new Set())}>
-                Tozalash
-              </button>
+                {tr('Tozalash')}</button>
             </div>
           </div>
 
@@ -187,7 +182,7 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
               className="input"
               value={permSearch}
               onChange={(e) => setPermSearch(e.target.value)}
-              placeholder="Ruxsatni qidirish (add, change, enterprise...)"
+              placeholder={tr('Ruxsatni qidirish (add, change, enterprise...)')}
             />
           </div>
 
@@ -197,7 +192,7 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
                 <Loader2 size={16} className="animate-spin" />
               </div>
             )}
-            {!loadingPerms && grouped.length === 0 && <div className="perm__state">Mos ruxsatlar topilmadi</div>}
+            {!loadingPerms && grouped.length === 0 && <div className="perm__state">{tr('Mos ruxsatlar topilmadi')}</div>}
             {!loadingPerms &&
               grouped.map(([app, perms]) => {
                 const count = perms.filter((p) => selected.has(p.id)).length;
@@ -241,11 +236,11 @@ export const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, hidden, in
         {isEdit && initialRole && (
           <div className="form-grid form-grid--2">
             <div className="field">
-              <label className="field__label">Yaratilgan vaqt</label>
+              <label className="field__label">{tr('Yaratilgan vaqt')}</label>
               <input className="input" value={initialRole.created_at ? formatDateTimeShort(initialRole.created_at) : '—'} disabled readOnly />
             </div>
             <div className="field">
-              <label className="field__label">Yangilangan vaqt</label>
+              <label className="field__label">{tr('Yangilangan vaqt')}</label>
               <input className="input" value={initialRole.updated_at ? formatDateTimeShort(initialRole.updated_at) : '—'} disabled readOnly />
             </div>
           </div>

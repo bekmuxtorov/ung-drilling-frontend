@@ -72,7 +72,7 @@ export interface AuthState {
   isLoading: boolean;
 }
 
-export type SupportedLanguage = 'uz' | 'oz' | 'ru' | 'en';
+export type SupportedLanguage = 'uz' | 'oz' | 'ru';
 
 export interface QuickPreset {
   label: string;

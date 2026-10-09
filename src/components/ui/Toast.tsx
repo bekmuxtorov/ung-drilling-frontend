@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
+import { tr } from '../../i18n';
 
 type ToastTone = 'success' | 'error' | 'info';
 
@@ -45,7 +46,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 <div className="toast__title">{item.title}</div>
                 {item.message && <div className="toast__message">{item.message}</div>}
               </div>
-              <button type="button" className="toast__close" onClick={() => dismiss(item.id)} aria-label="Yopish">
+              <button type="button" className="toast__close" onClick={() => dismiss(item.id)} aria-label={tr('Yopish')}>
                 <X size={14} />
               </button>
             </div>

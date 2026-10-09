@@ -12,6 +12,7 @@ import { DailyWorksSection } from './DailyWorksSection';
 import { OperationFormModal } from './OperationFormModal';
 import { StagesSection } from './StagesSection';
 import { STAGE_LABELS, STAGE_ORDER, formatDate, formatDecimal, stagesByType } from './utils';
+import { tr } from '../../i18n';
 
 interface OperationDetailPageProps {
   id: number;
@@ -102,7 +103,7 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
           setError(
             err instanceof ApiError
               ? { status: err.status, message: err.message }
-              : { status: 0, message: "Ma'lumotlarni yuklab bo'lmadi" },
+              : { status: 0, message: tr("Ma'lumotlarni yuklab bo'lmadi") },
           );
         })
         .finally(() => !signal?.aborted && setLoading(false));
@@ -125,7 +126,7 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
   const handleUpdate = async (payload: Record<string, unknown>) => {
     const updated = await operationsApi.update(id, payload);
     setOperation(updated);
-    notify('success', "O'zgarishlar saqlandi");
+    notify('success', tr("O'zgarishlar saqlandi"));
     setFormOpen(false);
   };
 
@@ -133,10 +134,10 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
     setDeleteLoading(true);
     try {
       await operationsApi.remove(id);
-      notify('success', "Operatsiya o'chirildi");
+      notify('success', tr("Operatsiya o'chirildi"));
       onBack();
     } catch (err) {
-      notify('error', "O'chirib bo'lmadi", err instanceof ApiError ? err.message : undefined);
+      notify('error', tr("O'chirib bo'lmadi"), err instanceof ApiError ? err.message : undefined);
       setDeleteLoading(false);
     }
   };
@@ -160,12 +161,11 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
     return (
       <div className="placeholder">
         <AlertTriangle size={28} />
-        <h3>{error.status === 404 ? 'Operatsiya topilmadi' : "Ma'lumotlarni yuklab bo'lmadi"}</h3>
-        <p>{error.status === 404 ? "U o'chirilgan yoki mavjud emas" : error.message}</p>
+        <h3>{error.status === 404 ? tr('Operatsiya topilmadi') : tr("Ma'lumotlarni yuklab bo'lmadi")}</h3>
+        <p>{error.status === 404 ? tr("U o'chirilgan yoki mavjud emas") : error.message}</p>
         <button type="button" className="btn btn--outline" onClick={onBack}>
           <ArrowLeft size={14} />
-          Ro'yxatga qaytish
-        </button>
+          {tr("Ro'yxatga qaytish")}</button>
       </div>
     );
   }
@@ -176,15 +176,15 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
   const totalVehicles = transports.data.reduce((s, t) => s + t.count, 0);
 
   const kpis: { label: string; value: React.ReactNode; hint?: string }[] = [
-    { label: 'Masofa', value: <>{formatDecimal(op.distance_km)} <small>km</small></> },
-    { label: 'Rejadagi muddat', value: <>{op.plan_days} <small>kun</small></> },
+    { label: tr('Masofa'), value: <>{formatDecimal(op.distance_km)} <small>{tr('km')}</small></> },
+    { label: tr('Rejadagi muddat'), value: <>{op.plan_days} <small>{tr('kun')}</small></> },
     {
-      label: 'Sarflangan (fakt)',
-      value: <>{summary.factDays} <small>kun</small></>
+      label: tr('Sarflangan (fakt)'),
+      value: <>{summary.factDays} <small>{tr('kun')}</small></>
     },
-    { label: 'Ishchilar soni', value: op.number_employees },
-    { label: "Burg'ulash sanasi", value: formatDate(op.expected_drilling_date) },
-    { label: 'Kunlik hisobotlar', value: op.daily_works_count },
+    { label: tr('Ishchilar soni'), value: op.number_employees },
+    { label: tr("Burg'ulash sanasi"), value: formatDate(op.expected_drilling_date) },
+    { label: tr('Kunlik hisobotlar'), value: op.daily_works_count },
   ];
 
   return (
@@ -198,13 +198,12 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
             №{op.from_well_number} <span className="op-detail__arrow">→</span> №{op.to_well_number}
           </h1>
           <p className="op-detail__sub">
-            {op.enterprise?.name} · {op.drilling_rig_type?.name} · ID {op.id}
+            {op.enterprise?.name} · {op.drilling_rig_type?.name} {tr('· ID')}{' '}{op.id}
           </p>
         </div>
         <button type="button" className="btn btn--primary" onClick={() => setFormOpen(true)}>
           <Pencil size={14} />
-          Tahrirlash
-        </button>
+          {tr('Tahrirlash')}</button>
       </div>
 
       <div className="op-layout">
@@ -214,7 +213,7 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
           <section className="card overview">
             <div className="overview__ring">
               <CompletionRing value={op.completion_percentage} />
-              <span className="overview__ring-label">Bajarilish</span>
+              <span className="overview__ring-label">{tr('Bajarilish')}</span>
             </div>
             <dl className="overview__kpis">
               {kpis.map((k) => (
@@ -230,7 +229,7 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
           {/* Bosqichlar grafigi */}
           <section className="card">
             <div className="card__head">
-              <h3 className="card__title">Bosqichlar grafigi</h3>
+              <h3 className="card__title">{tr('Bosqichlar grafigi')}</h3>
               <div className="stage-chips">
                 {STAGE_ORDER.map((t) => (
                   <span key={t} className="stage-chip">
@@ -253,8 +252,7 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
                 className={`tabs__item ${tab === 'stages' ? 'is-active' : ''}`}
                 onClick={() => setTab('stages')}
               >
-                Bosqichlar
-                <span className="tabs__count">{op.stages.length}/3</span>
+                {tr('Bosqichlar')}<span className="tabs__count">{op.stages.length}/3</span>
               </button>
               <button
                 type="button"
@@ -263,8 +261,7 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
                 className={`tabs__item ${tab === 'daily' ? 'is-active' : ''}`}
                 onClick={() => setTab('daily')}
               >
-                Kunlik hisobotlar
-                <span className="tabs__count">{op.daily_works_count}</span>
+                {tr('Kunlik hisobotlar')}<span className="tabs__count">{op.daily_works_count}</span>
               </button>
             </div>
             <div className="card__body">
@@ -285,23 +282,23 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
         {/* ---------- O'ng ustun ---------- */}
         <aside className="op-layout__side">
           <section className="card">
-            <h3 className="card__title">Yo'nalish</h3>
+            <h3 className="card__title">{tr("Yo'nalish")}</h3>
             <ol className="route-v">
               <li className="route-v__point">
                 <span className="route-v__dot" />
-                <span className="route-v__label">Qayerdan</span>
-                <strong>Quduq №{op.from_well_number}</strong>
+                <span className="route-v__label">{tr('Qayerdan')}</span>
+                <strong>{tr('Quduq №')}{op.from_well_number}</strong>
                 <span className="route-v__area">
                   <MapPin size={12} />
                   {op.from_area?.name}
                   {op.from_area?.region?.name && ` · ${op.from_area.region.name}`}
                 </span>
               </li>
-              <li className="route-v__distance">{formatDecimal(op.distance_km)} km</li>
+              <li className="route-v__distance">{formatDecimal(op.distance_km)} {tr('km')}</li>
               <li className="route-v__point">
                 <span className="route-v__dot route-v__dot--end" />
-                <span className="route-v__label">Qayerga</span>
-                <strong>Quduq №{op.to_well_number}</strong>
+                <span className="route-v__label">{tr('Qayerga')}</span>
+                <strong>{tr('Quduq №')}{op.to_well_number}</strong>
                 <span className="route-v__area">
                   <MapPin size={12} />
                   {op.to_area?.name}
@@ -312,18 +309,18 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
           </section>
 
           <section className="card">
-            <h3 className="card__title">Ma'lumotlar</h3>
+            <h3 className="card__title">{tr("Ma'lumotlar")}</h3>
             <dl className="facts">
               <div>
-                <dt>Korxona</dt>
+                <dt>{tr('Korxona')}</dt>
                 <dd>{op.enterprise?.name ?? '—'}</dd>
               </div>
               <div>
-                <dt>Burg'ulash uskunasi</dt>
+                <dt>{tr("Burg'ulash uskunasi")}</dt>
                 <dd>{op.drilling_rig_type?.name ?? '—'}</dd>
               </div>
               <div>
-                <dt>Prorab</dt>
+                <dt>{tr('Prorab')}</dt>
                 <dd>
                   {op.foreman?.name ?? '—'}
                   {op.foreman?.phone && (
@@ -335,21 +332,20 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
                 </dd>
               </div>
               <div>
-                <dt>Oxirgi yangilanish</dt>
+                <dt>{tr('Oxirgi yangilanish')}</dt>
                 <dd>{formatDateTimeShort(op.updated_at)}</dd>
               </div>
             </dl>
           </section>
 
           <section className="card">
-            <h3 className="card__title">Bajarilayotgan ish</h3>
-            <p className="card__text">{op.work_description || 'Tavsif kiritilmagan'}</p>
+            <h3 className="card__title">{tr('Bajarilayotgan ish')}</h3>
+            <p className="card__text">{op.work_description || tr('Tavsif kiritilmagan')}</p>
             {op.delay_reason && (
               <div className="delay-note">
                 <span className="delay-note__title">
                   <AlertTriangle size={13} />
-                  Kechikish sababi
-                </span>
+                  {tr('Kechikish sababi')}</span>
                 <p>{op.delay_reason}</p>
               </div>
             )}
@@ -357,8 +353,8 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
 
           <section className="card">
             <div className="card__head">
-              <h3 className="card__title">Jalb qilingan transport</h3>
-              {totalVehicles > 0 && <span className="card__meta">jami {totalVehicles} ta</span>}
+              <h3 className="card__title">{tr('Jalb qilingan transport')}</h3>
+              {totalVehicles > 0 && <span className="card__meta">{tr('jami {0} ta', totalVehicles)}</span>}
             </div>
             {transports.loading ? (
               <div className="chart-empty">
@@ -367,7 +363,7 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
             ) : transports.data.length ? (
               <TransportBars data={transports.data} />
             ) : (
-              <p className="chart-empty">Kunlik hisobotlarda transport qayd etilmagan</p>
+              <p className="chart-empty">{tr('Kunlik hisobotlarda transport qayd etilmagan')}</p>
             )}
           </section>
         </aside>
@@ -385,8 +381,8 @@ export const OperationDetailPage: React.FC<OperationDetailPageProps> = ({ id, on
       <ConfirmDialog
         open={deleteOpen}
         loading={deleteLoading}
-        title="Operatsiyani o'chirmoqchimisiz?"
-        warning="Operatsiyaga tegishli barcha bosqichlar va kunlik hisobotlar ham o'chiriladi."
+        title={tr("Operatsiyani o'chirmoqchimisiz?")}
+        warning={tr("Operatsiyaga tegishli barcha bosqichlar va kunlik hisobotlar ham o'chiriladi.")}
         onConfirm={handleDelete}
         onClose={() => setDeleteOpen(false)}
       />

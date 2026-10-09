@@ -1,3 +1,5 @@
+import { tr } from '../i18n';
+
 /**
  * Utility functions for exporting tabular data to CSV, Excel, and PDF formats.
  */
@@ -101,7 +103,7 @@ export const exportToExcel = ({ filename, title, subtitle, headers, rows }: Expo
 export const exportToPDF = ({ title, subtitle, headers, rows }: ExportData) => {
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    alert("Iltimos, brauzerda qalqib chiquvchi oyna (pop-up) ochilishiga ruxsat bering");
+    alert(tr('Iltimos, brauzerda qalqib chiquvchi oyna (pop-up) ochilishiga ruxsat bering'));
     return;
   }
 
